@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=70.1.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "panopticas"
+version = "0.0.1"
+description = "The panopticas CLI tool."
+authors = [
+    {name = "Peter Freiberg", email = "peter.freiberg@gmail.com"}
+]
+dependencies = [
+    "Click",
+    "prettytable",
+    "pathspec"
+]
+requires-python = ">=3.10"
+
+keywords = ["analytics", "git"]
+
+classifiers = [
+      "Development Status :: 3 - Alpha",
+      "License :: OSI Approved :: MIT License",
+      "Programming Language :: Python"
+]
+
+[project.scripts]
+panopticas = "panopticas:cli"
+
+[project.urls]
+Homepage = "https://panopticas.io"
+Issues = "https://github.com/kospex/panopticas/issues"
+Repository = "https://github.com/kospex/panopticas.git"
