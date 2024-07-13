@@ -15,8 +15,9 @@ dependencies = [
     "pathspec"
 ]
 requires-python = ">=3.10"
-
+readme = "README.md"
 keywords = ["analytics", "git"]
+license = {file = "LICENSE"}
 
 classifiers = [
       "Development Status :: 3 - Alpha",
