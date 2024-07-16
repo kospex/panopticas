@@ -66,15 +66,7 @@ def identify(file):
 def version():
     """Print the version of Panopticas."""
     #click.echo(f"Panopticas version {panopticas_core.__version__}")
-    click.echo("Panopticas version 0.0.1")
-
-@cli.command("test")
-def testy():
-    """Run tests."""
-    print(ft.get_language("test.py"))
-    print(ft.get_language("CODEOWNERS"))
-    print(ft.get_language("bob"))
-
+    click.echo("Panopticas version 0.0.2")
 
 if __name__ == '__main__':
     cli()
