@@ -29,11 +29,16 @@ def assess(directory):
     files = ft.identify_files(directory)
     click.echo(f'Found {len(files)} files.\n')
     table = PrettyTable()
-    table.field_names = ["File", "Language"]
+    table.field_names = ["File", "Language", "Meta"]
     table.align["File"] = "l"
     table.align["Language"] = "l"
-    for file in files:
-        table.add_row([file, files[file]])
+    table.align["Meta"] = "l"
+
+    for file, file_type in files.items():
+        meta = ft.get_filename_metatypes(file) if ft.get_filename_metatypes(file) else ""
+        if meta:
+            meta = ", ".join(meta)
+        table.add_row([file, file_type, meta])
         #click.echo(files[file])
     print(table,"\n")
 
@@ -53,6 +58,7 @@ def identify(file):
     shebang = ft.check_shebang(file)
     table.add_row(["Shebang", shebang])
     table.add_row(["Shebang Language", ft.extract_shebang_language(shebang) if shebang else None])
+    table.add_row(["Meta", ft.get_filename_metatypes(file)])
     print(table)
     print()
 
@@ -61,6 +67,14 @@ def version():
     """Print the version of Panopticas."""
     #click.echo(f"Panopticas version {panopticas_core.__version__}")
     click.echo("Panopticas version 0.0.1")
+
+@cli.command("test")
+def testy():
+    """Run tests."""
+    print(ft.get_language("test.py"))
+    print(ft.get_language("CODEOWNERS"))
+    print(ft.get_language("bob"))
+
 
 if __name__ == '__main__':
     cli()

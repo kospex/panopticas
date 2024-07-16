@@ -1,0 +1,2 @@
+alias panopticas="python $PWD/src/panopticas.py"
+

@@ -2,77 +2,155 @@
 import os
 import pathspec
 
+EXT_FILETYPES = {
+        '.c': 'C',
+        '.cpp': 'C++',
+        '.cs': 'C#',
+        '.css': 'CSS',
+        '.csv': 'CSV',
+        '.dockerignore': 'Dockerignore',
+        '.gitignore': 'Gitignore',
+        '.go': 'Go',
+        '.gif': "GIF",
+        '.h': 'C Header',
+        '.htm': 'HTML',
+        '.html': 'HTML',
+        '.ini': 'INI',
+        '.java': 'Java',
+        '.jpg': 'JPEG',
+        '.jpeg': 'JPEG',
+        '.js': 'JavaScript',
+        '.json': 'JSON',
+        '.jsx': 'JSX',
+        '.kt': 'Kotlin',
+        '.m': 'Objective-C',
+        '.mailmap': 'Mailmap',
+        '.md': 'Markdown',
+        '.php': 'PHP',
+        '.pl': 'Perl',
+        '.png': 'PNG',
+        '.py': 'Python',
+        '.r': 'R',
+        '.rb': 'Ruby',
+        '.rs': 'Rust',
+        '.rst': 'ReStructuredText',
+        '.scala': 'Scala',
+        '.sh': 'Shell',
+        '.sql': 'SQL',
+        '.svg': 'SVG',
+        '.swift': 'Swift',
+        '.tf': 'Terraform',
+        '.toml': 'TOML',
+        '.ts': 'TypeScript',
+        '.tsv': 'TSV',
+        '.tsx': 'TSX',
+        '.txt': 'Text',
+        '.vue': 'Vue',
+        '.xml': 'XML',
+        '.yaml': 'YAML',
+        '.yml': 'YAML',
+        # Special cases for files without extensions or .format files
+        "codeowners": "CODEOWNERS",
+        'dockerfile': 'Dockerfile',
+        'makefile': 'Makefile',
+    }
+
+
 def get_fileext(file_path):
     """ Get the file extension of a file """
     file_type = None
-    if os.path.isfile(file_path):
-        file_type = os.path.splitext(file_path)[1]
+
+    #if os.path.isfile(file_path):
+    #    file_type = os.path.splitext(file_path)[1]
+    file_type = os.path.splitext(file_path)[1]
+
     if file_type:
         return file_type
     else:
         return os.path.basename(file_path)
 
-def get_extension_filetype(file_path):
+def get_extension_filetype(file_ext):
     """ Get the file extension of a file, using an exact match """ 
-    filetypes = {
-            '.py': 'Python',
-            '.js': 'JavaScript',
-            '.html': 'HTML',
-            '.htm': 'HTML',
-            '.css': 'CSS',
-            '.c': 'C',
-            '.cpp': 'C++',
-            '.java': 'Java',
-            '.rb': 'Ruby',
-            '.php': 'PHP',
-            '.sh': 'Shell',
-            '.pl': 'Perl',
-            '.go': 'Go',
-            '.rs': 'Rust',
-            '.kt': 'Kotlin',
-            '.swift': 'Swift',
-            '.r': 'R',
-            '.cs': 'C#',
-            '.m': 'Objective-C',
-            '.scala': 'Scala',
-            '.sql': 'SQL',
-            '.json': 'JSON',
-            '.yaml': 'YAML',
-            '.yml': 'YAML',
-            '.toml': 'TOML',
-            '.ini': 'INI',
-            '.md': 'Markdown',
-            '.rst': 'ReStructuredText',
-            '.txt': 'Text',
-            '.csv': 'CSV',
-            '.ts': 'TypeScript',
-            '.jsx': 'JSX',
-            '.tf': 'Terraform',
-            '.tsx': 'TSX',
-            '.vue': 'Vue',
-            '.xml': 'XML',
-            '.gitignore': 'Gitignore',
-            '.dockerignore': 'Dockerignore',
-            'dockerfile': 'Dockerfile',
-            }
 
-    if file_path:
-        return filetypes.get(file_path.lower(), None)
+    if file_ext:
+        return EXT_FILETYPES.get(file_ext.lower(), None)
     else:
         return None
 
+def get_filename_metatypes(file_path):
+    """
+    Return an array of metatypes based on the file_path 
+    For example:
+        pyproject.toml will return build, dependencies
+        .github/workflows/python-app.yml will return Github, workflow
+    """
+
+    filename = os.path.basename(file_path).lower()
+
+    tags = []
+
+    if filename == "pyproject.toml":
+        tags.append("build")
+        tags.append("dependencies")
+        tags.append("Python")
+
+    if ".github" in file_path:
+        tags.append("Github")
+        tags.append("Git")
+
+    # TODO - use a regex style pattern to match the filename
+    if filename == "requirements.txt":
+        tags.append("pip")
+        tags.append("Python")
+        tags.append("dependencies")
+
+    if filename == ".mailmap":
+        tags.append("Git")
+
+    # Usually the filename will be CODEOWNERS
+    if filename == "codeowners":
+        tags.append("Git")
+
+    if filename == ".gitignore":
+        tags.append("Git")
+
+    if filename == "dockerfile":
+        tags.append("IaC")
+        tags.append("Docker")
+        tags.append("dependencies")
+
+    if filename == "makefile":
+        tags.append("build")
+
+    if ".github/workflows" in file_path:
+        tags.append("workflow")
+
+    return tags
+
 def check_shebang(file_path):
     """ Check if a file has a shebang """
-    with open(file_path) as file:
-        first_line = file.readline()
-        if first_line and first_line.startswith("#!"):
-            return first_line.strip()
-        else:
-            return None
+    try:
+
+        with open(file_path) as file:
+            first_line = file.readline()
+            if first_line and first_line.startswith("#!"):
+                return first_line.strip()
+            else:
+                return None
+
+    except FileNotFoundError:
+        # TODO - better logging instead of print
+        #print(f"File {file_path} not found")
+        return None
+    except UnicodeDecodeError:
+        # TODO - log this exception
+        return None
+
 
 def get_shebang_language(shebang):
     """ Return the language of a shebang """
-    return None
+    lang = extract_shebang_language(shebang)
+    return lang
 
 def load_gitignore_patterns(directory):
     """
@@ -82,7 +160,7 @@ def load_gitignore_patterns(directory):
 
     if os.path.exists(gitignore_path):
 
-        with open(gitignore_path, 'r') as file:
+        with open(gitignore_path, 'r', encoding='utf-8') as file:
             patterns = file.read().splitlines()
             # Add .git to the patterns
             patterns.append('.git')
@@ -103,13 +181,18 @@ def identify_files(directory):
     for root, _, files in os.walk(directory):
         for file in files:
             full_path = os.path.join(root, file)
+
             relative_path = os.path.relpath(full_path, directory)
             if gitignore_spec and gitignore_spec.match_file(relative_path):
                 continue
-            ftype = None
-            ext = get_fileext(full_path)
-            if ext:
-                ftype = get_extension_filetype(ext)
+            # ftype = None
+            # ext = get_fileext(full_path)
+            ftype = get_language(full_path)
+            # if ext:
+            #     ftype = get_extension_filetype(ext)
+            #     if not ftype:
+            #         ftype = get_shebang_language(check_shebang(full_path))
+            #         #ftype = basename_check(full_path)
 
             if directory == ".":
                 full_path = full_path.removeprefix("./")
@@ -132,9 +215,14 @@ def extract_shebang_language(shebang: str) -> str:
 
         # Split the second part by '/' and check if it contains 'env'
         if 'env' in parts[0]:
-            return parts[-1]  # The interpreter is the last part
+            interpreter = parts[-1]
+            #return parts[-1]  # The interpreter is the last part
+            if interpreter.startswith("python"):
+                return "Python"
+            else:
+                return interpreter
 
-    # Check for 
+    # Check for the following pattern
     # #!/usr/local/bin/perl style pattern
     else:
         return shebang.split('/')[-1]  # Otherwise, the interpreter is the last 
@@ -143,11 +231,25 @@ def extract_shebang_language(shebang: str) -> str:
 
 def get_language(file_path):
     """ Return the language of a file """
-    return None
+    ext = get_fileext(file_path)
+    lang = None
 
-def basename_check(file_path):
-    """
-    Return a guessed type based on the basename 
-    """
+    if ext:
+        lang = get_extension_filetype(ext)
 
-    return None
+    if lang:
+        return lang
+
+    shebang = check_shebang(file_path)
+
+    if shebang:
+        lang = get_shebang_language(shebang)
+
+    return lang
+
+#def basename_check(file_path):
+#    """
+#    Return a guessed type based on the basename 
+#    """
+
+#    return None
