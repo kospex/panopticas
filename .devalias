@@ -1,2 +1,2 @@
-alias panopticas="python $PWD/src/panopticas.py"
+alias panopticas="python $PWD/src/panopticas_cli.py"
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "panopticas"
-version = "0.0.2"
+version = "0.0.3"
 description = "The panopticas CLI tool."
 authors = [
     {name = "Peter Freiberg", email = "peter.freiberg@gmail.com"}
@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 [project.scripts]
-panopticas = "panopticas:cli"
+panopticas = "panopticas_cli:cli"
 
 [project.urls]
 Homepage = "https://panopticas.io"

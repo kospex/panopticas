@@ -1,72 +1,271 @@
-# panopticas.py
-import click
-from prettytable import PrettyTable
-import panopticas_filetype as ft
+"""
+Analysis functions for Panopticas.
+"""
+import os
+import pathspec
 
-@click.group()
-def cli():
-    """Panopticas is a tool for assessing code and git repositories.
-    
-    It is designed to analysis external dependencies (e.g. URLs, cloud providers)
 
-    For documentation on how commands run `panopticas COMMAND --help`.
 
-    See also https://panopticas.io/
-    
+EXT_FILETYPES = {
+        '.c': 'C',
+        '.cpp': 'C++',
+        '.cs': 'C#',
+        '.css': 'CSS',
+        '.csv': 'CSV',
+        '.dockerignore': 'Dockerignore',
+        '.gitignore': 'Gitignore',
+        '.go': 'Go',
+        '.gif': "GIF",
+        '.h': 'C Header',
+        '.htm': 'HTML',
+        '.html': 'HTML',
+        '.ini': 'INI',
+        '.java': 'Java',
+        '.jpg': 'JPEG',
+        '.jpeg': 'JPEG',
+        '.js': 'JavaScript',
+        '.json': 'JSON',
+        '.jsx': 'JSX',
+        '.kt': 'Kotlin',
+        '.m': 'Objective-C',
+        '.mailmap': 'Mailmap',
+        '.md': 'Markdown',
+        '.php': 'PHP',
+        '.pl': 'Perl',
+        '.png': 'PNG',
+        '.py': 'Python',
+        '.r': 'R',
+        '.rb': 'Ruby',
+        '.rs': 'Rust',
+        '.rst': 'ReStructuredText',
+        '.scala': 'Scala',
+        '.sh': 'Shell',
+        '.sql': 'SQL',
+        '.sqlfluff': 'SQLFluff',
+        '.svg': 'SVG',
+        '.swift': 'Swift',
+        '.tf': 'Terraform',
+        '.toml': 'TOML',
+        '.ts': 'TypeScript',
+        '.tsv': 'TSV',
+        '.tsx': 'TSX',
+        '.txt': 'Text',
+        '.vue': 'Vue',
+        '.xml': 'XML',
+        '.yaml': 'YAML',
+        '.yml': 'YAML',
+        # Special cases for files without extensions or .format files
+        "codeowners": "CODEOWNERS",
+        'dockerfile': 'Dockerfile',
+        'makefile': 'Makefile',
+    }
+
+
+def get_fileext(file_path):
+    """ Get the file extension of a file """
+    file_type = None
+
+    #if os.path.isfile(file_path):
+    #    file_type = os.path.splitext(file_path)[1]
+    file_type = os.path.splitext(file_path)[1]
+
+    if file_type:
+        return file_type
+    else:
+        return os.path.basename(file_path)
+
+def get_extension_filetype(file_ext):
+    """ Get the file extension of a file, using an exact match """ 
+
+    if file_ext:
+        return EXT_FILETYPES.get(file_ext.lower(), None)
+    else:
+        return None
+
+def get_filename_metatypes(file_path):
+    """
+    Return an array of metatypes based on the file_path 
+    For example:
+        pyproject.toml will return build, dependencies
+        .github/workflows/python-app.yml will return Github, workflow
     """
 
-@cli.command("assess")
-#@click.option('--default', is_flag=True, default=False, help="Create the default ~/code directory.")
-@click.argument('directory', required=False, type=click.Path(exists=True))
-def assess(directory):
-    """Assess a directory."""
-    click.echo()
-    if directory:
-        click.echo(f'Assessing directory: {directory}')
+    filename = os.path.basename(file_path).lower()
+
+    tags = []
+
+    if filename == "pyproject.toml":
+        tags.append("build")
+        tags.append("dependencies")
+        tags.append("Python")
+
+    if ".github" in file_path:
+        tags.append("Github")
+        tags.append("Git")
+
+    # TODO - use a regex style pattern to match the filename
+    # try to catch the following patterns
+    # requirements.txt
+    # requirements-dev.txt
+    # requirements-dev.in
+    # requirements.in
+    # requirements.dev.txt
+    if filename == "requirements.txt":
+        tags.append("pip")
+        tags.append("Python")
+        tags.append("dependencies")
+
+    if filename == '.sqlfluff':
+        tags.append("SQLFluff")
+        tags.append("SQL")
+        tags.append("linter")
+
+    if filename == ".mailmap":
+        tags.append("Git")
+
+    # Usually the filename will be CODEOWNERS
+    if filename == "codeowners":
+        tags.append("Git")
+
+    if filename == ".gitignore":
+        tags.append("Git")
+
+    if filename == "dockerfile":
+        tags.append("IaC")
+        tags.append("Docker")
+        tags.append("dependencies")
+
+    if filename == "makefile":
+        tags.append("build")
+
+    if ".github/workflows" in file_path:
+        tags.append("workflow")
+
+    return tags
+
+def check_shebang(file_path):
+    """ Check if a file has a shebang """
+    try:
+
+        with open(file_path) as file:
+            first_line = file.readline()
+            if first_line and first_line.startswith("#!"):
+                return first_line.strip()
+            else:
+                return None
+
+    except FileNotFoundError:
+        # TODO - better logging instead of print
+        #print(f"File {file_path} not found")
+        return None
+    except UnicodeDecodeError:
+        # TODO - log this exception
+        return None
+
+
+def get_shebang_language(shebang):
+    """ Return the language of a shebang """
+    lang = extract_shebang_language(shebang)
+    return lang
+
+def load_gitignore_patterns(directory):
+    """
+    Load gitignore patterns from a directory
+    """
+    gitignore_path = os.path.join(directory, '.gitignore')
+
+    if os.path.exists(gitignore_path):
+
+        with open(gitignore_path, 'r', encoding='utf-8') as file:
+            patterns = file.read().splitlines()
+            # Add .git to the patterns
+            patterns.append('.git')
+            # These seem to be ignore by git
+            patterns.append('.jekyll-cache')
+            patterns.append('.ruff_cache')
+            patterns.append('.DS_Store')
+
+        return pathspec.PathSpec.from_lines('gitwildmatch', patterns)
+    return None
+
+def identify_files(directory):
+    """ Identify files in a directory """
+
+    gitignore_spec = load_gitignore_patterns(directory)
+
+    file_paths = {}
+    for root, _, files in os.walk(directory):
+        for file in files:
+            full_path = os.path.join(root, file)
+
+            relative_path = os.path.relpath(full_path, directory)
+            if gitignore_spec and gitignore_spec.match_file(relative_path):
+                continue
+            # ftype = None
+            # ext = get_fileext(full_path)
+            ftype = get_language(full_path)
+            # if ext:
+            #     ftype = get_extension_filetype(ext)
+            #     if not ftype:
+            #         ftype = get_shebang_language(check_shebang(full_path))
+            #         #ftype = basename_check(full_path)
+
+            if directory == ".":
+                full_path = full_path.removeprefix("./")
+
+            file_paths[full_path] = ftype
+
+    return file_paths
+
+
+def extract_shebang_language(shebang: str) -> str:
+    """
+    Take a string like 
+    #!/usr/bin/env python3
+    and return the language (python3)
+    """
+    parts = shebang.split()
+    # Check if the shebang string starts with '#!' and has at least two parts
+    # Check for #!/usr/bin/env python3 pattern
+    if "#!" in parts[0] and len(parts) > 1:
+
+        # Split the second part by '/' and check if it contains 'env'
+        if 'env' in parts[0]:
+            interpreter = parts[-1]
+            #return parts[-1]  # The interpreter is the last part
+            if interpreter.startswith("python"):
+                return "Python"
+            else:
+                return interpreter
+
+    # Check for the following pattern
+    # #!/usr/local/bin/perl style pattern
     else:
-        click.echo('Assessing current directory.')
-        directory = "."
-    files = ft.identify_files(directory)
-    click.echo(f'Found {len(files)} files.\n')
-    table = PrettyTable()
-    table.field_names = ["File", "Language", "Meta"]
-    table.align["File"] = "l"
-    table.align["Language"] = "l"
-    table.align["Meta"] = "l"
+        return shebang.split('/')[-1]  # Otherwise, the interpreter is the last 
 
-    for file, file_type in files.items():
-        meta = ft.get_filename_metatypes(file) if ft.get_filename_metatypes(file) else ""
-        if meta:
-            meta = ", ".join(meta)
-        table.add_row([file, file_type, meta])
-        #click.echo(files[file])
-    print(table,"\n")
+    return None
 
-@cli.command("file")
-@click.argument('file', required=True,type=click.Path(exists=True))
-def identify(file):
-    """Assess a filetype."""
-    click.echo(f'\nAssessing filetype for file {file}')
-    click.echo()
-    table = PrettyTable()
-    table.field_names = ["Method", "Result"]
-    table.align["Method"] = "l"
-    table.align["Result"] = "l"
+def get_language(file_path):
+    """ Return the language of a file """
+    ext = get_fileext(file_path)
+    lang = None
 
-    table.add_row(["File extenion", ft.get_fileext(file)])
-    table.add_row(["File type", ft.get_extension_filetype(ft.get_fileext(file))])
-    shebang = ft.check_shebang(file)
-    table.add_row(["Shebang", shebang])
-    table.add_row(["Shebang Language", ft.extract_shebang_language(shebang) if shebang else None])
-    table.add_row(["Meta", ft.get_filename_metatypes(file)])
-    print(table)
-    print()
+    if ext:
+        lang = get_extension_filetype(ext)
 
-@cli.command("version")
-def version():
-    """Print the version of Panopticas."""
-    #click.echo(f"Panopticas version {panopticas_core.__version__}")
-    click.echo("Panopticas version 0.0.2")
+    if lang:
+        return lang
 
-if __name__ == '__main__':
-    cli()
+    shebang = check_shebang(file_path)
+
+    if shebang:
+        lang = get_shebang_language(shebang)
+
+    return lang
+
+#def basename_check(file_path):
+#    """
+#    Return a guessed type based on the basename 
+#    """
+
+#    return None

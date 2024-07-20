@@ -6,6 +6,8 @@ Inspired by tools like [enry](https://github.com/go-enry/go-enry) and [linguist]
 
 Initial feaures: language detector and metadata identifiers, based on the filename extension, filename details and the shebang line. 
 
+The official documentation can be found at [panopticas.io](https://panopticas.io)
+
 ## Installation
 
 > pip install panopticas
@@ -19,4 +21,10 @@ Change into the directory you want check the file types of and then run
 To check a single file and get some metadata
 
 > panopticas file FILENAME
+
+## Development options
+
+If you want to check out the [panopitcas repo](https://github.com/kospex/panopticas) and work on bug fixes,
+source the .devalias to set up the _panopticas_ CLI for your shell using:
+> source .devalias
 
