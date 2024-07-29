@@ -17,9 +17,9 @@ def cli():
     """
 
 @cli.command("assess")
-#@click.option('--default', is_flag=True, default=False, help="Create the default ~/code directory.")
+@click.option('-unknown', is_flag=True, default=False, help="Show only files with an unknown language type.")
 @click.argument('directory', required=False, type=click.Path(exists=True))
-def assess(directory):
+def assess(directory,unknown):
     """Assess a directory."""
     click.echo()
     if directory:
@@ -39,8 +39,15 @@ def assess(directory):
         meta = ft.get_filename_metatypes(file) if ft.get_filename_metatypes(file) else ""
         if meta:
             meta = ", ".join(meta)
-        table.add_row([file, file_type, meta])
-        #click.echo(files[file])
+        # with "unknown", we only include files with unknown language types (e.g. None)
+        if unknown:
+            if file_type is None:
+                #print(f"File: {file} is of unknown language type")
+                table.add_row([file, file_type, meta])
+        else:
+            # Default is we add it to the table
+            table.add_row([file, file_type, meta])
+
     print(table,"\n")
 
 @cli.command("file")

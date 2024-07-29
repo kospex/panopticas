@@ -5,7 +5,6 @@ import os
 import pathspec
 
 
-
 EXT_FILETYPES = {
         '.c': 'C',
         '.cpp': 'C++',
@@ -19,7 +18,9 @@ EXT_FILETYPES = {
         '.h': 'C Header',
         '.htm': 'HTML',
         '.html': 'HTML',
+        '.ico': 'ICO',
         '.ini': 'INI',
+        '.ipynb': 'Jupyter Notebook',
         '.java': 'Java',
         '.jpg': 'JPEG',
         '.jpeg': 'JPEG',
@@ -32,6 +33,7 @@ EXT_FILETYPES = {
         '.md': 'Markdown',
         '.php': 'PHP',
         '.pl': 'Perl',
+        '.pm': 'Perl',
         '.png': 'PNG',
         '.py': 'Python',
         '.r': 'R',
@@ -91,8 +93,14 @@ def get_filename_metatypes(file_path):
     """
 
     filename = os.path.basename(file_path).lower()
+    ext = get_fileext(file_path)
 
     tags = []
+
+    if ext == ".pm":
+        # Perl module
+        # Languauge should already be set by the extension
+        tags.append("module")
 
     if filename == "pyproject.toml":
         tags.append("build")
@@ -129,17 +137,42 @@ def get_filename_metatypes(file_path):
 
     if filename == ".gitignore":
         tags.append("Git")
+        tags.append("ignore")
 
     if filename == "dockerfile":
         tags.append("IaC")
         tags.append("Docker")
         tags.append("dependencies")
 
+    if filename == ".dockerignore":
+        tags.append("Docker")
+        tags.append("ignore")
+
     if filename == "makefile":
         tags.append("build")
 
     if ".github/workflows" in file_path:
         tags.append("workflow")
+
+    if filename == "go.mod":
+        tags.append("Go")
+        tags.append("module")
+        tags.append("dependencies")
+
+    if filename == "go.sum":
+        tags.append("Go")
+        tags.append("dependencies")
+        # TODO - check what we actually want to call hashes etc
+        # maybe integrity-checks
+        tags.append("checksum")
+
+    if filename == ".sqlfluffignore":
+        tags.append("SQLFluff")
+        tags.append("ignore")
+
+    if filename == "codefresh.yml":
+        tags.append("pipeline")
+        tags.append("Codefresh")
 
     return tags
 
