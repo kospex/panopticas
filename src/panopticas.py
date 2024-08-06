@@ -2,8 +2,10 @@
 Analysis functions for Panopticas.
 """
 import os
+import re
 import pathspec
 
+VERSION = "0.0.4"
 
 EXT_FILETYPES = {
         '.c': 'C',
@@ -109,6 +111,12 @@ def get_filename_metatypes(file_path):
 
     if ".github" in file_path:
         tags.append("Github")
+        tags.append("Git")
+
+    if filename == "eslint.config.js":
+        tags.extend(["JavaScript", "linter", "eslint", "config"])
+
+    if filename == ".mailmap":
         tags.append("Git")
 
     # TODO - use a regex style pattern to match the filename
@@ -302,3 +310,12 @@ def get_language(file_path):
 #    """
 
 #    return None
+
+def extract_urls(text):
+    """
+    Find all URLs from a given string and return a list of them.
+
+    """
+    url_pattern = re.compile(r'https?://[^\s]+')
+    urls = re.findall(url_pattern, text)
+    return urls

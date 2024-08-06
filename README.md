@@ -22,9 +22,10 @@ To check a single file and get some metadata
 
 > panopticas file FILENAME
 
-## Development options
+## Development 
 
-If you want to check out the [panopitcas repo](https://github.com/kospex/panopticas) and work on bug fixes,
-source the .devalias to set up the _panopticas_ CLI for your shell using:
-> source .devalias
+If you want to check out the [panopitcas repo](https://github.com/kospex/panopticas) and work on bug fixes, use the pip "editable" install to set up the _panopticas_ CLI for your shell using:
+> pip install -e .
+
+
 
