@@ -3,7 +3,7 @@ import click
 from prettytable import PrettyTable
 import panopticas as ft
 
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 
 @click.group()
 def cli():
