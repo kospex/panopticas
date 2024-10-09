@@ -79,7 +79,7 @@ def get_fileext(file_path):
         return os.path.basename(file_path)
 
 def get_extension_filetype(file_ext):
-    """ Get the file extension of a file, using an exact match """ 
+    """ Get the file extension of a file, using an exact match """
 
     if file_ext:
         return EXT_FILETYPES.get(file_ext.lower(), None)
@@ -88,7 +88,7 @@ def get_extension_filetype(file_ext):
 
 def get_filename_metatypes(file_path):
     """
-    Return an array of metatypes based on the file_path 
+    Return an array of metatypes based on the file_path
     For example:
         pyproject.toml will return build, dependencies
         .github/workflows/python-app.yml will return Github, workflow
@@ -182,6 +182,20 @@ def get_filename_metatypes(file_path):
         tags.append("pipeline")
         tags.append("Codefresh")
 
+    if filename in ( "package.json", "package-lock.json"):
+        tags.append("npm")
+        tags.append("dependencies")
+
+    if filename == "pom.xml":
+        tags.append("maven")
+        tags.append("build")
+        tags.append("dependencies")
+
+    if filename == "build.gradle":
+        tags.append("gradle")
+        tags.append("build")
+        tags.append("dependencies")
+
     return tags
 
 def check_shebang(file_path):
@@ -261,7 +275,7 @@ def identify_files(directory):
 
 def extract_shebang_language(shebang: str) -> str:
     """
-    Take a string like 
+    Take a string like
     #!/usr/bin/env python3
     and return the language (python3)
     """
@@ -282,7 +296,7 @@ def extract_shebang_language(shebang: str) -> str:
     # Check for the following pattern
     # #!/usr/local/bin/perl style pattern
     else:
-        return shebang.split('/')[-1]  # Otherwise, the interpreter is the last 
+        return shebang.split('/')[-1]  # Otherwise, the interpreter is the last
 
     return None
 
@@ -306,7 +320,7 @@ def get_language(file_path):
 
 #def basename_check(file_path):
 #    """
-#    Return a guessed type based on the basename 
+#    Return a guessed type based on the basename
 #    """
 
 #    return None
