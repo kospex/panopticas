@@ -4,25 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "panopticas"
-version = "0.0.5"
+version = "0.0.6"
 description = "The panopticas CLI tool."
-authors = [
-    {name = "Peter Freiberg", email = "peter.freiberg@gmail.com"}
-]
-dependencies = [
-    "Click",
-    "prettytable",
-    "pathspec"
-]
+authors = [{ name = "Peter Freiberg", email = "peter.freiberg@gmail.com" }]
+dependencies = ["Click", "prettytable", "pathspec"]
 requires-python = ">=3.10"
 readme = "README.md"
 keywords = ["analytics", "git"]
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 
 classifiers = [
-      "Development Status :: 3 - Alpha",
-      "License :: OSI Approved :: MIT License",
-      "Programming Language :: Python"
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
 ]
 
 [project.scripts]
