@@ -2,6 +2,7 @@
 Analysis functions for Panopticas.
 """
 import os
+from os.path import basename
 import re
 import pathspec
 
@@ -15,6 +16,7 @@ EXT_FILETYPES = {
         '.csv': 'CSV',
         '.dockerignore': 'Dockerignore',
         '.gitignore': 'Gitignore',
+        '.gitattributes': 'GitAttributes',
         '.go': 'Go',
         '.gif': "GIF",
         '.h': 'C Header',
@@ -33,6 +35,7 @@ EXT_FILETYPES = {
         '.m': 'Objective-C',
         '.mailmap': 'Mailmap',
         '.md': 'Markdown',
+        '.nvmrc': "nvmrc",
         '.php': 'PHP',
         '.pl': 'Perl',
         '.pm': 'Perl',
@@ -46,6 +49,7 @@ EXT_FILETYPES = {
         '.sh': 'Shell',
         '.sql': 'SQL',
         '.sqlfluff': 'SQLFluff',
+        '.sqlfluffignore': 'SQLFluffIgnore',
         '.svg': 'SVG',
         '.swift': 'Swift',
         '.tf': 'Terraform',
@@ -63,6 +67,11 @@ EXT_FILETYPES = {
         'dockerfile': 'Dockerfile',
         'makefile': 'Makefile',
     }
+
+LANGUAGE_BY_BASENAME = {
+    'go.mod': 'go.mod',
+    'go.sum': 'go.sum',
+}
 
 
 def get_fileext(file_path):
@@ -97,7 +106,11 @@ def get_filename_metatypes(file_path):
     filename = os.path.basename(file_path).lower()
     ext = get_fileext(file_path)
 
+    file_no_ext = os.path.splitext(filename)[0]
+
     tags = []
+
+
 
     if ext == ".pm":
         # Perl module
@@ -111,6 +124,9 @@ def get_filename_metatypes(file_path):
 
     if ".github" in file_path:
         tags.append("Github")
+        tags.append("Git")
+
+    if filename == '.gitattributes':
         tags.append("Git")
 
     if filename == "eslint.config.js":
@@ -138,6 +154,10 @@ def get_filename_metatypes(file_path):
 
     if filename == ".mailmap":
         tags.append("Git")
+
+    if filename == '.nvmrc':
+        tags.append("Node")
+        tags.append("dependencies")
 
     # Usually the filename will be CODEOWNERS
     if filename == "codeowners":
@@ -195,6 +215,9 @@ def get_filename_metatypes(file_path):
         tags.append("gradle")
         tags.append("build")
         tags.append("dependencies")
+
+    if file_no_ext == "license":
+        tags.append("license")
 
     return tags
 
@@ -300,10 +323,26 @@ def extract_shebang_language(shebang: str) -> str:
 
     return None
 
+def get_language_edge_cases(file_path):
+    """
+    Handle edge cases where certain filenames are special file types
+    Seems to be a go thing ...
+    """
+    basename = os.path.basename(file_path)
+
+    if basename:
+        return LANGUAGE_BY_BASENAME.get(basename.lower())
+    else:
+        return None
+
 def get_language(file_path):
     """ Return the language of a file """
     ext = get_fileext(file_path)
     lang = None
+
+    lang_by_basename = get_language_edge_cases(file_path)
+    if lang_by_basename:
+        return lang_by_basename
 
     if ext:
         lang = get_extension_filetype(ext)
