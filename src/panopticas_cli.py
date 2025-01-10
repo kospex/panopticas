@@ -3,19 +3,19 @@ import click
 from prettytable import PrettyTable
 import panopticas as ft
 
-VERSION = "0.0.5"
+VERSION = "0.0.8"
 
 @click.group()
 def cli():
     """Panopticas is a tool for identifying file types, code and git repositories.
-    
+
     In future, it will be possible identify external dependencies
     (e.g. URLs, cloud providers)
 
     For documentation on how commands run `panopticas COMMAND --help`.
 
     See also https://panopticas.io/
-    
+
     """
 
 @cli.command("assess")

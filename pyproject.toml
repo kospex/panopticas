@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=70.1.0"]
+requires = ["setuptools>=71.1.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "panopticas"
-version = "0.0.7"
+version = "0.0.8"
 description = "The panopticas CLI tool."
 authors = [{ name = "Peter Freiberg", email = "peter.freiberg@gmail.com" }]
 dependencies = ["Click", "prettytable", "pathspec"]

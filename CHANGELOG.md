@@ -5,6 +5,16 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 ## [Unreleased]
 
 ### Added
+  - .travis.yml identification for [Travis CI](https://www.travis-ci.com/)
+
+### Changed
+  - improved pip requirements detection to be regular expression based
+
+
+## VERSION - DATE
+## [Unreleased]
+
+### Added
 
 ### Changed
 

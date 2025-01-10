@@ -6,7 +6,7 @@ from os.path import basename
 import re
 import pathspec
 
-VERSION = "0.0.5"
+VERSION = "0.0.8"
 
 EXT_FILETYPES = {
         '.c': 'C',
@@ -110,8 +110,6 @@ def get_filename_metatypes(file_path):
 
     tags = []
 
-
-
     if ext == ".pm":
         # Perl module
         # Languauge should already be set by the extension
@@ -135,14 +133,8 @@ def get_filename_metatypes(file_path):
     if filename == ".mailmap":
         tags.append("Git")
 
-    # TODO - use a regex style pattern to match the filename
-    # try to catch the following patterns
-    # requirements.txt
-    # requirements-dev.txt
-    # requirements-dev.in
-    # requirements.in
-    # requirements.dev.txt
-    if filename == "requirements.txt":
+    if is_pip_requirements(filename):
+        #if filename == "requirements.txt":
         tags.append("pip")
         tags.append("Python")
         tags.append("dependencies")
@@ -159,7 +151,7 @@ def get_filename_metatypes(file_path):
         tags.append("Node")
         tags.append("dependencies")
 
-    # Usually the filename will be CODEOWNERS
+    # Usually the filename will be uppercase CODEOWNERS for GitHub
     if filename == "codeowners":
         tags.append("Git")
 
@@ -201,6 +193,10 @@ def get_filename_metatypes(file_path):
     if filename == "codefresh.yml":
         tags.append("pipeline")
         tags.append("Codefresh")
+
+    if filename == ".travis.yml":
+            tags.append("pipeline")
+            tags.append("TravisCI")
 
     if filename in ( "package.json", "package-lock.json"):
         tags.append("npm")
@@ -267,11 +263,15 @@ def load_gitignore_patterns(directory):
     return None
 
 def identify_files(directory):
-    """ Identify files in a directory """
+    """
+    Identify files in a directory.
+    Returns a dict of the relative path filenams to their file_type
+    """
 
     gitignore_spec = load_gitignore_patterns(directory)
 
     file_paths = {}
+
     for root, _, files in os.walk(directory):
         for file in files:
             full_path = os.path.join(root, file)
@@ -279,19 +279,15 @@ def identify_files(directory):
             relative_path = os.path.relpath(full_path, directory)
             if gitignore_spec and gitignore_spec.match_file(relative_path):
                 continue
-            # ftype = None
-            # ext = get_fileext(full_path)
+
             ftype = get_language(full_path)
-            # if ext:
-            #     ftype = get_extension_filetype(ext)
-            #     if not ftype:
-            #         ftype = get_shebang_language(check_shebang(full_path))
-            #         #ftype = basename_check(full_path)
 
             if directory == ".":
                 full_path = full_path.removeprefix("./")
 
-            file_paths[full_path] = ftype
+            # TODO - see if we want to add a parameter to return the full path
+            #file_paths[fulle_path] = ftype
+            file_paths[relative_path] = ftype
 
     return file_paths
 
@@ -372,3 +368,18 @@ def extract_urls(text):
     url_pattern = re.compile(r'https?://[^\s]+')
     urls = re.findall(url_pattern, text)
     return urls
+
+def is_pip_requirements(filename: str) -> bool:
+    """
+    Returns True if `filename` matches typical pip requirements filenames.
+    Examples of matching filenames:
+      - requirements.txt
+      - requirements-dev.txt
+      - requirements-dev.in
+      - requirements.in
+      - requirements.dev.txt
+    """
+
+    PATTERN = re.compile(r'^requirements([-._a-zA-Z0-9]*)\.(txt|in)$')
+
+    return bool(PATTERN.match(filename))
