@@ -2,7 +2,6 @@
 Analysis functions for Panopticas.
 """
 import os
-from os.path import basename
 import re
 import pathspec
 
