@@ -1,0 +1,7 @@
+# this file generated on a clean install with a venv
+# panopticas v0.0.8
+click==8.1.8
+panopticas==0.0.8
+pathspec==0.12.1
+prettytable==3.12.0
+wcwidth==0.2.13
