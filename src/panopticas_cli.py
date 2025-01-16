@@ -3,7 +3,7 @@ import click
 from prettytable import PrettyTable
 import panopticas as ft
 
-VERSION = "0.0.8"
+VERSION = "0.0.9"
 
 @click.group()
 def cli():
@@ -72,11 +72,30 @@ def identify(file):
 
     urls = []
 
-    with open(file, 'r') as f:
-        contents = f.read()
-        urls = ft.extract_urls(contents)
-
+    urls = ft.extract_urls_from_file(file)
     table.add_row(["URLs", '\n'.join(urls)])
+
+    print(table)
+    print()
+
+@cli.command("urls")
+@click.option('-all-files', is_flag=True, default=False, help="Show all files, no gitignore.")
+@click.argument('directory', required=True, type=click.Path(exists=True))
+def find_urls(directory,all_files):
+    """
+    Find and show urls for all files in a given directory.
+    """
+    files = ft.find_files(directory,all_files=all_files)
+
+    table = PrettyTable()
+    table.field_names = ["Filename", "URLs"]
+    table.align["Filename"] = "l"
+    table.align["URLs"] = "l"
+
+    # ft.find_files(directory)
+    for f in files:
+        urls = ft.extract_urls_from_file(f)
+        table.add_row([f, '\n'.join(urls)])
 
     print(table)
     print()

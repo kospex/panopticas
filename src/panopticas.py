@@ -290,6 +290,34 @@ def identify_files(directory):
 
     return file_paths
 
+def find_files(directory,all_files=None):
+    """
+    Find all files in a directory, honoring the gitignore patterns.
+    If all_files = True, then find everything.
+    Returns a list of the relative path filenames
+    """
+
+    gitignore_spec = load_gitignore_patterns(directory)
+    if all_files:
+        gitignore_spec = None
+
+    file_paths = []
+
+    for root, _, files in os.walk(directory):
+        for file in files:
+            full_path = os.path.join(root, file)
+
+            relative_path = os.path.relpath(full_path, directory)
+            if gitignore_spec and gitignore_spec.match_file(relative_path):
+                # Ignore and continue
+                continue
+
+            if directory == ".":
+                full_path = full_path.removeprefix("./")
+
+            file_paths.append(relative_path)
+
+    return file_paths
 
 def extract_shebang_language(shebang: str) -> str:
     """
@@ -361,12 +389,36 @@ def get_language(file_path):
 
 def extract_urls(text):
     """
-    Find all URLs from a given string and return a list of them.
+    Find all HTTP/S URLs from a given string and return a list of URLs found.
 
     """
-    url_pattern = re.compile(r'https?://[^\s]+')
+    url_pattern = re.compile(r'https?://[^\s\"\'\)]+')
     urls = re.findall(url_pattern, text)
     return urls
+
+def extract_urls_from_file(file_path):
+    """
+    Extract URLs from a given file.
+
+    Args:
+        file_path (str): File to extract URLs from
+
+    Returns:
+        list: List of URLs found in the file
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist
+        UnicodeDecodeError: If the file cannot be decoded as UTF-8
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            return extract_urls(content)
+    except UnicodeDecodeError as e:
+        raise UnicodeDecodeError(f"Unable to decode file {file_path} as UTF-8: {str(e)}")
 
 def is_pip_requirements(filename: str) -> bool:
     """
