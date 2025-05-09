@@ -3,9 +3,9 @@ import click
 from prettytable import PrettyTable
 import panopticas as ft
 
-VERSION = "0.0.9"
 
 @click.group()
+@click.version_option(version=ft.VERSION)
 def cli():
     """Panopticas is a tool for identifying file types, code and git repositories.
 
@@ -99,13 +99,6 @@ def find_urls(directory,all_files):
 
     print(table)
     print()
-
-
-@cli.command("version")
-def version():
-    """Print the version of Panopticas."""
-    click.echo(f"Panopticas CLI version {VERSION}")
-    click.echo(f"Panopticas v{ft.VERSION}")
 
 if __name__ == '__main__':
     cli()

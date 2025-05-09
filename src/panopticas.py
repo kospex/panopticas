@@ -5,7 +5,7 @@ import os
 import re
 import pathspec
 
-VERSION = "0.0.8"
+VERSION = "0.0.10"
 
 EXT_FILETYPES = {
         '.c': 'C',
@@ -40,10 +40,13 @@ EXT_FILETYPES = {
         '.pm': 'Perl',
         '.png': 'PNG',
         '.py': 'Python',
+        '.python-version': "python-version",
         '.r': 'R',
         '.rb': 'Ruby',
         '.rs': 'Rust',
         '.rst': 'ReStructuredText',
+        '.sarif': 'SARIF', # Static Analysis Results Interchange Format
+        # https://sarifweb.azurewebsites.net/
         '.scala': 'Scala',
         '.sh': 'Shell',
         '.sql': 'SQL',
@@ -65,6 +68,7 @@ EXT_FILETYPES = {
         "codeowners": "CODEOWNERS",
         'dockerfile': 'Dockerfile',
         'makefile': 'Makefile',
+        'cname': 'CNAME', # Often github et al will use a CNAME file for a URL to host from
     }
 
 LANGUAGE_BY_BASENAME = {
@@ -119,6 +123,12 @@ def get_filename_metatypes(file_path):
         tags.append("dependencies")
         tags.append("Python")
 
+    # uv specific file, uv is from astral.sh
+    if filename == "uv.lock":
+        tags.append("dependencies")
+        tags.append("Python")
+        tags.append("uv")
+
     if ".github" in file_path:
         tags.append("Github")
         tags.append("Git")
@@ -131,6 +141,10 @@ def get_filename_metatypes(file_path):
 
     if filename == ".mailmap":
         tags.append("Git")
+
+    if filename == '.python-version':
+        tags.append("Python")
+        tags.append("dependencies")
 
     if is_pip_requirements(filename):
         #if filename == "requirements.txt":
