@@ -3,7 +3,6 @@
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## 0.0.10 - 2025-05-09
-## [Unreleased]
 
 ### Added
   - added uv.lock as a type (from [Astral uv](https://docs.astral.sh/uv/))
