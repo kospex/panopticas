@@ -4,77 +4,7 @@ Analysis functions for Panopticas.
 import os
 import re
 import pathspec
-
-VERSION = "0.0.10"
-
-EXT_FILETYPES = {
-        '.c': 'C',
-        '.cpp': 'C++',
-        '.cs': 'C#',
-        '.css': 'CSS',
-        '.csv': 'CSV',
-        '.dockerignore': 'Dockerignore',
-        '.gitignore': 'Gitignore',
-        '.gitattributes': 'GitAttributes',
-        '.go': 'Go',
-        '.gif': "GIF",
-        '.h': 'C Header',
-        '.htm': 'HTML',
-        '.html': 'HTML',
-        '.ico': 'ICO',
-        '.ini': 'INI',
-        '.ipynb': 'Jupyter Notebook',
-        '.java': 'Java',
-        '.jpg': 'JPEG',
-        '.jpeg': 'JPEG',
-        '.js': 'JavaScript',
-        '.json': 'JSON',
-        '.jsx': 'JSX',
-        '.kt': 'Kotlin',
-        '.m': 'Objective-C',
-        '.mailmap': 'Mailmap',
-        '.md': 'Markdown',
-        '.nvmrc': "nvmrc",
-        '.php': 'PHP',
-        '.pl': 'Perl',
-        '.pm': 'Perl',
-        '.png': 'PNG',
-        '.py': 'Python',
-        '.python-version': "python-version",
-        '.r': 'R',
-        '.rb': 'Ruby',
-        '.rs': 'Rust',
-        '.rst': 'ReStructuredText',
-        '.sarif': 'SARIF', # Static Analysis Results Interchange Format
-        # https://sarifweb.azurewebsites.net/
-        '.scala': 'Scala',
-        '.sh': 'Shell',
-        '.sql': 'SQL',
-        '.sqlfluff': 'SQLFluff',
-        '.sqlfluffignore': 'SQLFluffIgnore',
-        '.svg': 'SVG',
-        '.swift': 'Swift',
-        '.tf': 'Terraform',
-        '.toml': 'TOML',
-        '.ts': 'TypeScript',
-        '.tsv': 'TSV',
-        '.tsx': 'TSX',
-        '.txt': 'Text',
-        '.vue': 'Vue',
-        '.xml': 'XML',
-        '.yaml': 'YAML',
-        '.yml': 'YAML',
-        # Special cases for files without extensions or .format files
-        "codeowners": "CODEOWNERS",
-        'dockerfile': 'Dockerfile',
-        'makefile': 'Makefile',
-        'cname': 'CNAME', # Often github et al will use a CNAME file for a URL to host from
-    }
-
-LANGUAGE_BY_BASENAME = {
-    'go.mod': 'go.mod',
-    'go.sum': 'go.sum',
-}
+from .constants import VERSION, EXT_FILETYPES, LANGUAGE_BY_BASENAME
 
 
 def get_fileext(file_path):
@@ -129,12 +59,22 @@ def get_filename_metatypes(file_path):
         tags.append("Python")
         tags.append("uv")
 
+    if filename == "yarn.lock":
+        tags.append("dependencies")
+        tags.append("JavaScript")
+        tags.append("yarn")
+
     if ".github" in file_path:
         tags.append("Github")
         tags.append("Git")
 
     if filename == '.gitattributes':
         tags.append("Git")
+
+    if filename == '.gitleaksignore':
+        tags.append("GitLeaks")
+        tags.append("Git")
+        tags.append("ignore")
 
     if filename == "eslint.config.js":
         tags.extend(["JavaScript", "linter", "eslint", "config"])
@@ -406,7 +346,7 @@ def extract_urls(text):
     Find all HTTP/S URLs from a given string and return a list of URLs found.
 
     """
-    url_pattern = re.compile(r'https?://[^\s\"\'\)]+')
+    url_pattern = re.compile(r'https?://[^\s\"\'\'\)]+') 
     urls = re.findall(url_pattern, text)
     return urls
 

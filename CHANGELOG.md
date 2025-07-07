@@ -13,6 +13,16 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 ### Changed
   - moved the version function to use the click implementation
 
+## VERSION - DATE
+## [Unreleased]
+
+### Added
+ - Added .gitleaksignore file
+ - Added yarn.lock
+
+### Changed
+ - Restructured package layout to follow Python best practices with proper src/panopticas/ structure
+
 ## 0.0.9 - 2025-01-12
 
 ### Added
