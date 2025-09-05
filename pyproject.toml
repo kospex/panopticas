@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "panopticas"
-version = "0.0.12"
+version = "0.0.11"
 description = "The panopticas file type and CLI tool."
 authors = [{ name = "Peter Freiberg", email = "peter.freiberg@gmail.com" }]
 dependencies = ["Click", "prettytable", "pathspec", "twine", "build"]

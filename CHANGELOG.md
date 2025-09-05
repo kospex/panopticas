@@ -2,9 +2,15 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.0.11 - DATE
+### Added
+  - added PowerShell .ps1 as a type
+  - Added .exe, .jar and .zip as types (also tagged as binary)
+### Changed
+ - [Return 'Unknown' instead None type for unknown file types](https://github.com/kospex/panopticas/issues/4)
+
 ## 0.0.10 - 2025-05-09
 
-### Added
   - added uv.lock as a type (from [Astral uv](https://docs.astral.sh/uv/))
   - added CNAME as github pages and other tools use this for domain mapping
   - added .sarif extension
@@ -13,12 +19,11 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 ### Changed
   - moved the version function to use the click implementation
 
-## VERSION - DATE
-## [Unreleased]
 
 ### Added
  - Added .gitleaksignore file
  - Added yarn.lock
+ - Added optional line counting feature with `--lines` flag for assess command
 
 ### Changed
  - Restructured package layout to follow Python best practices with proper src/panopticas/ structure

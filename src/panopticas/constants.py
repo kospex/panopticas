@@ -2,7 +2,7 @@
 Constants for Panopticas file type analysis.
 """
 
-VERSION = "0.0.12"
+VERSION = "0.0.11"
 
 EXT_FILETYPES = {
         '.c': 'C',
@@ -11,6 +11,7 @@ EXT_FILETYPES = {
         '.css': 'CSS',
         '.csv': 'CSV',
         '.dockerignore': 'Dockerignore',
+        '.exe': 'Executable',
         '.gitignore': 'Gitignore',
         '.gitattributes': 'GitAttributes',
         '.go': 'Go',
@@ -23,6 +24,7 @@ EXT_FILETYPES = {
         '.ini': 'INI',
         '.ipynb': 'Jupyter Notebook',
         '.java': 'Java',
+        '.jar': 'Java Archive',
         '.jpg': 'JPEG',
         '.jpeg': 'JPEG',
         '.js': 'JavaScript',
@@ -38,6 +40,7 @@ EXT_FILETYPES = {
         '.pl': 'Perl',
         '.pm': 'Perl',
         '.png': 'PNG',
+        '.ps1': 'PowerShell',
         '.py': 'Python',
         '.python-version': "python-version",
         '.r': 'R',
@@ -63,14 +66,59 @@ EXT_FILETYPES = {
         '.xml': 'XML',
         '.yaml': 'YAML',
         '.yml': 'YAML',
+        '.zip': 'ZIP',
         # Special cases for files without extensions or .format files
         "codeowners": "CODEOWNERS",
         'dockerfile': 'Dockerfile',
         'makefile': 'Makefile',
-        'cname': 'CNAME', # Often github et al will use a CNAME file for a URL to host from
+        'cname': 'CNAME', # Often GitHub et al will use a CNAME file for a URL to host from
     }
 
 LANGUAGE_BY_BASENAME = {
     'go.mod': 'go.mod',
     'go.sum': 'go.sum',
+}
+
+METADATA_RULES = {
+    "extension_rules": {
+        ".pm": ["module"],
+        ".exe": ["binary"],
+        ".jar": ["binary"],
+        ".zip": ["binary"],
+    },
+    "exact_filename_rules": {
+        "build.gradle": ["gradle", "build", "dependencies"],
+        "claude.md": ["Claude", "AI", "Claude Code"],
+        "codeowners": ["Git"],
+        "gemini.md": ["Gemini", "AI", "Gemini CLI"],
+        "pyproject.toml": ["build", "dependencies", "Python"],
+        "uv.lock": ["dependencies", "Python", "uv"],
+        "yarn.lock": ["dependencies", "JavaScript", "yarn"],
+        ".gitattributes": ["Git"],
+        ".gitleaksignore": ["GitLeaks", "Git", "ignore"],
+        "eslint.config.js": ["JavaScript", "linter", "eslint", "config"],
+        ".mailmap": ["Git"],
+        ".python-version": ["Python", "dependencies"],
+        ".sqlfluff": ["SQLFluff", "SQL", "linter"],
+        ".nvmrc": ["Node", "dependencies"],
+        ".gitignore": ["Git", "ignore"],
+        "dockerfile": ["IaC", "Docker", "dependencies"],
+        ".dockerignore": ["Docker", "ignore"],
+        "makefile": ["build"],
+        "go.mod": ["Go", "module", "dependencies"],
+        "go.sum": ["Go", "dependencies", "checksum"],
+        ".sqlfluffignore": ["SQLFluff", "ignore"],
+        "codefresh.yml": ["pipeline", "Codefresh"],
+        ".travis.yml": ["pipeline", "TravisCI"],
+        "package.json": ["npm", "dependencies"],
+        "package-lock.json": ["npm", "dependencies"],
+        "pom.xml": ["maven", "build", "dependencies"],
+    },
+    "path_contains_rules": {
+        ".github/workflows": ["workflow", "GitHub", "Git"],  # More specific paths first
+        ".github": ["GitHub", "Git"],
+    },
+    "function_rules": [
+        ("is_pip_requirements", ["pip", "Python", "PyPi", "dependencies"]),
+    ]
 }

@@ -4,8 +4,9 @@ Analysis functions for Panopticas.
 import os
 import re
 import pathspec
-from .constants import VERSION, EXT_FILETYPES, LANGUAGE_BY_BASENAME
+from .constants import VERSION, EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
 
+UNKNOWN = "Unknown"
 
 def get_fileext(file_path):
     """ Get the file extension of a file """
@@ -30,141 +31,37 @@ def get_extension_filetype(file_ext):
 
 def get_filename_metatypes(file_path):
     """
-    Return an array of metatypes based on the file_path
+    Return an array of metatypes based on the file_path using rule-based configuration.
     For example:
         pyproject.toml will return build, dependencies
         .github/workflows/python-app.yml will return Github, workflow
     """
-
     filename = os.path.basename(file_path).lower()
     ext = get_fileext(file_path)
-
     file_no_ext = os.path.splitext(filename)[0]
 
     tags = []
 
-    if ext == ".pm":
-        # Perl module
-        # Languauge should already be set by the extension
-        tags.append("module")
+    # Extension-based rules
+    if ext in METADATA_RULES["extension_rules"]:
+        tags.extend(METADATA_RULES["extension_rules"][ext])
 
-    if filename == "pyproject.toml":
-        tags.append("build")
-        tags.append("dependencies")
-        tags.append("Python")
+    # Exact filename rules
+    if filename in METADATA_RULES["exact_filename_rules"]:
+        tags.extend(METADATA_RULES["exact_filename_rules"][filename])
 
-    # uv specific file, uv is from astral.sh
-    if filename == "uv.lock":
-        tags.append("dependencies")
-        tags.append("Python")
-        tags.append("uv")
+    # Path contains rules (check most specific first)
+    for path_fragment in sorted(METADATA_RULES["path_contains_rules"].keys(), key=len, reverse=True):
+        if path_fragment in file_path:
+            tags.extend(METADATA_RULES["path_contains_rules"][path_fragment])
+            break  # Only apply the most specific path rule
 
-    if filename == "yarn.lock":
-        tags.append("dependencies")
-        tags.append("JavaScript")
-        tags.append("yarn")
+    # Function-based rules
+    for func_name, func_tags in METADATA_RULES["function_rules"]:
+        if globals()[func_name](filename):
+            tags.extend(func_tags)
 
-    if ".github" in file_path:
-        tags.append("Github")
-        tags.append("Git")
-
-    if filename == '.gitattributes':
-        tags.append("Git")
-
-    if filename == '.gitleaksignore':
-        tags.append("GitLeaks")
-        tags.append("Git")
-        tags.append("ignore")
-
-    if filename == "eslint.config.js":
-        tags.extend(["JavaScript", "linter", "eslint", "config"])
-
-    if filename == ".mailmap":
-        tags.append("Git")
-
-    if filename == '.python-version':
-        tags.append("Python")
-        tags.append("dependencies")
-
-    if is_pip_requirements(filename):
-        #if filename == "requirements.txt":
-        tags.append("pip")
-        tags.append("Python")
-        tags.append("dependencies")
-
-    if filename == '.sqlfluff':
-        tags.append("SQLFluff")
-        tags.append("SQL")
-        tags.append("linter")
-
-    if filename == ".mailmap":
-        tags.append("Git")
-
-    if filename == '.nvmrc':
-        tags.append("Node")
-        tags.append("dependencies")
-
-    # Usually the filename will be uppercase CODEOWNERS for GitHub
-    if filename == "codeowners":
-        tags.append("Git")
-
-    if filename == ".gitignore":
-        tags.append("Git")
-        tags.append("ignore")
-
-    if filename == "dockerfile":
-        tags.append("IaC")
-        tags.append("Docker")
-        tags.append("dependencies")
-
-    if filename == ".dockerignore":
-        tags.append("Docker")
-        tags.append("ignore")
-
-    if filename == "makefile":
-        tags.append("build")
-
-    if ".github/workflows" in file_path:
-        tags.append("workflow")
-
-    if filename == "go.mod":
-        tags.append("Go")
-        tags.append("module")
-        tags.append("dependencies")
-
-    if filename == "go.sum":
-        tags.append("Go")
-        tags.append("dependencies")
-        # TODO - check what we actually want to call hashes etc
-        # maybe integrity-checks
-        tags.append("checksum")
-
-    if filename == ".sqlfluffignore":
-        tags.append("SQLFluff")
-        tags.append("ignore")
-
-    if filename == "codefresh.yml":
-        tags.append("pipeline")
-        tags.append("Codefresh")
-
-    if filename == ".travis.yml":
-            tags.append("pipeline")
-            tags.append("TravisCI")
-
-    if filename in ( "package.json", "package-lock.json"):
-        tags.append("npm")
-        tags.append("dependencies")
-
-    if filename == "pom.xml":
-        tags.append("maven")
-        tags.append("build")
-        tags.append("dependencies")
-
-    if filename == "build.gradle":
-        tags.append("gradle")
-        tags.append("build")
-        tags.append("dependencies")
-
+    # Special case for license files
     if file_no_ext == "license":
         tags.append("license")
 
@@ -195,6 +92,30 @@ def get_shebang_language(shebang):
     lang = extract_shebang_language(shebang)
     return lang
 
+def count_lines(file_path):
+    """
+    Count the number of lines in a file.
+
+    Args:
+        file_path (str): Path to the file to count lines in
+
+    Returns:
+        int or str: Number of lines in the file, or "N/A" for binary files or errors
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            # Use efficient line counting without loading entire file into memory
+            line_count = sum(1 for _ in file)
+            return line_count
+    except UnicodeDecodeError:
+        # File is likely binary or has encoding issues
+        return "N/A"
+    except FileNotFoundError:
+        return "N/A"
+    except Exception:
+        # Handle any other exceptions gracefully
+        return "N/A"
+
 def load_gitignore_patterns(directory):
     """
     Load gitignore patterns from a directory
@@ -218,7 +139,7 @@ def load_gitignore_patterns(directory):
 def identify_files(directory):
     """
     Identify files in a directory.
-    Returns a dict of the relative path filenams to their file_type
+    Returns a dict of the relative path filenames to their file_type
     """
 
     gitignore_spec = load_gitignore_patterns(directory)
@@ -241,6 +162,40 @@ def identify_files(directory):
             # TODO - see if we want to add a parameter to return the full path
             #file_paths[fulle_path] = ftype
             file_paths[relative_path] = ftype
+
+    return file_paths
+
+def identify_files_with_metrics(directory):
+    """
+    Identify files in a directory with additional metrics including line counts.
+
+    Args:
+        directory (str): Directory path to analyze
+
+    Returns:
+        dict: {relative_path: {'type': file_type, 'lines': line_count}}
+    """
+
+    gitignore_spec = load_gitignore_patterns(directory)
+
+    file_paths = {}
+
+    for root, _, files in os.walk(directory):
+        for file in files:
+            full_path = os.path.join(root, file)
+
+            relative_path = os.path.relpath(full_path, directory)
+            if gitignore_spec and gitignore_spec.match_file(relative_path):
+                continue
+
+            ftype = get_language(full_path)
+
+            if directory == ".":
+                full_path = full_path.removeprefix("./")
+
+            # Always include line count in this function
+            line_count = count_lines(full_path)
+            file_paths[relative_path] = {'type': ftype, 'lines': line_count}
 
     return file_paths
 
@@ -315,7 +270,7 @@ def get_language_edge_cases(file_path):
 def get_language(file_path):
     """ Return the language of a file """
     ext = get_fileext(file_path)
-    lang = None
+    lang = UNKNOWN
 
     lang_by_basename = get_language_edge_cases(file_path)
     if lang_by_basename:
@@ -332,6 +287,9 @@ def get_language(file_path):
     if shebang:
         lang = get_shebang_language(shebang)
 
+    if not lang:
+        lang = UNKNOWN
+
     return lang
 
 #def basename_check(file_path):
@@ -346,7 +304,7 @@ def extract_urls(text):
     Find all HTTP/S URLs from a given string and return a list of URLs found.
 
     """
-    url_pattern = re.compile(r'https?://[^\s\"\'\'\)]+') 
+    url_pattern = re.compile(r'https?://[^\s\"\'\'\)]+')
     urls = re.findall(url_pattern, text)
     return urls
 
