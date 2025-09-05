@@ -2,7 +2,8 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## 0.0.11 - DATE
+## 0.0.11 - 2025-09-05
+
 ### Added
   - added PowerShell .ps1 as a type
   - Added .exe, .jar and .zip as types (also tagged as binary)
