@@ -2,7 +2,7 @@
 Constants for Panopticas file type analysis.
 """
 
-VERSION = "0.0.11"
+VERSION = "0.0.12"
 
 EXT_FILETYPES = {
         '.c': 'C',
@@ -87,6 +87,8 @@ METADATA_RULES = {
         ".zip": ["binary"],
     },
     "exact_filename_rules": {
+        "azure-pipelines.yml": ["pipeline", "Azure DevOps"],
+        "bitbucket-pipelines.yml": ["pipeline", "Bitbucket"],
         "build.gradle": ["gradle", "build", "dependencies"],
         "claude.md": ["Claude", "AI", "Claude Code"],
         "codeowners": ["Git"],
@@ -95,7 +97,11 @@ METADATA_RULES = {
         "uv.lock": ["dependencies", "Python", "uv"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn"],
         ".gitattributes": ["Git"],
+        ".gitlab-ci.yml": ["pipeline", "GitLab"],
+        ".gitlab-ci.yaml": ["pipeline", "GitLab"],
         ".gitleaksignore": ["GitLeaks", "Git", "ignore"],
+        "jenkinsfile": ["pipeline", "Jenkins"],
+        "jenkinsfile.groovy": ["pipeline", "Jenkins"],
         "eslint.config.js": ["JavaScript", "linter", "eslint", "config"],
         ".mailmap": ["Git"],
         ".python-version": ["Python", "dependencies"],
@@ -116,6 +122,8 @@ METADATA_RULES = {
     },
     "path_contains_rules": {
         ".github/workflows": ["workflow", "GitHub", "Git"],  # More specific paths first
+        ".buildkite/": ["pipeline", "Buildkite"],
+        ".circleci/": ["pipeline", "CircleCI"],
         ".github": ["GitHub", "Git"],
     },
     "function_rules": [
