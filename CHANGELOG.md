@@ -2,6 +2,13 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.0.13 - 2025-10-01
+
+### Added
+ - [Added binary types](https://github.com/kospex/panopticas/issues/7)
+ - [added a switch to skip shebang detection for filenname only tests](https://github.com/kospex/panopticas/issues/8)
+
+
 ## 0.0.12 - 2025-09-17
 
 ### Added
