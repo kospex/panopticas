@@ -267,10 +267,14 @@ def get_language_edge_cases(file_path):
     else:
         return None
 
-def get_language(file_path):
+def get_language(file_path, skip_shebang=None):
     """ Return the language of a file """
     ext = get_fileext(file_path)
     lang = UNKNOWN
+
+    shebang_check = False
+    if skip_shebang is None:
+        shebang_check = True
 
     lang_by_basename = get_language_edge_cases(file_path)
     if lang_by_basename:
@@ -282,10 +286,11 @@ def get_language(file_path):
     if lang:
         return lang
 
-    shebang = check_shebang(file_path)
+    if shebang_check:
+        shebang = check_shebang(file_path)
 
-    if shebang:
-        lang = get_shebang_language(shebang)
+        if shebang:
+            lang = get_shebang_language(shebang)
 
     if not lang:
         lang = UNKNOWN
