@@ -6,6 +6,7 @@ VERSION = "0.0.12"
 
 EXT_FILETYPES = {
         '.c': 'C',
+        '.class': 'Java Class',
         '.cpp': 'C++',
         '.cs': 'C#',
         '.css': 'CSS',
@@ -25,6 +26,7 @@ EXT_FILETYPES = {
         '.ipynb': 'Jupyter Notebook',
         '.java': 'Java',
         '.jar': 'Java Archive',
+        '.jmx': 'Apache JMeter',
         '.jpg': 'JPEG',
         '.jpeg': 'JPEG',
         '.js': 'JavaScript',
@@ -36,6 +38,7 @@ EXT_FILETYPES = {
         '.mailmap': 'Mailmap',
         '.md': 'Markdown',
         '.nvmrc': "nvmrc",
+        '.pdf': 'PDF',
         '.php': 'PHP',
         '.pl': 'Perl',
         '.pm': 'Perl',
@@ -64,6 +67,8 @@ EXT_FILETYPES = {
         '.txt': 'Text',
         '.vue': 'Vue',
         '.xml': 'XML',
+        ".xls": "Excel",
+        ".xlsx": "Excel",
         '.yaml': 'YAML',
         '.yml': 'YAML',
         '.zip': 'ZIP',
@@ -85,6 +90,11 @@ METADATA_RULES = {
         ".exe": ["binary"],
         ".jar": ["binary"],
         ".zip": ["binary"],
+        ".class": ["binary","Java"],
+        ".pdf": ["binary"],
+        ".xls": ["binary", "Microsoft"],
+        ".xlsx": ["binary", "Microsoft"],
+        ".jmx":  ["Apache","JMeter","XML"]
     },
     "exact_filename_rules": {
         "azure-pipelines.yml": ["pipeline", "Azure DevOps"],
