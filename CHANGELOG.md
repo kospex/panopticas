@@ -2,6 +2,12 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.0.14 - 2025-11-24
+
+### Added
+ - [Added bare LICENSE filename detection](https://github.com/kospex/panopticas/issues/12)
+ - [added groovy types and .properties files](https://github.com/kospex/panopticas/issues/11)
+
 ## 0.0.13 - 2025-10-01
 
 ### Added
