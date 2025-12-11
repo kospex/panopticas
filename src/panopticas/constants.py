@@ -2,7 +2,7 @@
 Constants for Panopticas file type analysis.
 """
 
-VERSION = "0.0.14"
+VERSION = "0.0.15"
 
 EXT_FILETYPES = {
     ".c": "C",
