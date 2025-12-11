@@ -4,15 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "panopticas"
-version = "0.0.14"
+version = "0.0.15"
 description = "The panopticas file type and CLI tool."
 authors = [{ name = "Peter Freiberg", email = "peter.freiberg@gmail.com" }]
 dependencies = [
-"Click",
-"prettytable",
-"pathspec",
-"twine",
-"build"]
+    "Click>=8.3.1",
+    "prettytable>=3.17.0",
+    "pathspec>=0.12.1",
+]
 requires-python = ">=3.12"
 readme = "README.md"
 keywords = ["analytics", "git"]
