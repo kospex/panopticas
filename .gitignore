@@ -167,3 +167,9 @@ cython_debug/
 
 # Warp terminal configuration (user-specific)
 .warp/
+
+# Jekyll (docs/)
+docs/_site/
+docs/.jekyll-cache/
+docs/.bundle/
+docs/.sass-cache/

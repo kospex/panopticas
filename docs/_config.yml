@@ -1,0 +1,5 @@
+title: Panopticas
+description: Discover insights into the types of data and functions used in your code.
+plugins:
+- jekyll-feed
+- jekyll-seo-tag

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+            {% if page.title %}{{ page.title }}{% else %}Panopticas{% endif %}
+        </title>
+
+        {% if site.github.is_project_page %}
+        <meta
+            name="description"
+            content="{{ site.description | default: site.github.project_tagline }}"
+        />
+        {% endif %}
+
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="{{ '/assets/css/style.css' | relative_url }}"
+        />
+        {% include head-custom.html %}
+    </head>
+    <body>
+        <!-- Header & Navigation -->
+        <header>
+            <div class="container">
+                <nav class="navbar">
+                    <div class="logo">Panopticas</div>
+                    <ul class="nav-menu">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="https://github.com/kospex/panopticas">GitHub</a></li>
+                        <li><a href="https://pypi.org/project/panopticas/">PyPI</a></li>
+                        <div class="social-links">
+                            <a href="https://github.com/kospex/panopticas" target="_blank"
+                                ><i class="fab fa-github"></i
+                            ></a>
+                        </div>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="container">
+            <section id="main_content">{{ content }}</section>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-container">
+                    <div class="footer-about">
+                        <div class="footer-logo">Panopticas</div>
+                        <p>
+                            Discover insights into the types of data and functions used in your code.
+                        </p>
+                        <div class="footer-social">
+                            <a href="https://github.com/kospex/panopticas" target="_blank"
+                                ><i class="fab fa-github"></i
+                            ></a>
+                        </div>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="/">Home</a></li>
+                            <li><a href="https://github.com/kospex/panopticas">GitHub</a></li>
+                            <li><a href="https://pypi.org/project/panopticas/">PyPI</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Related Projects</h4>
+                        <ul>
+                            <li><a href="https://kospex.io">Kospex</a></li>
+                            <li><a href="https://github.com/kospex/">Kospex GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="copyright">
+                    <p>&copy; 2025 Kospex Pty Ltd. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+                anchor.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    document
+                        .querySelector(this.getAttribute("href"))
+                        .scrollIntoView({
+                            behavior: "smooth",
+                        });
+                });
+            });
+
+            // Header scroll effect
+            window.addEventListener("scroll", function () {
+                const header = document.querySelector("header");
+                header.classList.toggle("scrolled", window.scrollY > 50);
+            });
+        </script>
+    </body>
+</html>
