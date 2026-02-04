@@ -36,3 +36,7 @@ Change into the directory you want check the file types of and then run
 To check a single file and get some metadata
 
 > panopticas file FILENAME
+
+### API reference
+\\
+Check out the simple explanation of the [API reference](/api), and if you need more detail, check out the few python classes in /src/panopticas/
