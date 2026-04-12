@@ -4,28 +4,61 @@ Discover insights into the types of data and functions used in your code.
 
 Inspired by tools like [enry](https://github.com/go-enry/go-enry) and [linguist](https://github.com/github-linguist/linguist)
 
-Initial feaures: language detector and metadata identifiers, based on the filename extension, filename details and the shebang line. 
+Features: language detector and metadata identifiers, based on the filename extension, filename details and the shebang line. Detects build configurations, dependency manifests, CI pipeline files, and binary file types.
 
 The official documentation can be found at [panopticas.io](https://panopticas.io)
 
 ## Installation
 
-> pip install panopticas
+```bash
+pip install panopticas
+```
 
 ## Usage
 
-Change into the directory you want check the file types of and then run
+Change into the directory you want to check the file types of and then run:
 
-> panopticas assess
+```bash
+panopticas assess
+```
 
-To check a single file and get some metadata
+To check a single file and get some metadata:
 
-> panopticas file FILENAME
+```bash
+panopticas file FILENAME
+```
 
-## Development 
+To find URLs in files:
 
-If you want to check out the [panopitcas repo](https://github.com/kospex/panopticas) and work on bug fixes, use the pip "editable" install to set up the _panopticas_ CLI for your shell using:
-> pip install -e .
+```bash
+panopticas urls /path/to/directory
+```
 
+## Development
 
+If you want to check out the [panopticas repo](https://github.com/kospex/panopticas) and work on bug fixes, use the pip "editable" install:
 
+```bash
+pip install -e .
+```
+
+### Running Tests
+
+```bash
+pytest -v
+```
+
+### Building and Publishing
+
+```bash
+python -m build
+twine upload dist/*
+```
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+## License
+
+MIT
