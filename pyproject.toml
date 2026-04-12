@@ -22,6 +22,11 @@ classifiers = [
     "Programming Language :: Python",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+
 [project.scripts]
 panopticas = "panopticas.cli:cli"
 
