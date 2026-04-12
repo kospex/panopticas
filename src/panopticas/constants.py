@@ -2,26 +2,36 @@
 Constants for Panopticas file type analysis.
 """
 
-VERSION = "0.0.15"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    VERSION = version("panopticas")
+except PackageNotFoundError:
+    VERSION = "unknown"
 
 EXT_FILETYPES = {
     ".c": "C",
     ".class": "Java Class",
     ".cpp": "C++",
     ".cs": "C#",
+    ".csproj": "C# Project",
     ".css": "CSS",
     ".csv": "CSV",
     ".dockerignore": "Dockerignore",
+    ".dll": "DLL",
     ".exe": "Executable",
     ".gitignore": "Gitignore",
     ".gitattributes": "GitAttributes",
     ".go": "Go",
     ".gif": "GIF",
+    ".global.asax": "ASP.NET Global",
     ".gitleaksignore": "GitLeaksIgnore",
     ".gvy": "Groovy",  # Less common for Groovy
     ".groovy": "Groovy",
     ".gsp": "Groovy Server Pages",
     ".h": "C Header",
+    ".aspx": "ASP.NET",
+    ".ascx": "ASP.NET User Control",
     ".htm": "HTML",
     ".html": "HTML",
     ".ico": "ICO",
@@ -58,6 +68,7 @@ EXT_FILETYPES = {
     # https://sarifweb.azurewebsites.net/
     ".scala": "Scala",
     ".sh": "Shell",
+    ".sln": "Visual Studio Solution",
     ".sql": "SQL",
     ".sqlfluff": "SQLFluff",
     ".sqlfluffignore": "SQLFluffIgnore",
@@ -103,11 +114,23 @@ METADATA_RULES = {
         ".xls": ["binary", "Microsoft"],
         ".xlsx": ["binary", "Microsoft"],
         ".jmx": ["Apache", "JMeter", "XML"],
+        ".dll": ["binary", ".NET"],
+        ".sln": [".NET", "Visual Studio", "build"],
+        ".csproj": [".NET", "C#", "build", "dependencies"],
+        ".ascx": [".NET", "ASP.NET"],
+        ".aspx": [".NET", "ASP.NET"],
     },
     "exact_filename_rules": {
         "azure-pipelines.yml": ["pipeline", "Azure DevOps"],
         "bitbucket-pipelines.yml": ["pipeline", "Bitbucket"],
         "build.gradle": ["gradle", "build", "dependencies"],
+        "dependabot.yml": ["Dependabot", "GitHub", "dependencies", "security"],
+        "dependabot.yaml": ["Dependabot", "GitHub", "dependencies", "security"],
+        "global.asax": [".NET", "ASP.NET"],
+        "packages.config": [".NET", "NuGet", "dependencies"],
+        "nuget.config": [".NET", "NuGet", "config"],
+        "web.config": [".NET", "ASP.NET", "config"],
+        "app.config": [".NET", "config"],
         "claude.md": ["Claude", "AI", "Claude Code"],
         "codeowners": ["Git"],
         "eslint.config.js": ["JavaScript", "linter", "eslint", "config"],

@@ -2,6 +2,21 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.0.16 - 2026-04-12
+
+### Fixed
+ - [Replaced hardcoded VERSION with importlib.metadata](https://github.com/kospex/panopticas/issues/16) — pyproject.toml is now the single source of truth for the version
+
+### Added
+ - [Add dependabot.yml to detections](https://github.com/kospex/panopticas/issues/6) — detects both .yml and .yaml variants with Dependabot, GitHub, dependencies, security tags
+ - [Add Windows and .NET development file types](https://github.com/kospex/panopticas/issues/10) — .dll, .aspx, .ascx, .sln, .csproj, .config, global.asax, packages.config, nuget.config, web.config, app.config
+ - 122 pytest tests covering file type detection, metadata extraction, shebang parsing, URL extraction, and constants integrity
+ - pytest as a test optional dependency (`pip install panopticas[test]`)
+
+### Changed
+ - Updated CLAUDE.md with correct package structure, release process, and relationship to kospex
+ - Updated README.md with additional CLI examples and development instructions
+
 ## 0.0.15 - 2025-12-13
 
 ### Changed

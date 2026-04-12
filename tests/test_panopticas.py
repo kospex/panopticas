@@ -156,6 +156,22 @@ class TestGetExtensionFiletype:
     def test_toml(self):
         assert get_extension_filetype(".toml") == "TOML"
 
+    # .NET types (#10)
+    def test_csharp_project(self):
+        assert get_extension_filetype(".csproj") == "C# Project"
+
+    def test_dll(self):
+        assert get_extension_filetype(".dll") == "DLL"
+
+    def test_aspx(self):
+        assert get_extension_filetype(".aspx") == "ASP.NET"
+
+    def test_ascx(self):
+        assert get_extension_filetype(".ascx") == "ASP.NET User Control"
+
+    def test_sln(self):
+        assert get_extension_filetype(".sln") == "Visual Studio Solution"
+
 
 class TestGetLanguage:
     """Tests for get_language() — full language detection pipeline."""
@@ -338,6 +354,78 @@ class TestGetFilenameMetatypes:
         tags = get_filename_metatypes("testing.jmx")
         assert "Apache" in tags
         assert "JMeter" in tags
+
+    # Dependabot (#6)
+    def test_dependabot_yml(self):
+        tags = get_filename_metatypes("dependabot.yml")
+        assert "Dependabot" in tags
+        assert "GitHub" in tags
+        assert "dependencies" in tags
+        assert "security" in tags
+
+    def test_dependabot_yaml(self):
+        tags = get_filename_metatypes("dependabot.yaml")
+        assert "Dependabot" in tags
+
+    def test_dependabot_in_github_path(self):
+        tags = get_filename_metatypes(".github/dependabot.yml")
+        assert "Dependabot" in tags
+        assert "GitHub" in tags
+
+    # .NET metadata (#10)
+    def test_csproj_metadata(self):
+        tags = get_filename_metatypes("MyApp.csproj")
+        assert ".NET" in tags
+        assert "C#" in tags
+        assert "build" in tags
+        assert "dependencies" in tags
+
+    def test_sln_metadata(self):
+        tags = get_filename_metatypes("MyApp.sln")
+        assert ".NET" in tags
+        assert "Visual Studio" in tags
+        assert "build" in tags
+
+    def test_dll_metadata(self):
+        tags = get_filename_metatypes("System.Core.dll")
+        assert "binary" in tags
+        assert ".NET" in tags
+
+    def test_aspx_metadata(self):
+        tags = get_filename_metatypes("Default.aspx")
+        assert ".NET" in tags
+        assert "ASP.NET" in tags
+
+    def test_ascx_metadata(self):
+        tags = get_filename_metatypes("Header.ascx")
+        assert ".NET" in tags
+        assert "ASP.NET" in tags
+
+    def test_packages_config(self):
+        tags = get_filename_metatypes("packages.config")
+        assert ".NET" in tags
+        assert "NuGet" in tags
+        assert "dependencies" in tags
+
+    def test_nuget_config(self):
+        tags = get_filename_metatypes("nuget.config")
+        assert ".NET" in tags
+        assert "NuGet" in tags
+
+    def test_web_config(self):
+        tags = get_filename_metatypes("web.config")
+        assert ".NET" in tags
+        assert "ASP.NET" in tags
+
+    def test_app_config(self):
+        tags = get_filename_metatypes("app.config")
+        assert ".NET" in tags
+        assert "config" in tags
+
+    def test_global_asax(self):
+        tags = get_filename_metatypes("global.asax")
+        assert ".NET" in tags
+        assert "ASP.NET" in tags
 
 
 class TestIsPipRequirements:
