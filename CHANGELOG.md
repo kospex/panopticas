@@ -2,6 +2,11 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.0.17 - 2026-05-18
+
+### Added
+ - Detect `pnpm-lock.yaml` as a JavaScript dependency file (tags: dependencies, JavaScript, pnpm) — unblocks pnpm project SCA in kospex `krunner osi`
+
 ## 0.0.16 - 2026-04-12
 
 ### Fixed
