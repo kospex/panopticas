@@ -22,6 +22,7 @@ from panopticas import (
     is_pip_requirements,
     count_lines,
     identify_files,
+    identify_files_with_metrics,
     find_files,
 )
 from panopticas.constants import EXT_FILETYPES, METADATA_RULES
@@ -569,3 +570,87 @@ class TestConstants:
                 for tag in tags:
                     assert isinstance(tag, str) and len(tag) > 0, \
                         f"Invalid tag '{tag}' in {section}[{key}]"
+
+
+@pytest.fixture
+def sample_tree():
+    """A temp directory tree with a .gitignore excluding secret.txt and build/.
+
+    Layout:
+        app.py          -> Python
+        notes.md        -> Markdown
+        lib/util.js     -> JavaScript
+        .gitignore
+        secret.txt      -> gitignored
+        build/out.o     -> gitignored (directory)
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        os.makedirs(os.path.join(tmp, "lib"))
+        os.makedirs(os.path.join(tmp, "build"))
+        with open(os.path.join(tmp, "app.py"), "w") as f:
+            f.write("print('hi')\n")
+        with open(os.path.join(tmp, "notes.md"), "w") as f:
+            f.write("# Notes\n")
+        with open(os.path.join(tmp, "lib", "util.js"), "w") as f:
+            f.write("export const x = 1;\n")
+        with open(os.path.join(tmp, ".gitignore"), "w") as f:
+            f.write("secret.txt\nbuild/\n")
+        with open(os.path.join(tmp, "secret.txt"), "w") as f:
+            f.write("nope\n")
+        with open(os.path.join(tmp, "build", "out.o"), "w") as f:
+            f.write("artifact\n")
+        yield tmp
+
+
+class TestIdentifyFiles:
+    """Tests for identify_files() — maps relative paths to file types.
+
+    Used by kospex (kospex_git.py), so behavior here is part of the public API.
+    """
+
+    def test_maps_relative_paths_to_languages(self, sample_tree):
+        result = identify_files(sample_tree)
+        assert result["app.py"] == "Python"
+        assert result["notes.md"] == "Markdown"
+        assert result[os.path.join("lib", "util.js")] == "JavaScript"
+
+    def test_honors_gitignore(self, sample_tree):
+        result = identify_files(sample_tree)
+        assert "secret.txt" not in result
+        assert os.path.join("build", "out.o") not in result
+
+    def test_returns_relative_not_absolute_paths(self, sample_tree):
+        result = identify_files(sample_tree)
+        assert result, "expected at least one file"
+        for key in result:
+            assert not os.path.isabs(key), f"{key!r} is not relative"
+
+
+class TestFindFiles:
+    """Tests for find_files() — lists relative paths, optionally ignoring gitignore."""
+
+    def test_returns_relative_path_list_honoring_gitignore(self, sample_tree):
+        result = find_files(sample_tree)
+        assert isinstance(result, list)
+        assert "app.py" in result
+        assert os.path.join("lib", "util.js") in result
+        assert "secret.txt" not in result
+
+    def test_all_files_true_includes_gitignored(self, sample_tree):
+        result = find_files(sample_tree, all_files=True)
+        assert "secret.txt" in result
+        assert os.path.join("build", "out.o") in result
+
+
+class TestIdentifyFilesWithMetrics:
+    """Tests for identify_files_with_metrics() — file type plus line count."""
+
+    def test_values_have_type_and_line_count(self, sample_tree):
+        result = identify_files_with_metrics(sample_tree)
+        assert result["app.py"] == {"type": "Python", "lines": 1}
+        for value in result.values():
+            assert set(value) == {"type", "lines"}
+
+    def test_honors_gitignore(self, sample_tree):
+        result = identify_files_with_metrics(sample_tree)
+        assert "secret.txt" not in result

@@ -4,7 +4,7 @@ Analysis functions for Panopticas.
 import os
 import re
 import pathspec
-from .constants import VERSION, EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
+from .constants import EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
 
 UNKNOWN = "Unknown"
 
