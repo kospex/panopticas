@@ -273,6 +273,12 @@ class TestGetFilenameMetatypes:
         assert "npm" in tags
         assert "dependencies" in tags
 
+    def test_pnpm_lock_yaml(self):
+        tags = get_filename_metatypes("pnpm-lock.yaml")
+        assert "dependencies" in tags
+        assert "JavaScript" in tags
+        assert "pnpm" in tags
+
     def test_dockerfile(self):
         tags = get_filename_metatypes("Dockerfile")
         assert "Docker" in tags

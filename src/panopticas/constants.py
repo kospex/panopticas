@@ -138,6 +138,7 @@ METADATA_RULES = {
         "pyproject.toml": ["build", "dependencies", "Python"],
         "uv.lock": ["dependencies", "Python", "uv"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn"],
+        "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm"],
         ".gitattributes": ["Git"],
         ".gitlab-ci.yml": ["pipeline", "GitLab"],  # Three letter YAML extension
         ".gitlab-ci.yaml": ["pipeline", "GitLab"],  # Full four letter YAML extension
