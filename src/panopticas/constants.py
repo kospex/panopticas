@@ -137,7 +137,7 @@ METADATA_RULES = {
         "gemini.md": ["Gemini", "AI", "Gemini CLI"],
         "pyproject.toml": ["build", "dependencies", "Python"],
         "uv.lock": ["dependencies", "Python", "uv"],
-        "yarn.lock": ["dependencies", "JavaScript", "yarn"],
+        "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],
         ".gitattributes": ["Git"],
         ".gitlab-ci.yml": ["pipeline", "GitLab"],  # Three letter YAML extension
