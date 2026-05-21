@@ -2,20 +2,17 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## 0.0.17 - 2026-05-18
-
-### Added
- - Detect `pnpm-lock.yaml` as a JavaScript dependency file (tags: dependencies, JavaScript, pnpm) — unblocks pnpm project SCA in kospex `krunner osi`
-
-## 0.0.16 - 2026-04-12
+## 0.0.16 - 2026-05-21
 
 ### Fixed
  - [Replaced hardcoded VERSION with importlib.metadata](https://github.com/kospex/panopticas/issues/16) — pyproject.toml is now the single source of truth for the version
 
 ### Added
+ - Detect `pnpm-lock.yaml` as a JavaScript dependency file (tags: `dependencies, JavaScript, pnpm, npm`) — unblocks pnpm project SCA in kospex `krunner osi`
+ - Add `npm` tag to `yarn.lock` detection (now `dependencies, JavaScript, yarn, npm`) — surfaces that yarn fetches from the npm registry, mirroring the new pnpm-lock entry's tag list
  - [Add dependabot.yml to detections](https://github.com/kospex/panopticas/issues/6) — detects both .yml and .yaml variants with Dependabot, GitHub, dependencies, security tags
  - [Add Windows and .NET development file types](https://github.com/kospex/panopticas/issues/10) — .dll, .aspx, .ascx, .sln, .csproj, .config, global.asax, packages.config, nuget.config, web.config, app.config
- - 122 pytest tests covering file type detection, metadata extraction, shebang parsing, URL extraction, and constants integrity
+ - pytest test suite covering file type detection, metadata extraction, shebang parsing, URL extraction, and constants integrity (~130 tests at release)
  - pytest as a test optional dependency (`pip install panopticas[test]`)
 
 ### Changed
