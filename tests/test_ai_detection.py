@@ -416,3 +416,8 @@ class TestDisplaySanitisation:
             assert result.exit_code == 0
             assert "\x1b" not in result.output
             assert "CLAUDE.md" in result.output
+
+    def test_strips_c1_control_bytes(self):
+        # \x9b is the single-byte CSI introducer — an escape sequence
+        # with no preceding ESC.
+        assert sanitise_for_display("notes\x9b31mred") == "notes31mred"

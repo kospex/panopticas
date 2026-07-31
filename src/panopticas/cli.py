@@ -116,8 +116,11 @@ def assess(directory, unknown, lines):
 # Filenames may contain almost any byte, and panopticas scans repositories
 # it does not control. An escape sequence in a path would be interpreted by
 # the terminal rather than displayed, letting a crafted filename rewrite what
-# the operator sees. Strip ESC and the other control bytes before printing.
-CONTROL_CHARACTERS = re.compile(r'[\x00-\x1f\x7f]')
+# the operator sees. Strip the C0 control range and DEL (\x00-\x1f, \x7f) as
+# well as the C1 control range (\x80-\x9f) before printing — C1 includes
+# \x9b, the single-byte CSI introducer some terminals in 8-bit control mode
+# will interpret as an escape sequence with no preceding ESC.
+CONTROL_CHARACTERS = re.compile(r'[\x00-\x1f\x7f-\x9f]')
 
 
 def sanitise_for_display(text):
