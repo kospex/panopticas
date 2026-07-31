@@ -11,7 +11,7 @@ import tempfile
 
 import pytest
 
-from panopticas import get_ai_metadata, get_filename_metatypes
+from panopticas import get_ai_metadata, get_filename_metatypes, find_ai_files
 from panopticas.constants import AI_RULES, AI_ARTIFACT_KINDS
 
 
@@ -260,3 +260,78 @@ class TestExistingTagsPreserved:
 
     def test_ordinary_file_has_no_ai_tag(self):
         assert "AI" not in get_filename_metatypes("src/panopticas/core.py")
+
+
+def _build_repo(root):
+    """Create a small repo tree with AI artifacts and a .gitignore."""
+    def write(relative_path, content=""):
+        full = os.path.join(root, relative_path)
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, "w", encoding="utf-8") as handle:
+            handle.write(content)
+
+    write("CLAUDE.md", "# guidance\n")
+    write("AGENTS.md", "# agents\n")
+    write("pyproject.toml", "[project]\n")
+    write("src/app.py", "print('hi')\n")
+    write(".claude/settings.json", "{}\n")
+    write(".claude/skills/review/SKILL.md", "# skill\n")
+    write(".cursor/rules/style.mdc", "rule\n")
+    write(".gitignore", ".cursor/\nsecret.txt\n")
+    write("secret.txt", "shh\n")
+
+
+class TestFindAiFiles:
+    """Directory walking, gitignore handling and bare directories."""
+
+    def test_finds_ai_files_only(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            found = find_ai_files(root)
+            assert "CLAUDE.md" in found
+            assert "AGENTS.md" in found
+            assert "pyproject.toml" not in found
+            assert os.path.join("src", "app.py") not in found
+
+    def test_returns_product_and_kind(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            found = find_ai_files(root)
+            assert found["CLAUDE.md"] == {
+                "product": "Claude", "kind": "instructions"}
+            assert found[os.path.join(".claude", "settings.json")] == {
+                "product": "Claude", "kind": "config"}
+            assert found[os.path.join(".claude", "skills", "review", "SKILL.md")] == {
+                "product": "Claude", "kind": "skill"}
+
+    def test_honours_gitignore_by_default(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            found = find_ai_files(root)
+            # .cursor/ is gitignored, so its rule file must not appear.
+            assert not any(".cursor" in path for path in found)
+
+    def test_all_files_surfaces_ignored_files(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            found = find_ai_files(root, all_files=True)
+            assert os.path.join(".cursor", "rules", "style.mdc") in found
+
+    def test_all_files_emits_bare_directories(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            found = find_ai_files(root, all_files=True)
+            cursor_dir = ".cursor" + os.sep
+            assert cursor_dir in found
+            assert found[cursor_dir] == {
+                "product": "Cursor", "kind": "directory"}
+
+    def test_default_emits_no_directories(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            found = find_ai_files(root)
+            assert all(meta["kind"] != "directory" for meta in found.values())
+
+    def test_empty_directory_returns_empty_dict(self):
+        with tempfile.TemporaryDirectory() as root:
+            assert find_ai_files(root) == {}

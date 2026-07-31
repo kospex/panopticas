@@ -271,6 +271,42 @@ def find_files(directory,all_files=None):
 
     return file_paths
 
+def find_ai_files(directory, all_files=False):
+    """
+    Find AI coding agent artifacts in a directory.
+
+    Returns a dict of relative path -> {"product": str, "kind": str}.
+
+    By default the walk honours .gitignore and returns files only. With
+    all_files=True it ignores .gitignore and additionally returns one entry
+    per known AI directory found on disk, keyed with a trailing separator
+    and carrying kind "directory". That surfaces tooling a team has
+    configured locally but excluded from the repo.
+    """
+    gitignore_spec = None if all_files else load_gitignore_patterns(directory)
+
+    ai_files = {}
+
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            relative_path = os.path.relpath(os.path.join(root, file), directory)
+            if gitignore_spec and gitignore_spec.match_file(relative_path):
+                continue
+            metadata = get_ai_metadata(relative_path)
+            if metadata:
+                ai_files[relative_path] = metadata
+
+        if all_files:
+            for name in dirs:
+                relative_dir = os.path.relpath(
+                    os.path.join(root, name), directory) + os.sep
+                metadata = get_ai_metadata(relative_dir)
+                if metadata:
+                    ai_files[relative_dir] = {
+                        "product": metadata["product"], "kind": "directory"}
+
+    return ai_files
+
 def extract_shebang_language(shebang: str) -> str:
     """
     Take a string like
