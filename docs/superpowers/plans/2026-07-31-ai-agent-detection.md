@@ -820,7 +820,36 @@ class TestAiCommand:
     def test_rejects_a_missing_directory(self):
         result = CliRunner().invoke(cli, ["ai", "/no/such/directory"])
         assert result.exit_code != 0
+
+
+class TestDisplaySanitisation:
+    """Paths come from repositories panopticas does not control."""
+
+    def test_strips_escape_character(self):
+        assert sanitise_for_display("\x1b[31mred") == "[31mred"
+
+    def test_strips_other_control_bytes(self):
+        assert sanitise_for_display("a\x00b\x07c\rd\x7f") == "abcd"
+
+    def test_leaves_ordinary_paths_untouched(self):
+        assert sanitise_for_display(".claude/settings.json") == \
+            ".claude/settings.json"
+
+    def test_ai_command_output_has_no_escape_sequences(self):
+        with tempfile.TemporaryDirectory() as root:
+            evil_dir = os.path.join(root, "\x1b[31mnotes")
+            os.makedirs(evil_dir)
+            with open(os.path.join(evil_dir, "CLAUDE.md"), "w",
+                      encoding="utf-8") as handle:
+                handle.write("# guidance\n")
+            result = CliRunner().invoke(cli, ["ai", root])
+            assert result.exit_code == 0
+            assert "\x1b" not in result.output
+            assert "CLAUDE.md" in result.output
 ```
+
+Add `sanitise_for_display` to the `from panopticas.cli import ...` line so it
+reads `from panopticas.cli import cli, sanitise_for_display`.
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
@@ -829,9 +858,22 @@ Expected: FAIL — exit code 2, `Error: No such command 'ai'.`
 
 - [ ] **Step 3: Implement the command**
 
-Add to `src/panopticas/cli.py` after the `assess` command:
+Add `import re` to the imports at the top of `src/panopticas/cli.py`, then add
+this helper and the command after `assess`:
 
 ```python
+# Filenames may contain almost any byte, and panopticas scans repositories
+# it does not control. An escape sequence in a path would be interpreted by
+# the terminal rather than displayed, letting a crafted filename rewrite what
+# the operator sees. Strip ESC and the other control bytes before printing.
+CONTROL_CHARACTERS = re.compile(r'[\x00-\x1f\x7f]')
+
+
+def sanitise_for_display(text):
+    """Remove control characters and ANSI escapes from text bound for a terminal."""
+    return CONTROL_CHARACTERS.sub('', text)
+
+
 @cli.command("ai")
 @click.option('--all-files', is_flag=True, default=False,
               help="Include gitignored files and bare AI directories.")
@@ -857,7 +899,9 @@ def ai(directory, all_files):
 
     for path in sorted(ai_files):
         metadata = ai_files[path]
-        table.add_row([path, metadata["product"], metadata["kind"]])
+        # Only the path is untrusted — product and kind come from AI_RULES.
+        table.add_row(
+            [sanitise_for_display(path), metadata["product"], metadata["kind"]])
 
     print(table, "\n")
 
