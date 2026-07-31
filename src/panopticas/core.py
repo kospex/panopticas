@@ -101,6 +101,13 @@ def get_filename_metatypes(file_path):
     if file_no_ext == "license":
         tags.append("license")
 
+    # AI coding agent artifacts. Runs last so it appends to — rather than
+    # competes with — the rules above; .github/copilot-instructions.md
+    # keeps its GitHub/Git tags and gains the AI ones.
+    ai_metadata = get_ai_metadata(file_path)
+    if ai_metadata:
+        tags.extend(["AI", ai_metadata["product"], ai_metadata["kind"]])
+
     return tags
 
 def check_shebang(file_path):

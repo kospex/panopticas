@@ -204,3 +204,59 @@ class TestAiRulesIntegrity:
             for key in rules:
                 assert key not in seen, f"{key!r} in both {seen.get(key)} and {mode}"
                 seen[key] = mode
+
+
+class TestAiTagsInMetatypes:
+    """get_filename_metatypes() derives its AI tags from get_ai_metadata()."""
+
+    def test_claude_md_tags(self):
+        assert get_filename_metatypes("CLAUDE.md") == [
+            "AI", "Claude", "instructions"]
+
+    def test_claude_settings_tags(self):
+        assert get_filename_metatypes(".claude/settings.json") == [
+            "AI", "Claude", "config"]
+
+    def test_agents_md_tags(self):
+        assert get_filename_metatypes("AGENTS.md") == [
+            "AI", "Agents", "instructions"]
+
+    def test_cursor_rule_tags(self):
+        assert get_filename_metatypes(".cursor/rules/style.mdc") == [
+            "AI", "Cursor", "rules"]
+
+    def test_legacy_bare_claude_tag_is_gone(self):
+        # The old rule emitted ["Claude", "AI", "Claude Code"].
+        tags = get_filename_metatypes("CLAUDE.md")
+        assert "Claude Code" not in tags
+        assert tags.count("Claude") == 1
+
+    def test_ai_tag_always_present_for_ai_files(self):
+        for path in ["CLAUDE.md", ".claude/settings.json", "AGENTS.md",
+                     ".cursorrules", ".mcp.json", "llms.txt"]:
+            assert "AI" in get_filename_metatypes(path), path
+
+    def test_ai_tags_come_first_in_their_group(self):
+        # ["AI", product, kind] is appended as a contiguous triple.
+        tags = get_filename_metatypes(".github/copilot-instructions.md")
+        index = tags.index("AI")
+        assert tags[index:index + 3] == ["AI", "Copilot", "instructions"]
+
+
+class TestExistingTagsPreserved:
+    """The AI pass must not disturb the existing metadata rules."""
+
+    def test_copilot_instructions_keeps_github_tags(self):
+        tags = get_filename_metatypes(".github/copilot-instructions.md")
+        assert tags == ["GitHub", "Git", "AI", "Copilot", "instructions"]
+
+    def test_workflow_tags_unchanged(self):
+        assert get_filename_metatypes(".github/workflows/ci.yml") == [
+            "workflow", "pipeline", "GitHub", "Git"]
+
+    def test_pyproject_tags_unchanged(self):
+        assert get_filename_metatypes("pyproject.toml") == [
+            "build", "dependencies", "Python"]
+
+    def test_ordinary_file_has_no_ai_tag(self):
+        assert "AI" not in get_filename_metatypes("src/panopticas/core.py")
