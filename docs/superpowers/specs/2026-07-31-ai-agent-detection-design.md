@@ -132,13 +132,19 @@ All three are exported from `__init__.py`.
 @cli.command("ai")
 @click.option('--all-files', is_flag=True, default=False,
               help="Include gitignored files and bare AI directories.")
-@click.argument('directory', required=False, type=click.Path(exists=True))
+@click.argument('directory', required=False,
+                type=click.Path(exists=True, file_okay=False, dir_okay=True))
 def ai(directory, all_files):
     """Find AI coding agent files and directories."""
 ```
 
 Mirrors `assess`: optional directory defaulting to `.`, PrettyTable output,
 left-aligned columns, summary line.
+
+The `directory` argument is constrained at the CLI boundary to an existing
+directory (`file_okay=False`). Without that, `panopticas ai somefile.py` passes
+validation and `os.walk()` silently yields nothing, reporting a file as an
+AI-free repository.
 
 ```
 $ panopticas ai
