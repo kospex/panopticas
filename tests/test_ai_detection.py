@@ -11,8 +11,11 @@ import tempfile
 
 import pytest
 
+from click.testing import CliRunner
+
 from panopticas import get_ai_metadata, get_filename_metatypes, find_ai_files
 from panopticas.constants import AI_RULES, AI_ARTIFACT_KINDS
+from panopticas.cli import cli, sanitise_for_display
 
 
 class TestGetAiMetadataExactFilename:
@@ -335,3 +338,81 @@ class TestFindAiFiles:
     def test_empty_directory_returns_empty_dict(self):
         with tempfile.TemporaryDirectory() as root:
             assert find_ai_files(root) == {}
+
+
+class TestAiCommand:
+    """The `panopticas ai` CLI command."""
+
+    def test_lists_ai_files(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            result = CliRunner().invoke(cli, ["ai", root])
+            assert result.exit_code == 0
+            assert "CLAUDE.md" in result.output
+            assert "Claude" in result.output
+            assert "instructions" in result.output
+
+    def test_omits_non_ai_files(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            result = CliRunner().invoke(cli, ["ai", root])
+            assert "pyproject.toml" not in result.output
+
+    def test_summary_counts_products(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            result = CliRunner().invoke(cli, ["ai", root])
+            assert "Claude (3)" in result.output
+            assert "Agents (1)" in result.output
+
+    def test_all_files_flag_includes_ignored(self):
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            result = CliRunner().invoke(cli, ["ai", root, "--all-files"])
+            assert "Cursor" in result.output
+
+    def test_empty_directory_reports_zero(self):
+        with tempfile.TemporaryDirectory() as root:
+            result = CliRunner().invoke(cli, ["ai", root])
+            assert result.exit_code == 0
+            assert "Found 0 AI files." in result.output
+
+    def test_rejects_a_file_argument(self):
+        with tempfile.TemporaryDirectory() as root:
+            target = os.path.join(root, "CLAUDE.md")
+            with open(target, "w", encoding="utf-8") as handle:
+                handle.write("# guidance\n")
+            result = CliRunner().invoke(cli, ["ai", target])
+            # click.Path(file_okay=False) rejects it rather than silently
+            # walking nothing and reporting an AI-free repo.
+            assert result.exit_code != 0
+
+    def test_rejects_a_missing_directory(self):
+        result = CliRunner().invoke(cli, ["ai", "/no/such/directory"])
+        assert result.exit_code != 0
+
+
+class TestDisplaySanitisation:
+    """Paths come from repositories panopticas does not control."""
+
+    def test_strips_escape_character(self):
+        assert sanitise_for_display("\x1b[31mred") == "[31mred"
+
+    def test_strips_other_control_bytes(self):
+        assert sanitise_for_display("a\x00b\x07c\rd\x7f") == "abcd"
+
+    def test_leaves_ordinary_paths_untouched(self):
+        assert sanitise_for_display(".claude/settings.json") == \
+            ".claude/settings.json"
+
+    def test_ai_command_output_has_no_escape_sequences(self):
+        with tempfile.TemporaryDirectory() as root:
+            evil_dir = os.path.join(root, "\x1b[31mnotes")
+            os.makedirs(evil_dir)
+            with open(os.path.join(evil_dir, "CLAUDE.md"), "w",
+                      encoding="utf-8") as handle:
+                handle.write("# guidance\n")
+            result = CliRunner().invoke(cli, ["ai", root])
+            assert result.exit_code == 0
+            assert "\x1b" not in result.output
+            assert "CLAUDE.md" in result.output

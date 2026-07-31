@@ -1,4 +1,6 @@
 # panopticas CLI
+import re
+
 import click
 from prettytable import PrettyTable
 from . import core
@@ -109,6 +111,65 @@ def assess(directory, unknown, lines):
     else:
         print(f"Total files: {total_files}")
     
+    print()
+
+# Filenames may contain almost any byte, and panopticas scans repositories
+# it does not control. An escape sequence in a path would be interpreted by
+# the terminal rather than displayed, letting a crafted filename rewrite what
+# the operator sees. Strip ESC and the other control bytes before printing.
+CONTROL_CHARACTERS = re.compile(r'[\x00-\x1f\x7f]')
+
+
+def sanitise_for_display(text):
+    """Remove control characters and ANSI escapes from text bound for a terminal."""
+    return CONTROL_CHARACTERS.sub('', text)
+
+
+@cli.command("ai")
+@click.option('--all-files', is_flag=True, default=False,
+              help="Include gitignored files and bare AI directories.")
+@click.argument('directory', required=False,
+                 type=click.Path(exists=True, file_okay=False, dir_okay=True))
+def ai(directory, all_files):
+    """Find AI coding agent files and directories."""
+    click.echo()
+    if directory:
+        click.echo(f'Assessing directory: {directory}')
+    else:
+        click.echo('Assessing current directory.')
+        directory = "."
+    click.echo()
+
+    ai_files = core.find_ai_files(directory, all_files=all_files)
+
+    table = PrettyTable()
+    table.field_names = ["Path", "Product", "Kind"]
+    table.align["Path"] = "l"
+    table.align["Product"] = "l"
+    table.align["Kind"] = "l"
+
+    for path in sorted(ai_files):
+        metadata = ai_files[path]
+        # Only the path is untrusted — product and kind come from AI_RULES.
+        table.add_row(
+            [sanitise_for_display(path), metadata["product"], metadata["kind"]])
+
+    print(table, "\n")
+
+    # Summarise which products the repo uses, most-used first.
+    counts = {}
+    for metadata in ai_files.values():
+        counts[metadata["product"]] = counts.get(metadata["product"], 0) + 1
+
+    if counts:
+        products = ", ".join(
+            f"{product} ({count})" for product, count in
+            sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+        )
+        print(f"Found {len(ai_files)} AI files. Products: {products}")
+    else:
+        print("Found 0 AI files.")
+
     print()
 
 @cli.command("file")
