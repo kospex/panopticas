@@ -4,7 +4,7 @@ Analysis functions for Panopticas.
 import os
 import re
 import pathspec
-from .constants import EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
+from .constants import AI_RULES, EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
 
 UNKNOWN = "Unknown"
 
@@ -28,6 +28,42 @@ def get_extension_filetype(file_ext):
         return EXT_FILETYPES.get(file_ext.lower(), None)
     else:
         return None
+
+def get_ai_metadata(file_path):
+    """
+    Return AI coding agent metadata for a path, or None.
+
+    Returns {"product": str, "kind": str} when the path is a recognised
+    AI agent artifact, for example:
+        CLAUDE.md              -> {"product": "Claude", "kind": "instructions"}
+        .cursor/rules/x.mdc    -> {"product": "Cursor", "kind": "rules"}
+
+    This is pure path inspection — the file is never opened, and the path
+    need not exist. Precedence is exact filename, then the longest matching
+    path fragment, then the longest matching filename suffix.
+    """
+    if not file_path:
+        return None
+
+    # Normalise Windows separators and case so the rule keys stay lowercase.
+    path = file_path.replace(os.sep, "/").lower()
+    filename = os.path.basename(path)
+
+    rule = AI_RULES["exact_filename"].get(filename)
+    if rule:
+        return {"product": rule[0], "kind": rule[1]}
+
+    for fragment in sorted(AI_RULES["path_contains"], key=len, reverse=True):
+        if fragment in path:
+            rule = AI_RULES["path_contains"][fragment]
+            return {"product": rule[0], "kind": rule[1]}
+
+    for suffix in sorted(AI_RULES["filename_suffix"], key=len, reverse=True):
+        if filename.endswith(suffix):
+            rule = AI_RULES["filename_suffix"][suffix]
+            return {"product": rule[0], "kind": rule[1]}
+
+    return None
 
 def get_filename_metatypes(file_path):
     """

@@ -179,3 +179,87 @@ METADATA_RULES = {
         ("is_pip_requirements", ["pip", "Python", "PyPi", "dependencies"]),
     ],
 }
+
+# The complete set of legal `kind` values for an AI artifact.
+# A rule may not use a kind outside this set.
+AI_ARTIFACT_KINDS = {
+    "instructions",  # natural-language guidance for an agent
+    "config",        # tool configuration
+    "rules",         # rule/policy files
+    "prompt",        # reusable prompt
+    "chatmode",      # chat mode definition
+    "command",       # slash command definition
+    "agent",         # subagent definition
+    "skill",         # skill definition
+    "hook",          # lifecycle hook
+    "plugin",        # plugin bundle
+    "ignore",        # exclusion file
+    "history",       # session/chat transcript
+    "docs",          # LLM-oriented documentation
+    "directory",     # bare AI directory (find_ai_files(all_files=True) only)
+}
+
+# AI coding agent artifacts, mapping an indicator to (product, kind).
+#
+# Products are brand-level: "Claude" covers both Claude Code and Claude
+# Desktop, so a single tag finds all Anthropic tooling. Files owned by no
+# brand use a pseudo-product ("Agents", "MCP", "llms.txt").
+#
+# Precedence when resolving a path: exact_filename, then the longest
+# matching path_contains fragment, then the longest matching
+# filename_suffix. See core.get_ai_metadata().
+AI_RULES = {
+    # Matched against the lowercased basename.
+    "exact_filename": {
+        # Claude — Anthropic
+        "claude.md": ("Claude", "instructions"),
+        "claude.local.md": ("Claude", "instructions"),
+        "claude_desktop_config.json": ("Claude", "config"),
+        # Copilot — GitHub
+        "copilot-instructions.md": ("Copilot", "instructions"),
+        # Cursor — Anysphere
+        ".cursorrules": ("Cursor", "rules"),
+        ".cursorignore": ("Cursor", "ignore"),
+        ".cursorindexingignore": ("Cursor", "ignore"),
+        # Gemini — Google
+        "gemini.md": ("Gemini", "instructions"),
+        ".aiexclude": ("Gemini", "ignore"),
+        # Vendor-neutral
+        "agents.md": ("Agents", "instructions"),
+        ".aiignore": ("Agents", "ignore"),
+        ".mcp.json": ("MCP", "config"),
+        "llms.txt": ("llms.txt", "docs"),
+        "llms-full.txt": ("llms.txt", "docs"),
+    },
+    # Matched as a substring of the lowercased path. Longest match wins,
+    # so more specific fragments may be listed in any order.
+    "path_contains": {
+        # Claude
+        ".claude/skills/": ("Claude", "skill"),
+        ".claude/agents/": ("Claude", "agent"),
+        ".claude/commands/": ("Claude", "command"),
+        ".claude/hooks/": ("Claude", "hook"),
+        ".claude/plugins/": ("Claude", "plugin"),
+        ".claude/": ("Claude", "config"),
+        # Copilot
+        ".github/instructions/": ("Copilot", "instructions"),
+        ".github/prompts/": ("Copilot", "prompt"),
+        ".github/chatmodes/": ("Copilot", "chatmode"),
+        # Cursor
+        ".cursor/rules/": ("Cursor", "rules"),
+        ".cursor/": ("Cursor", "config"),
+        # Gemini
+        ".gemini/": ("Gemini", "config"),
+        # Codex — OpenAI
+        ".codex/": ("Codex", "config"),
+        # Vendor-neutral
+        ".vscode/mcp.json": ("MCP", "config"),
+    },
+    # Matched against the end of the lowercased basename. Longest wins.
+    "filename_suffix": {
+        ".instructions.md": ("Copilot", "instructions"),
+        ".prompt.md": ("Copilot", "prompt"),
+        ".chatmode.md": ("Copilot", "chatmode"),
+        ".mdc": ("Cursor", "rules"),
+    },
+}
