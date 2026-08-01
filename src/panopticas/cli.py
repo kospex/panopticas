@@ -169,9 +169,9 @@ def ai(directory, all_files):
             f"{product} ({count})" for product, count in
             sorted(counts.items(), key=lambda item: (-item[1], item[0]))
         )
-        print(f"Found {len(ai_files)} AI files. Products: {products}")
+        print(f"Found {len(ai_files)} AI paths. Products: {products}")
     else:
-        print("Found 0 AI files.")
+        print("Found 0 AI paths.")
 
     print()
 

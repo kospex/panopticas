@@ -329,6 +329,23 @@ class TestFindAiFiles:
             assert found[cursor_dir] == {
                 "product": "Cursor", "kind": "directory"}
 
+    def test_all_files_does_not_emit_unknown_descendant_directories(self):
+        # get_ai_metadata() matches path_contains fragments as an
+        # unanchored substring, so every directory nested beneath an AI
+        # root (e.g. .claude/skills/review/, which _build_repo creates
+        # while writing SKILL.md) also contains the ".claude/skills/"
+        # fragment as a substring. Only directories whose own path
+        # terminates a known fragment should be emitted.
+        with tempfile.TemporaryDirectory() as root:
+            _build_repo(root)
+            found = find_ai_files(root, all_files=True)
+            skills_dir = os.path.join(".claude", "skills") + os.sep
+            review_dir = os.path.join(".claude", "skills", "review") + os.sep
+            assert skills_dir in found
+            assert found[skills_dir] == {
+                "product": "Claude", "kind": "directory"}
+            assert review_dir not in found
+
     def test_default_emits_no_directories(self):
         with tempfile.TemporaryDirectory() as root:
             _build_repo(root)
@@ -375,7 +392,7 @@ class TestAiCommand:
         with tempfile.TemporaryDirectory() as root:
             result = CliRunner().invoke(cli, ["ai", root])
             assert result.exit_code == 0
-            assert "Found 0 AI files." in result.output
+            assert "Found 0 AI paths." in result.output
 
     def test_rejects_a_file_argument(self):
         with tempfile.TemporaryDirectory() as root:

@@ -279,9 +279,15 @@ def find_ai_files(directory, all_files=False):
 
     By default the walk honours .gitignore and returns files only. With
     all_files=True it ignores .gitignore and additionally returns one entry
-    per known AI directory found on disk, keyed with a trailing separator
-    and carrying kind "directory". That surfaces tooling a team has
-    configured locally but excluded from the repo.
+    per directory whose own path terminates a known AI `path_contains`
+    fragment (e.g. ".claude/", ".claude/skills/"), keyed with a trailing
+    separator and carrying kind "directory". Directories nested beneath a
+    known AI directory that are not themselves a known fragment (e.g.
+    ".claude/skills/review/") are not reported — get_ai_metadata() matches
+    path_contains fragments as an unanchored substring, so without this
+    check every descendant of an AI root would be emitted too. This
+    surfaces tooling a team has configured locally but excluded from the
+    repo, without flooding the output with arbitrary subdirectories.
     """
     gitignore_spec = None if all_files else load_gitignore_patterns(directory)
 
@@ -300,6 +306,16 @@ def find_ai_files(directory, all_files=False):
             for name in dirs:
                 relative_dir = os.path.relpath(
                     os.path.join(root, name), directory) + os.sep
+                # Normalise to forward slashes with a leading separator so
+                # a top-level directory (e.g. ".claude/", no leading slash
+                # in the relative path) can still match a fragment like
+                # ".claude/" via endswith, exactly like a nested one does.
+                normalised = "/" + relative_dir.replace(os.sep, "/").lower()
+                is_known_ai_dir = any(
+                    normalised.endswith(fragment)
+                    for fragment in AI_RULES["path_contains"])
+                if not is_known_ai_dir:
+                    continue
                 metadata = get_ai_metadata(relative_dir)
                 if metadata:
                     ai_files[relative_dir] = {
