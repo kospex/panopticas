@@ -34,6 +34,14 @@ To find URLs in files:
 panopticas urls /path/to/directory
 ```
 
+To find AI coding agent files and directories:
+
+```bash
+panopticas ai
+panopticas ai /path/to/directory
+panopticas ai --all-files
+```
+
 ## Development
 
 If you want to check out the [panopticas repo](https://github.com/kospex/panopticas) and work on bug fixes, use the pip "editable" install:
