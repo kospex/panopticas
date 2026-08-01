@@ -12,7 +12,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
  - Test coverage for AI detection, precedence, tag output and rules-table integrity (235 tests at release)
 
 ### Changed
- - `CLAUDE.md` now tags as `AI, Claude, instructions` (was `Claude, AI, Claude Code`) and `GEMINI.md` as `AI, Gemini, instructions` (was `Gemini, AI, Gemini CLI`) — product tags are now brand-level and consistent across all AI entries
+ - (breaking) `CLAUDE.md` now tags as `AI, Claude, instructions` (was `Claude, AI, Claude Code`) and `GEMINI.md` as `AI, Gemini, instructions` (was `Gemini, AI, Gemini CLI`) — product tags are now brand-level and consistent across all AI entries
  - AI detection rules moved out of `METADATA_RULES` into the dedicated `AI_RULES` table
 
 ## 0.0.16 - 2026-05-21

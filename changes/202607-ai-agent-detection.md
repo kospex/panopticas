@@ -50,7 +50,9 @@ synced repos automatically.
 
 `CLAUDE.md` previously emitted `["Claude", "AI", "Claude Code"]` and now
 emits `["AI", "Claude", "instructions"]`. The bare `Claude Code` tag is
-gone. Verified that nothing in kospex queries it.
+gone. `GEMINI.md` previously emitted `["Gemini", "AI", "Gemini CLI"]` and
+now emits `["AI", "Gemini", "instructions"]`. The bare `Gemini CLI` tag is
+gone. Verified that nothing in kospex queries either.
 
 ## Numbers
 
