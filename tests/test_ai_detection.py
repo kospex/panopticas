@@ -421,3 +421,76 @@ class TestDisplaySanitisation:
         # \x9b is the single-byte CSI introducer — an escape sequence
         # with no preceding ESC.
         assert sanitise_for_display("notes\x9b31mred") == "notes31mred"
+
+
+class TestTier2Products:
+    """Established AI agents beyond the majors.
+
+    Every case here was verified against the product's current official
+    documentation before being added. See the Task 5 report for the
+    indicator-by-indicator source URLs.
+    """
+
+    @pytest.mark.parametrize("path,product,kind", [
+        # Windsurf — legacy single file is still read; the rules directory
+        # is the current form.
+        (".windsurfrules", "Windsurf", "rules"),
+        (".windsurf/rules/style.md", "Windsurf", "rules"),
+        (".windsurf/config.json", "Windsurf", "config"),
+        (".codeiumignore", "Windsurf", "ignore"),
+        # Aider
+        (".aider.conf.yml", "Aider", "config"),
+        (".aiderignore", "Aider", "ignore"),
+        (".aider.chat.history.md", "Aider", "history"),
+        (".aider.input.history", "Aider", "history"),
+        # Cline — directory form only; the single-file form is unconfirmed.
+        (".clinerules/general.md", "Cline", "rules"),
+        # Continue
+        (".continue/config.yaml", "Continue", "config"),
+        (".continuerc.json", "Continue", "config"),
+        # Roo Code
+        (".roorules", "Roo Code", "rules"),
+        (".roo/rules/style.md", "Roo Code", "rules"),
+        (".roo/mcp.json", "Roo Code", "config"),
+        # Amazon Q — AWS
+        (".amazonq/rules/style.md", "Amazon Q", "rules"),
+        (".amazonq/cli-agents/build.json", "Amazon Q", "config"),
+        # Goose — Block
+        (".goosehints", "Goose", "instructions"),
+        # Junie — JetBrains
+        (".junie/guidelines.md", "Junie", "config"),
+        # Augment
+        (".augment-guidelines", "Augment", "instructions"),
+        (".augment/rules/style.md", "Augment", "rules"),
+        (".augment/settings.json", "Augment", "config"),
+        # OpenHands — All Hands AI
+        (".openhands/microagents/repo.md", "OpenHands", "skill"),
+        (".openhands/setup.sh", "OpenHands", "config"),
+        # Kilo Code
+        (".kilocode/rules/style.md", "Kilo Code", "rules"),
+        (".kilocode/mcp.json", "Kilo Code", "config"),
+        # Trae — ByteDance
+        (".trae/rules/style.md", "Trae", "rules"),
+        (".trae/mcp.json", "Trae", "config"),
+        # Gemini CLI ignore file — distinct from .aiexclude (Code Assist)
+        (".geminiignore", "Gemini", "ignore"),
+    ])
+    def test_tier2_detection(self, path, product, kind):
+        assert get_ai_metadata(path) == {"product": product, "kind": kind}
+
+    @pytest.mark.parametrize("path", [
+        # Verified as NOT repo-level conventions, so they must not match.
+        ".qodo/history",
+        "amazonq.md",
+        ".goose/recipe.yaml",
+    ])
+    def test_unconfirmed_candidates_are_not_detected(self, path):
+        assert get_ai_metadata(path) is None
+
+    def test_tier2_nested_in_a_repo_path(self):
+        assert get_ai_metadata("repos/acme/app/.roo/rules/style.md") == {
+            "product": "Roo Code", "kind": "rules"}
+
+    def test_rules_directory_beats_bare_product_directory(self):
+        # Both ".trae/" and ".trae/rules/" match; the longer fragment wins.
+        assert get_ai_metadata(".trae/rules/a.md")["kind"] == "rules"

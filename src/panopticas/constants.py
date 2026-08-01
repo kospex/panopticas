@@ -219,9 +219,28 @@ AI_RULES = {
         ".cursorrules": ("Cursor", "rules"),
         ".cursorignore": ("Cursor", "ignore"),
         ".cursorindexingignore": ("Cursor", "ignore"),
-        # Gemini — Google
+        # Gemini — Google. .aiexclude is Gemini Code Assist, .geminiignore
+        # is Gemini CLI; both are current, neither replaced the other.
         "gemini.md": ("Gemini", "instructions"),
         ".aiexclude": ("Gemini", "ignore"),
+        ".geminiignore": ("Gemini", "ignore"),
+        # Windsurf — Codeium, now Devin (Cognition). The single-file rules
+        # and the Codeium-era ignore file are legacy but still read.
+        ".windsurfrules": ("Windsurf", "rules"),
+        ".codeiumignore": ("Windsurf", "ignore"),
+        # Aider
+        ".aider.conf.yml": ("Aider", "config"),
+        ".aiderignore": ("Aider", "ignore"),
+        ".aider.chat.history.md": ("Aider", "history"),
+        ".aider.input.history": ("Aider", "history"),
+        # Roo Code — fallback when .roo/rules/ is absent or empty.
+        ".roorules": ("Roo Code", "rules"),
+        # Continue — workspace-level configuration.
+        ".continuerc.json": ("Continue", "config"),
+        # Goose — Block
+        ".goosehints": ("Goose", "instructions"),
+        # Augment
+        ".augment-guidelines": ("Augment", "instructions"),
         # Vendor-neutral
         "agents.md": ("Agents", "instructions"),
         ".aiignore": ("Agents", "ignore"),
@@ -250,6 +269,39 @@ AI_RULES = {
         ".gemini/": ("Gemini", "config"),
         # Codex — OpenAI
         ".codex/": ("Codex", "config"),
+        # Windsurf. .devin/rules/ is now the preferred location upstream,
+        # but is left out here: it would mean a new "Devin" product.
+        ".windsurf/rules/": ("Windsurf", "rules"),
+        ".windsurf/": ("Windsurf", "config"),
+        # Cline. Only the directory form is documented; a bare .clinerules
+        # file is deliberately not matched (unconfirmed).
+        ".clinerules/": ("Cline", "rules"),
+        # Roo Code
+        ".roo/rules/": ("Roo Code", "rules"),
+        ".roo/": ("Roo Code", "config"),
+        # Continue
+        ".continue/": ("Continue", "config"),
+        # Amazon Q — AWS
+        ".amazonq/rules/": ("Amazon Q", "rules"),
+        ".amazonq/": ("Amazon Q", "config"),
+        # Junie — JetBrains. Current guidelines live at .junie/AGENTS.md,
+        # which the vendor-neutral agents.md rule claims first by design.
+        ".junie/": ("Junie", "config"),
+        # Augment
+        ".augment/rules/": ("Augment", "rules"),
+        ".augment/": ("Augment", "config"),
+        # OpenHands — All Hands AI. Microagents are now called skills and
+        # new ones belong in the cross-vendor .agents/skills/, but these
+        # directories remain supported.
+        ".openhands/microagents/": ("OpenHands", "skill"),
+        ".openhands/": ("OpenHands", "config"),
+        # Kilo Code, since rebranded to Kilo. Superseded by .kilo/rules/
+        # plus kilo.jsonc, but kept working for backward compatibility.
+        ".kilocode/rules/": ("Kilo Code", "rules"),
+        ".kilocode/": ("Kilo Code", "config"),
+        # Trae — ByteDance
+        ".trae/rules/": ("Trae", "rules"),
+        ".trae/": ("Trae", "config"),
         # Vendor-neutral
         ".vscode/mcp.json": ("MCP", "config"),
     },
