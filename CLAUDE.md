@@ -60,8 +60,12 @@ Test fixture files are in `src/tests/` (sample files for analysis, not pytest te
 ### Build and Distribution
 ```bash
 python -m build
-python -m twine upload dist/*
+python -m twine upload dist/panopticas-X.Y.Z*
 ```
+
+`dist/` accumulates artifacts from every previous release. Uploading `dist/*`
+makes twine re-send them all; PyPI rejects the duplicates and the upload
+aborts. Always scope the glob to the version being released.
 
 ### Running the CLI
 ```bash
@@ -129,7 +133,7 @@ Each feature or significant change should have a markdown file in `/changes/`. N
 2. Update `CHANGELOG.md` with the new version and changes
 3. Run tests: `pytest -v`
 4. Build: `python -m build`
-5. Upload to PyPI: `twine upload dist/*`
+5. Upload to PyPI: `twine upload dist/panopticas-X.Y.Z*` — scope the glob to this release; `dist/*` re-sends every past artifact and the upload aborts on the duplicates
 6. Tag the release:
    ```bash
    git tag vX.Y.Z
