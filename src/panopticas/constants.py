@@ -131,10 +131,8 @@ METADATA_RULES = {
         "nuget.config": [".NET", "NuGet", "config"],
         "web.config": [".NET", "ASP.NET", "config"],
         "app.config": [".NET", "config"],
-        "claude.md": ["Claude", "AI", "Claude Code"],
         "codeowners": ["Git"],
         "eslint.config.js": ["JavaScript", "linter", "eslint", "config"],
-        "gemini.md": ["Gemini", "AI", "Gemini CLI"],
         "pyproject.toml": ["build", "dependencies", "Python"],
         "uv.lock": ["dependencies", "Python", "uv"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
@@ -178,4 +176,140 @@ METADATA_RULES = {
     "function_rules": [
         ("is_pip_requirements", ["pip", "Python", "PyPi", "dependencies"]),
     ],
+}
+
+# The complete set of legal `kind` values for an AI artifact.
+# A rule may not use a kind outside this set.
+AI_ARTIFACT_KINDS = {
+    "instructions",  # natural-language guidance for an agent
+    "config",        # tool configuration
+    "rules",         # rule/policy files
+    "prompt",        # reusable prompt
+    "chatmode",      # chat mode definition
+    "command",       # slash command definition
+    "agent",         # subagent definition
+    "skill",         # skill definition
+    "hook",          # lifecycle hook
+    "plugin",        # plugin bundle
+    "ignore",        # exclusion file
+    "history",       # session/chat transcript
+    "docs",          # LLM-oriented documentation
+    "directory",     # bare AI directory (find_ai_files(all_files=True) only)
+}
+
+# AI coding agent artifacts, mapping an indicator to (product, kind).
+#
+# Products are brand-level: "Claude" covers both Claude Code and Claude
+# Desktop, so a single tag finds all Anthropic tooling. Files owned by no
+# brand use a pseudo-product ("Agents", "MCP", "llms.txt").
+#
+# Precedence when resolving a path: exact_filename, then the longest
+# matching path_contains fragment, then the longest matching
+# filename_suffix. See core.get_ai_metadata().
+AI_RULES = {
+    # Matched against the lowercased basename.
+    "exact_filename": {
+        # Claude — Anthropic
+        "claude.md": ("Claude", "instructions"),
+        "claude.local.md": ("Claude", "instructions"),
+        "claude_desktop_config.json": ("Claude", "config"),
+        # Copilot — GitHub
+        "copilot-instructions.md": ("Copilot", "instructions"),
+        # Cursor — Anysphere
+        ".cursorrules": ("Cursor", "rules"),
+        ".cursorignore": ("Cursor", "ignore"),
+        ".cursorindexingignore": ("Cursor", "ignore"),
+        # Gemini — Google. .aiexclude is Gemini Code Assist, .geminiignore
+        # is Gemini CLI; both are current, neither replaced the other.
+        "gemini.md": ("Gemini", "instructions"),
+        ".aiexclude": ("Gemini", "ignore"),
+        ".geminiignore": ("Gemini", "ignore"),
+        # Windsurf — Codeium, now Devin (Cognition). The single-file rules
+        # and the Codeium-era ignore file are legacy but still read.
+        ".windsurfrules": ("Windsurf", "rules"),
+        ".codeiumignore": ("Windsurf", "ignore"),
+        # Aider
+        ".aider.conf.yml": ("Aider", "config"),
+        ".aiderignore": ("Aider", "ignore"),
+        ".aider.chat.history.md": ("Aider", "history"),
+        ".aider.input.history": ("Aider", "history"),
+        # Roo Code — fallback when .roo/rules/ is absent or empty.
+        ".roorules": ("Roo Code", "rules"),
+        # Continue — workspace-level configuration.
+        ".continuerc.json": ("Continue", "config"),
+        # Goose — Block
+        ".goosehints": ("Goose", "instructions"),
+        # Augment
+        ".augment-guidelines": ("Augment", "instructions"),
+        # Vendor-neutral
+        "agents.md": ("Agents", "instructions"),
+        ".aiignore": ("Agents", "ignore"),
+        ".mcp.json": ("MCP", "config"),
+        "llms.txt": ("llms.txt", "docs"),
+        "llms-full.txt": ("llms.txt", "docs"),
+    },
+    # Matched as a substring of the lowercased path. Longest match wins,
+    # so more specific fragments may be listed in any order.
+    "path_contains": {
+        # Claude
+        ".claude/skills/": ("Claude", "skill"),
+        ".claude/agents/": ("Claude", "agent"),
+        ".claude/commands/": ("Claude", "command"),
+        ".claude/hooks/": ("Claude", "hook"),
+        ".claude/plugins/": ("Claude", "plugin"),
+        ".claude/": ("Claude", "config"),
+        # Copilot
+        ".github/instructions/": ("Copilot", "instructions"),
+        ".github/prompts/": ("Copilot", "prompt"),
+        ".github/chatmodes/": ("Copilot", "chatmode"),
+        # Cursor
+        ".cursor/rules/": ("Cursor", "rules"),
+        ".cursor/": ("Cursor", "config"),
+        # Gemini
+        ".gemini/": ("Gemini", "config"),
+        # Codex — OpenAI
+        ".codex/": ("Codex", "config"),
+        # Windsurf. .devin/rules/ is now the preferred location upstream,
+        # but is left out here: it would mean a new "Devin" product.
+        ".windsurf/rules/": ("Windsurf", "rules"),
+        ".windsurf/": ("Windsurf", "config"),
+        # Cline. Only the directory form is documented; a bare .clinerules
+        # file is deliberately not matched (unconfirmed).
+        ".clinerules/": ("Cline", "rules"),
+        # Roo Code
+        ".roo/rules/": ("Roo Code", "rules"),
+        ".roo/": ("Roo Code", "config"),
+        # Continue
+        ".continue/": ("Continue", "config"),
+        # Amazon Q — AWS
+        ".amazonq/rules/": ("Amazon Q", "rules"),
+        ".amazonq/": ("Amazon Q", "config"),
+        # Junie — JetBrains. Current guidelines live at .junie/AGENTS.md,
+        # which the vendor-neutral agents.md rule claims first by design.
+        ".junie/": ("Junie", "config"),
+        # Augment
+        ".augment/rules/": ("Augment", "rules"),
+        ".augment/": ("Augment", "config"),
+        # OpenHands — All Hands AI. Microagents are now called skills and
+        # new ones belong in the cross-vendor .agents/skills/, but these
+        # directories remain supported.
+        ".openhands/microagents/": ("OpenHands", "skill"),
+        ".openhands/": ("OpenHands", "config"),
+        # Kilo Code, since rebranded to Kilo. Superseded by .kilo/rules/
+        # plus kilo.jsonc, but kept working for backward compatibility.
+        ".kilocode/rules/": ("Kilo Code", "rules"),
+        ".kilocode/": ("Kilo Code", "config"),
+        # Trae — ByteDance
+        ".trae/rules/": ("Trae", "rules"),
+        ".trae/": ("Trae", "config"),
+        # Vendor-neutral
+        ".vscode/mcp.json": ("MCP", "config"),
+    },
+    # Matched against the end of the lowercased basename. Longest wins.
+    "filename_suffix": {
+        ".instructions.md": ("Copilot", "instructions"),
+        ".prompt.md": ("Copilot", "prompt"),
+        ".chatmode.md": ("Copilot", "chatmode"),
+        ".mdc": ("Cursor", "rules"),
+    },
 }

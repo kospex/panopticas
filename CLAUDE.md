@@ -17,16 +17,31 @@ src/panopticas/
 ├── __init__.py       # Module exports
 ├── core.py           # Core analysis engine — file type detection, language identification, metadata extraction
 ├── cli.py            # Click-based CLI interface
-└── constants.py      # File type mappings, metadata definitions, extension lookups
+└── constants.py      # File type mappings, metadata definitions, extension lookups, AI agent rules
 ```
 
 ### Key Components
 
 - **File Type Detection**: Uses extension mappings (`EXT_FILETYPES`) and shebang parsing to identify programming languages
 - **Metadata Extraction**: Identifies build files, dependency manifests, CI configurations, and other special file types
+- **AI Agent Detection**: Identifies AI coding agent artifacts (`AI_RULES`) — see below
 - **URL Extraction**: Finds HTTP/HTTPS URLs within files using regex patterns
 - **Git Integration**: Respects `.gitignore` patterns when scanning directories
 - **Binary Detection**: Identifies binary file types (images, executables, archives)
+
+### AI Agent Detection
+
+`AI_RULES` in `constants.py` maps an indicator to `(product, kind)` across three match modes — `exact_filename`, `path_contains` and `filename_suffix`. Precedence is exact filename, then the longest matching path fragment, then the longest matching suffix; first hit wins.
+
+`core.get_ai_metadata(path)` is the single source of truth, returning `{"product", "kind"}` or `None`. `get_filename_metatypes()` derives `["AI", product, kind]` from it, so `assess` and kospex pick up AI tags without calling anything new.
+
+Rules to follow when adding a product:
+
+- Detection is **path-based only** — never open a file to determine AI metadata.
+- Products are **brand-level**: `Claude` covers both Claude Code and Claude Desktop. Files owned by no brand use a pseudo-product (`Agents`, `MCP`, `llms.txt`).
+- `kind` must come from `AI_ARTIFACT_KINDS`. Do not invent a new one without adding it there.
+- `exact_filename` and `path_contains` keys are lowercase; path fragments end with `/`.
+- **Verify the convention against the product's current official docs before adding it.** A wrong rule mislabels a repository and the label flows into kospex. A missing rule is better than a wrong one. Watch for user-level paths (`~/.config/<tool>/`) — those are not repository artifacts and must not be added.
 
 ## Development Commands
 
@@ -40,7 +55,7 @@ pip install -e .
 pytest -v
 ```
 
-Test fixture files are in `src/tests/` (sample files for analysis, not pytest tests). Automated tests should be added to a `tests/` directory in the project root.
+Test fixture files are in `src/tests/` (sample files for analysis, not pytest tests). Automated tests live in `tests/` in the project root.
 
 ### Build and Distribution
 ```bash
@@ -61,6 +76,11 @@ panopticas file filename.py
 
 # Find URLs in directory
 panopticas urls /path/to/directory
+
+# Find AI coding agent files and directories
+panopticas ai
+panopticas ai /path/to/directory
+panopticas ai --all-files          # include gitignored files and bare AI directories
 ```
 
 ## File Structure
@@ -119,13 +139,15 @@ Each feature or significant change should have a markdown file in `/changes/`. N
    ```bash
    gh release create vX.Y.Z --title "vX.Y.Z" --notes-file CHANGELOG.md
    ```
-8. If kospex pins this version, update `panopticas==X.Y.Z` in kospex's `pyproject.toml`
+8. Update `panopticas==X.Y.Z` in kospex's `pyproject.toml` — kospex uses an **exact pin**, so a new release does not reach it until this is bumped. This step is mandatory, not conditional.
 
 ## Relationship to kospex
 
 Panopticas is used by kospex for file type detection and metadata extraction. Key integration points:
 - `kospex_core.py` uses panopticas for file metadata during sync
-- `kospex_git.py` uses panopticas for repo file analysis
-- kospex declares `panopticas>=0.0.14` in its `pyproject.toml`
+- `kospex_git.py` calls `get_filename_metatypes()` and stores the result as `tech_type`
+- `kospex_schema.py` encodes tags as `|tag1|tag2|`; `kospex_query.py` queries them with `tech_type LIKE '%|tag|%'`
+- `kospex_core.py` tracks `last_panopticas_version` and re-syncs when it changes, so a version bump re-tags already-synced repos
+- kospex pins `panopticas==0.0.16` in its `pyproject.toml` — an exact pin, so releases do not flow through until it is bumped
 
-When making breaking changes to panopticas, check kospex integration points first.
+When making breaking changes to panopticas, check kospex integration points first. Adding a tag is safe; renaming or removing one is not, since kospex stores tags in a database that is only refreshed on re-sync.

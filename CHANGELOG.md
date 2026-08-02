@@ -2,6 +2,19 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.0.17 - 2026-08-01
+
+### Added
+ - AI coding agent detection — 20 products detected via a new `AI_RULES` table (60 detection rules), tagging artifacts with `AI`, the product brand, and the artifact kind (e.g. `AI, Claude, instructions`)
+ - `panopticas ai [DIRECTORY]` command listing AI files with their product and kind, plus a summary of which AI products the repo uses; `--all-files` additionally reports gitignored files and bare AI directories
+ - `get_ai_metadata(file_path)` returning `{"product", "kind"}` or `None` for a path
+ - `find_ai_files(directory, all_files=False)` returning path -> AI metadata for a directory tree
+ - Test coverage for AI detection, precedence, tag output and rules-table integrity (235 tests at release)
+
+### Changed
+ - (breaking) `CLAUDE.md` now tags as `AI, Claude, instructions` (was `Claude, AI, Claude Code`) and `GEMINI.md` as `AI, Gemini, instructions` (was `Gemini, AI, Gemini CLI`) — product tags are now brand-level and consistent across all AI entries
+ - AI detection rules moved out of `METADATA_RULES` into the dedicated `AI_RULES` table
+
 ## 0.0.16 - 2026-05-21
 
 ### Fixed

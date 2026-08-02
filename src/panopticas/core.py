@@ -4,7 +4,7 @@ Analysis functions for Panopticas.
 import os
 import re
 import pathspec
-from .constants import EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
+from .constants import AI_RULES, EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
 
 UNKNOWN = "Unknown"
 
@@ -28,6 +28,42 @@ def get_extension_filetype(file_ext):
         return EXT_FILETYPES.get(file_ext.lower(), None)
     else:
         return None
+
+def get_ai_metadata(file_path):
+    """
+    Return AI coding agent metadata for a path, or None.
+
+    Returns {"product": str, "kind": str} when the path is a recognised
+    AI agent artifact, for example:
+        CLAUDE.md              -> {"product": "Claude", "kind": "instructions"}
+        .cursor/rules/x.mdc    -> {"product": "Cursor", "kind": "rules"}
+
+    This is pure path inspection — the file is never opened, and the path
+    need not exist. Precedence is exact filename, then the longest matching
+    path fragment, then the longest matching filename suffix.
+    """
+    if not file_path:
+        return None
+
+    # Normalise Windows separators and case so the rule keys stay lowercase.
+    path = file_path.replace(os.sep, "/").lower()
+    filename = os.path.basename(path)
+
+    rule = AI_RULES["exact_filename"].get(filename)
+    if rule:
+        return {"product": rule[0], "kind": rule[1]}
+
+    for fragment in sorted(AI_RULES["path_contains"], key=len, reverse=True):
+        if fragment in path:
+            rule = AI_RULES["path_contains"][fragment]
+            return {"product": rule[0], "kind": rule[1]}
+
+    for suffix in sorted(AI_RULES["filename_suffix"], key=len, reverse=True):
+        if filename.endswith(suffix):
+            rule = AI_RULES["filename_suffix"][suffix]
+            return {"product": rule[0], "kind": rule[1]}
+
+    return None
 
 def get_filename_metatypes(file_path):
     """
@@ -64,6 +100,13 @@ def get_filename_metatypes(file_path):
     # Special case for license files
     if file_no_ext == "license":
         tags.append("license")
+
+    # AI coding agent artifacts. Runs last so it appends to — rather than
+    # competes with — the rules above; .github/copilot-instructions.md
+    # keeps its GitHub/Git tags and gains the AI ones.
+    ai_metadata = get_ai_metadata(file_path)
+    if ai_metadata:
+        tags.extend(["AI", ai_metadata["product"], ai_metadata["kind"]])
 
     return tags
 
@@ -227,6 +270,58 @@ def find_files(directory,all_files=None):
             file_paths.append(relative_path)
 
     return file_paths
+
+def find_ai_files(directory, all_files=False):
+    """
+    Find AI coding agent artifacts in a directory.
+
+    Returns a dict of relative path -> {"product": str, "kind": str}.
+
+    By default the walk honours .gitignore and returns files only. With
+    all_files=True it ignores .gitignore and additionally returns one entry
+    per directory whose own path terminates a known AI `path_contains`
+    fragment (e.g. ".claude/", ".claude/skills/"), keyed with a trailing
+    separator and carrying kind "directory". Directories nested beneath a
+    known AI directory that are not themselves a known fragment (e.g.
+    ".claude/skills/review/") are not reported — get_ai_metadata() matches
+    path_contains fragments as an unanchored substring, so without this
+    check every descendant of an AI root would be emitted too. This
+    surfaces tooling a team has configured locally but excluded from the
+    repo, without flooding the output with arbitrary subdirectories.
+    """
+    gitignore_spec = None if all_files else load_gitignore_patterns(directory)
+
+    ai_files = {}
+
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            relative_path = os.path.relpath(os.path.join(root, file), directory)
+            if gitignore_spec and gitignore_spec.match_file(relative_path):
+                continue
+            metadata = get_ai_metadata(relative_path)
+            if metadata:
+                ai_files[relative_path] = metadata
+
+        if all_files:
+            for name in dirs:
+                relative_dir = os.path.relpath(
+                    os.path.join(root, name), directory) + os.sep
+                # Normalise to forward slashes with a leading separator so
+                # a top-level directory (e.g. ".claude/", no leading slash
+                # in the relative path) can still match a fragment like
+                # ".claude/" via endswith, exactly like a nested one does.
+                normalised = "/" + relative_dir.replace(os.sep, "/").lower()
+                is_known_ai_dir = any(
+                    normalised.endswith(fragment)
+                    for fragment in AI_RULES["path_contains"])
+                if not is_known_ai_dir:
+                    continue
+                metadata = get_ai_metadata(relative_dir)
+                if metadata:
+                    ai_files[relative_dir] = {
+                        "product": metadata["product"], "kind": "directory"}
+
+    return ai_files
 
 def extract_shebang_language(shebang: str) -> str:
     """
