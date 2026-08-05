@@ -2,7 +2,7 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## 0.0.17 - 2026-08-01
+## 0.0.17 - 2026-08-04
 
 ### Added
  - AI coding agent detection — 20 products detected via a new `AI_RULES` table (60 detection rules), tagging artifacts with `AI`, the product brand, and the artifact kind (e.g. `AI, Claude, instructions`)
