@@ -1,7 +1,18 @@
 # AI Coding Agent Detection — Design
 
 **Date:** 2026-07-31
-**Status:** Approved, ready for implementation planning
+**Status:** Implemented in 0.0.17. **Rules table superseded** — see
+[`docs/ai-detection-rules.md`](../../ai-detection-rules.md).
+
+> ⚠️ **Do not extend the rules from this document.** The tables below are the
+> *pre-verification proposal*. Four candidates in them were investigated during
+> implementation and **rejected**: `.goose/` and `.qodo/` are user-level
+> `~/.config` paths rather than repository artifacts, and single-file
+> `.clinerules` and `amazonq.md` could not be confirmed against current vendor
+> documentation. `.goose/` appears below unmarked, as though confirmed.
+>
+> The design rationale — tag shape, brand-level products, precedence, the kospex
+> impact analysis — remains accurate and is why this document is kept.
 
 ## Problem
 
