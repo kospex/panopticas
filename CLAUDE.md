@@ -154,6 +154,6 @@ Panopticas is used by kospex for file type detection and metadata extraction. Ke
 - `kospex_git.py` calls `get_filename_metatypes()` and stores the result as `tech_type`
 - `kospex_schema.py` encodes tags as `|tag1|tag2|`; `kospex_query.py` queries them with `tech_type LIKE '%|tag|%'`
 - `kospex_core.py` tracks `last_panopticas_version` and re-syncs when it changes, so a version bump re-tags already-synced repos
-- kospex pins `panopticas==0.0.16` in its `pyproject.toml` — an exact pin, so releases do not flow through until it is bumped
+- kospex pins `panopticas==X.Y.Z` in its `pyproject.toml` — an **exact** pin, so releases do not flow through until it is bumped. Read the current value from kospex's `pyproject.toml` rather than trusting a version quoted here; this line claimed `0.0.16` long after kospex had moved to `0.0.17`
 
 When making breaking changes to panopticas, check kospex integration points first. Adding a tag is safe; renaming or removing one is not, since kospex stores tags in a database that is only refreshed on re-sync.
