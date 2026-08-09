@@ -2,6 +2,12 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+ - `setup.py` and `setup.cfg` detected as Python dependency manifests, tagged `build, dependencies, Python, setuptools` ([#21](https://github.com/kospex/panopticas/issues/21)). Both previously returned no metatypes, so a setuptools project without a `pyproject.toml` looked like it declared no dependencies at all
+ - `setup.cfg` now reports its language as `INI` — it is read by `configparser`. Mapped by basename rather than adding `.cfg` to the extension table, since that extension is used for arbitrary formats elsewhere; no other `.cfg` file changes
+
 ## 0.0.17 - 2026-08-04
 
 ### Added
