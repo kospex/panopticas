@@ -98,6 +98,10 @@ EXT_FILETYPES = {
 LANGUAGE_BY_BASENAME = {
     "go.mod": "go.mod",
     "go.sum": "go.sum",
+    # setup.cfg is INI (it is read by configparser). Mapped by basename rather
+    # than adding ".cfg" to EXT_FILETYPES — that extension is used for arbitrary
+    # formats elsewhere, so a blanket ".cfg" -> INI rule would over-claim.
+    "setup.cfg": "INI",
 }
 
 METADATA_RULES = {
@@ -134,6 +138,11 @@ METADATA_RULES = {
         "codeowners": ["Git"],
         "eslint.config.js": ["JavaScript", "linter", "eslint", "config"],
         "pyproject.toml": ["build", "dependencies", "Python"],
+        # setup.py / setup.cfg are setuptools-specific, so they carry the
+        # backend tag. pyproject.toml does not: its build-backend is declared
+        # inside the file and cannot be known from the path.
+        "setup.py": ["build", "dependencies", "Python", "setuptools"],
+        "setup.cfg": ["build", "dependencies", "Python", "setuptools"],
         "uv.lock": ["dependencies", "Python", "uv"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],

@@ -210,6 +210,17 @@ class TestGetLanguageEdgeCases:
     def test_regular_file(self):
         assert get_language_edge_cases("main.go") is None
 
+    def test_setup_cfg(self):
+        assert get_language_edge_cases("setup.cfg") == "INI"
+
+    def test_setup_cfg_in_path(self):
+        assert get_language_edge_cases("packages/foo/setup.cfg") == "INI"
+
+    def test_other_cfg_files_are_not_claimed(self):
+        """Only setup.cfg is known to be INI — .cfg generally is not."""
+        assert get_language_edge_cases("tox.cfg") is None
+        assert get_language_edge_cases("app.cfg") is None
+
 
 class TestExtractShebangLanguage:
     """Tests for extract_shebang_language() — parsing shebang lines."""
@@ -267,6 +278,25 @@ class TestGetFilenameMetatypes:
         assert "build" in tags
         assert "dependencies" in tags
         assert "Python" in tags
+
+    def test_setup_py(self):
+        tags = get_filename_metatypes("setup.py")
+        assert "build" in tags
+        assert "dependencies" in tags
+        assert "Python" in tags
+        assert "setuptools" in tags
+
+    def test_setup_cfg(self):
+        tags = get_filename_metatypes("setup.cfg")
+        assert "build" in tags
+        assert "dependencies" in tags
+        assert "Python" in tags
+        assert "setuptools" in tags
+
+    def test_setup_py_in_subdirectory(self):
+        tags = get_filename_metatypes("packages/foo/setup.py")
+        assert "dependencies" in tags
+        assert "setuptools" in tags
 
     def test_package_json(self):
         tags = get_filename_metatypes("package.json")

@@ -352,8 +352,11 @@ def extract_shebang_language(shebang: str) -> str:
 
 def get_language_edge_cases(file_path):
     """
-    Handle edge cases where certain filenames are special file types
-    Seems to be a go thing ...
+    Handle edge cases where certain filenames are special file types.
+
+    Used where a file has no meaningful extension (go.mod, go.sum), or where
+    the extension is too ambiguous to map globally — setup.cfg is INI, but
+    ".cfg" on its own is not.
     """
     basename = os.path.basename(file_path)
 
