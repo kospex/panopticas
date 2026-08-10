@@ -2059,6 +2059,7 @@ Add a `0.0.19` section in Keep a Changelog format:
 ### Changed
 - Table output now uses `rich` instead of `prettytable`, matching kospex and foundationx.
 - Path arguments are validated at the CLI boundary: `assess` and `urls` require a directory, `file` requires a file. Previously a wrong path type produced empty output or an unhandled error.
+- `assess -unknown` now reports totals for the rows it shows. Previously it filtered the rows but the footer still counted every scanned file.
 
 ### Removed
 - The `prettytable` dependency.
@@ -2082,21 +2083,9 @@ panopticas filetypes
 panopticas assess --json
 ```
 
-- [ ] **Step 5: Correct the stale release step**
+**Do not touch `CLAUDE.md`'s release step 8 or its "Relationship to kospex" section.** Both describe kospex as pinning panopticas exactly, which no longer matches kospex's `pyproject.toml` (`panopticas>=0.0.18`). That correction is deliberately out of scope for this change — leave the wording exactly as it is. Only the "Running the CLI" block changes, in Step 4 above.
 
-`CLAUDE.md` release step 8 states kospex pins panopticas exactly and must be bumped manually. kospex's `pyproject.toml` now reads `panopticas>=0.0.18`, so releases reach it without that step. Replace step 8 with:
-
-```markdown
-8. Check the `panopticas` requirement in kospex's `pyproject.toml`. It is
-   currently a floor (`panopticas>=0.0.18`), so a new release flows through
-   without any change there. If it has been changed back to an exact pin
-   (`panopticas==X.Y.Z`), bump it — a release does not reach kospex until you
-   do. Read the current value rather than trusting this line.
-```
-
-Also correct the same claim in the "Relationship to kospex" section, which describes the pin as exact in two places.
-
-- [ ] **Step 6: Run the full suite and build**
+- [ ] **Step 5: Run the full suite and build**
 
 ```bash
 uv run --with pytest pytest -v
@@ -2105,14 +2094,14 @@ ls dist/panopticas-0.0.19*
 ```
 Expected: tests pass; a wheel and sdist for 0.0.19 exist.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add changes/2026-08-tag-vocabulary-and-cli-refactor.md CHANGELOG.md pyproject.toml CLAUDE.md
 git commit -m "Prepare 0.0.19"
 ```
 
-- [ ] **Step 8: Hand off the upload**
+- [ ] **Step 7: Hand off the upload**
 
 Do **not** run `twine upload`. Report that `dist/panopticas-0.0.19*` is built and ready, and that the maintainer performs the upload. Scoping the glob to this version matters — `dist/*` re-sends every past artifact and PyPI aborts on the duplicates.
 
