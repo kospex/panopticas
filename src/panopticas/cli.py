@@ -46,88 +46,84 @@ def cli(ctx):
 @cli.command("assess")
 @click.option('-unknown', is_flag=True, default=False, help="Show only files with an unknown language type.")
 @click.option('--lines', is_flag=True, default=False, help="Include line count for each file.")
+@json_option
 @click.argument('directory', required=False, type=click.Path(exists=True))
-def assess(directory, unknown, lines):
+def assess(directory, unknown, lines, as_json):
     """Assess a directory."""
-    click.echo()
+    if not as_json:
+        click.echo()
     if directory:
-        click.echo(f'Assessing directory: {directory}')
+        banner(f'Assessing directory: {directory}', as_json)
     else:
-        click.echo('Assessing current directory.')
+        banner('Assessing current directory.', as_json)
         directory = "."
-    # Use appropriate function based on whether line counting is requested
+
     if lines:
         files = core.identify_files_with_metrics(directory)
     else:
         files = core.identify_files(directory)
-    click.echo(f'Found {len(files)} files.\n')
+
+    records = []
+    for file, file_info in files.items():
+        file_type = file_info['type'] if lines else file_info
+        if unknown and file_type is not None:
+            continue
+        record = {
+            "path": file,
+            "language": file_type,
+            "meta": core.get_filename_metatypes(file),
+        }
+        if lines:
+            line_count = file_info['lines']
+            # count_lines() yields "N/A" for binaries; JSON says null.
+            record["lines"] = line_count if isinstance(line_count, int) else None
+        records.append(record)
+
+    if as_json:
+        payload = {
+            "directory": directory,
+            "count": len(records),
+            "files": records,
+        }
+        if lines:
+            payload["total_lines"] = sum(
+                r["lines"] for r in records if r["lines"] is not None)
+        emit_json(payload)
+        return
+
+    banner(f'Found {len(files)} files.\n', as_json)
     table = PrettyTable()
-    
-    # Set table headers based on whether line counting is enabled
+
     if lines:
         table.field_names = ["File", "Language", "Meta", "Lines"]
         table.align["Lines"] = "r"
     else:
         table.field_names = ["File", "Language", "Meta"]
-    
+
     table.align["File"] = "l"
     table.align["Language"] = "l"
     table.align["Meta"] = "l"
 
-    for file, file_info in files.items():
-        # Handle different data structures based on line counting
+    for record in records:
+        row = [record["path"], record["language"], ", ".join(record["meta"])]
         if lines:
-            file_type = file_info['type']
-            line_count = file_info['lines']
-        else:
-            file_type = file_info
-            line_count = None
-            
-        meta = core.get_filename_metatypes(file) if core.get_filename_metatypes(file) else ""
-        if meta:
-            meta = ", ".join(meta)
-        
-        # with "unknown", we only include files with unknown language types (e.g. None)
-        if unknown:
-            if file_type is None:
-                #print(f"File: {file} is of unknown language type")
-                if lines:
-                    table.add_row([file, file_type, meta, line_count])
-                else:
-                    table.add_row([file, file_type, meta])
-        else:
-            # Default is we add it to the table
-            if lines:
-                table.add_row([file, file_type, meta, line_count])
-            else:
-                table.add_row([file, file_type, meta])
+            row.append(record["lines"] if record["lines"] is not None else "N/A")
+        table.add_row(row)
 
-    print(table,"\n")
-    
-    # Display totals summary
-    total_files = len(files)
+    print(table, "\n")
+
+    total_files = len(records)
     if lines:
-        # Calculate total lines when line counting is enabled
-        total_lines = 0
-        files_with_lines = 0
-        files_excluded = 0
-        
-        for file, file_info in files.items():
-            line_count = file_info['lines']
-            if isinstance(line_count, int):
-                total_lines += line_count
-                files_with_lines += 1
-            else:
-                # Handle "N/A" values (binary files)
-                files_excluded += 1
-        
-        if files_excluded > 0:
-            print(f"Total files: {total_files}, Total # of Lines: {total_lines:,} ({files_excluded} files excluded - binary/N/A)")
+        counted = [r["lines"] for r in records if r["lines"] is not None]
+        excluded = total_files - len(counted)
+        if excluded:
+            print(f"Total files: {total_files}, Total # of Lines: {sum(counted):,} "
+                  f"({excluded} files excluded - binary/N/A)")
         else:
-            print(f"Total files: {total_files}, Total # of Lines: {total_lines:,}")
+            print(f"Total files: {total_files}, Total # of Lines: {sum(counted):,}")
     else:
         print(f"Total files: {total_files}")
-    
+
     print()
 
 
