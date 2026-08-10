@@ -1,5 +1,6 @@
 """Tests for the tags, languages and filetypes CLI commands."""
 
+import json
 import re
 
 from click.testing import CliRunner
@@ -44,3 +45,35 @@ class TestVocabularyCommands:
     def test_languages_omits_non_languages(self):
         result = CliRunner().invoke(cli, ["languages"])
         assert "PNG" not in result.output
+
+
+class TestVocabularyJson:
+    """--json and -json produce a parseable document."""
+
+    def test_tags_json_shape(self):
+        result = CliRunner().invoke(cli, ["tags", "--json"])
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["tags"] == get_tags()
+        assert payload["count"] == len(get_tags())
+
+    def test_languages_json_shape(self):
+        payload = json.loads(CliRunner().invoke(cli, ["languages", "--json"]).output)
+        assert payload["languages"] == get_languages()
+        assert payload["count"] == len(get_languages())
+
+    def test_filetypes_json_shape(self):
+        payload = json.loads(CliRunner().invoke(cli, ["filetypes", "--json"]).output)
+        assert payload["filetypes"] == get_filetypes()
+        assert payload["count"] == len(get_filetypes())
+
+    def test_single_dash_json_is_identical(self):
+        runner = CliRunner()
+        assert (runner.invoke(cli, ["tags", "-json"]).output
+                == runner.invoke(cli, ["tags", "--json"]).output)
+
+    def test_top_level_is_an_object(self):
+        # Never a bare array — fields can then be added without breaking
+        # existing parsers.
+        payload = json.loads(CliRunner().invoke(cli, ["tags", "--json"]).output)
+        assert isinstance(payload, dict)

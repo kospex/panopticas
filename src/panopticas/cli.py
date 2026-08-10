@@ -1,4 +1,5 @@
 # panopticas CLI
+import json
 import re
 
 import click
@@ -10,6 +11,17 @@ from .constants import VERSION
 
 # Shared console for all rich output.
 console = Console()
+
+
+# Both spellings are accepted. The repository already mixes single- and
+# double-dash long options, so neither is "wrong" to type.
+#
+# This must be defined before any command, not beside them: it is applied as
+# a decorator, which evaluates when the module loads, so a definition further
+# down the file raises NameError on import.
+json_option = click.option(
+    '--json', '-json', 'as_json', is_flag=True, default=False,
+    help="Output as JSON.")
 
 
 @click.group(invoke_without_command=True)
@@ -126,22 +138,61 @@ def print_vocabulary(values, noun):
     console.print(f"\n{len(values)} {noun}\n")
 
 
+def emit_json(payload):
+    """
+    Write a JSON document to stdout and nothing else.
+
+    Everything a command would normally print as chatter goes to stderr in
+    JSON mode (see banner()), so stdout stays pipeable into jq or a parser.
+    """
+    click.echo(json.dumps(payload, indent=2))
+
+
+def banner(message, as_json):
+    """
+    Print progress chatter, routed to stderr when JSON is being emitted so it
+    cannot corrupt the document on stdout.
+
+    Sanitised because callers interpolate a path into the message — an
+    argv-supplied directory could otherwise carry terminal control sequences.
+    The literal parts contain no control characters, so sanitising the whole
+    message is safe and means no call site can forget. Rich markup needs no
+    handling here: click.echo() does not parse it.
+    """
+    click.echo(sanitise_for_display(message), err=as_json)
+
+
 @cli.command("tags")
-def tags():
+@json_option
+def tags(as_json):
     """Show every tag panopticas can assign to a file."""
-    print_vocabulary(core.get_tags(), "tags")
+    values = core.get_tags()
+    if as_json:
+        emit_json({"tags": values, "count": len(values)})
+    else:
+        print_vocabulary(values, "tags")
 
 
 @cli.command("languages")
-def languages():
+@json_option
+def languages(as_json):
     """Show every language panopticas recognises."""
-    print_vocabulary(core.get_languages(), "languages")
+    values = core.get_languages()
+    if as_json:
+        emit_json({"languages": values, "count": len(values)})
+    else:
+        print_vocabulary(values, "languages")
 
 
 @cli.command("filetypes")
-def filetypes():
+@json_option
+def filetypes(as_json):
     """Show every file type panopticas recognises, languages or not."""
-    print_vocabulary(core.get_filetypes(), "filetypes")
+    values = core.get_filetypes()
+    if as_json:
+        emit_json({"filetypes": values, "count": len(values)})
+    else:
+        print_vocabulary(values, "filetypes")
 
 # Filenames may contain almost any byte, and panopticas scans repositories
 # it does not control. An escape sequence in a path would be interpreted by
