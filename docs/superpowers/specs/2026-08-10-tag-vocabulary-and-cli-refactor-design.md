@@ -355,7 +355,18 @@ which currently pass an argv-supplied path straight to `click.echo()`
 unsanitised, and any rich `title=`/`caption=` string built from a path — rich
 parses markup in those too.
 
-Tags, products, kinds and file types come from `constants.py` and are trusted.
+Tags, products and kinds come from `constants.py` and are trusted.
+
+**A detected language is not.** `get_language()` falls back to
+`extract_shebang_language()`, which returns text read out of the file's own
+first line. A file beginning `#!/usr/bin/env \x1b[31m[blink]sh` makes
+`get_language()` return `'\x1b[31m[blink]sh'` verbatim, and that value lands
+in the Language column and the `file` command's Shebang rows. Those cells go
+through `cell()` as well.
+
+This is pre-existing rather than introduced by the migration — the current
+prettytable output prints the escape sequence raw today. Rich adds the markup
+half of the problem on top of it.
 
 The JSON path is the deliberate exception, covered in Part 4: paths are
 emitted raw because JSON escaping already neutralises control characters and
