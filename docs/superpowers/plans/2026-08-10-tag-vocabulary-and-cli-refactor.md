@@ -21,6 +21,7 @@ Design spec: [`docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor
 - Sort every vocabulary with `key=str.lower`. Case-sensitive `sorted()` puts `ZIP` before `binary`, which reads as broken.
 - `rich>=14.0.0` is added in Phase 1 (Task 5) because the vocabulary commands need it. `prettytable` is removed in Phase 3 (Task 14). Both dependencies coexist between those tasks — this is expected, not an error.
 - Work happens on branch `feature/tag-vocabulary-cli-refactor`, already created.
+- **In tests, parse JSON from `result.stdout`, never `result.output`.** Click 8.4.2's `CliRunner.Result.output` interleaves stdout and stderr in write order, so a command that emits a banner to stderr before its JSON makes `json.loads(result.output)` fail. `result.stdout` is the stdout stream alone. Verified against click 8.4.2 in this environment.
 
 ## Reference values
 
@@ -825,29 +826,29 @@ class TestVocabularyJson:
     def test_tags_json_shape(self):
         result = CliRunner().invoke(cli, ["tags", "--json"])
         assert result.exit_code == 0
-        payload = json.loads(result.output)
+        payload = json.loads(result.stdout)
         assert payload["tags"] == get_tags()
         assert payload["count"] == len(get_tags())
 
     def test_languages_json_shape(self):
-        payload = json.loads(CliRunner().invoke(cli, ["languages", "--json"]).output)
+        payload = json.loads(CliRunner().invoke(cli, ["languages", "--json"]).stdout)
         assert payload["languages"] == get_languages()
         assert payload["count"] == len(get_languages())
 
     def test_filetypes_json_shape(self):
-        payload = json.loads(CliRunner().invoke(cli, ["filetypes", "--json"]).output)
+        payload = json.loads(CliRunner().invoke(cli, ["filetypes", "--json"]).stdout)
         assert payload["filetypes"] == get_filetypes()
         assert payload["count"] == len(get_filetypes())
 
     def test_single_dash_json_is_identical(self):
         runner = CliRunner()
         assert (runner.invoke(cli, ["tags", "-json"]).output
-                == runner.invoke(cli, ["tags", "--json"]).output)
+                == runner.invoke(cli, ["tags", "--json"]).stdout)
 
     def test_top_level_is_an_object(self):
         # Never a bare array — fields can then be added without breaking
         # existing parsers.
-        payload = json.loads(CliRunner().invoke(cli, ["tags", "--json"]).output)
+        payload = json.loads(CliRunner().invoke(cli, ["tags", "--json"]).stdout)
         assert isinstance(payload, dict)
 ```
 
@@ -991,28 +992,28 @@ class TestAssessJson:
     def test_documents_every_file(self):
         result = CliRunner().invoke(cli, ["assess", FIXTURES_DIR, "--json"])
         assert result.exit_code == 0
-        payload = json.loads(result.output)
+        payload = json.loads(result.stdout)
         assert payload["directory"] == FIXTURES_DIR
         assert payload["count"] == len(payload["files"])
         assert payload["files"]
 
     def test_meta_is_a_list_not_a_joined_string(self):
         payload = json.loads(
-            CliRunner().invoke(cli, ["assess", FIXTURES_DIR, "--json"]).output)
+            CliRunner().invoke(cli, ["assess", FIXTURES_DIR, "--json"]).stdout)
         for record in payload["files"]:
             assert isinstance(record["meta"], list)
             assert set(record) >= {"path", "language", "meta"}
 
     def test_lines_absent_without_the_flag(self):
         payload = json.loads(
-            CliRunner().invoke(cli, ["assess", FIXTURES_DIR, "--json"]).output)
+            CliRunner().invoke(cli, ["assess", FIXTURES_DIR, "--json"]).stdout)
         assert "total_lines" not in payload
         assert all("lines" not in r for r in payload["files"])
 
     def test_lines_present_with_the_flag(self):
         payload = json.loads(
             CliRunner().invoke(
-                cli, ["assess", FIXTURES_DIR, "--lines", "--json"]).output)
+                cli, ["assess", FIXTURES_DIR, "--lines", "--json"]).stdout)
         assert isinstance(payload["total_lines"], int)
         assert all("lines" in r for r in payload["files"])
 
@@ -1020,7 +1021,7 @@ class TestAssessJson:
         # count_lines() returns "N/A" for undecodable files; JSON says null.
         payload = json.loads(
             CliRunner().invoke(
-                cli, ["assess", FIXTURES_DIR, "--lines", "--json"]).output)
+                cli, ["assess", FIXTURES_DIR, "--lines", "--json"]).stdout)
         for record in payload["files"]:
             assert record["lines"] is None or isinstance(record["lines"], int)
 
@@ -1028,7 +1029,7 @@ class TestAssessJson:
         runner = CliRunner()
         result = runner.invoke(
             cli, ["assess", FIXTURES_DIR, "--json"], catch_exceptions=False)
-        json.loads(result.output)  # raises if chatter leaked onto stdout
+        json.loads(result.stdout)  # raises if chatter leaked onto stdout
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -1171,7 +1172,7 @@ class TestAiJson:
 
         result = CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"])
         assert result.exit_code == 0
-        payload = json.loads(result.output)
+        payload = json.loads(result.stdout)
 
         assert payload["count"] == 2
         assert payload["products"] == {"Claude": 1, "Cursor": 1}
@@ -1181,7 +1182,7 @@ class TestAiJson:
 
     def test_empty_directory_is_still_an_object(self, tmp_path):
         payload = json.loads(
-            CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"]).output)
+            CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"]).stdout)
         assert payload["count"] == 0
         assert payload["paths"] == []
         assert payload["products"] == {}
@@ -1191,7 +1192,7 @@ class TestAiJson:
         # consumer needs the real path to open the file.
         (tmp_path / "[bold]CLAUDE.md").write_text("x")
         payload = json.loads(
-            CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"]).output)
+            CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"]).stdout)
         assert any(r["path"] == "[bold]CLAUDE.md" for r in payload["paths"])
 ```
 
@@ -1306,7 +1307,7 @@ class TestFileJson:
 
         result = CliRunner().invoke(cli, ["file", str(target), "--json"])
         assert result.exit_code == 0
-        payload = json.loads(result.output)
+        payload = json.loads(result.stdout)
 
         assert payload["file"] == str(target)
         assert payload["extension"] == ".py"
@@ -1320,7 +1321,7 @@ class TestFileJson:
         target = tmp_path / "notes.md"
         target.write_text("hello\n")
         payload = json.loads(
-            CliRunner().invoke(cli, ["file", str(target), "--json"]).output)
+            CliRunner().invoke(cli, ["file", str(target), "--json"]).stdout)
         assert payload["shebang"] is None
         assert payload["shebang_language"] is None
 
@@ -1334,7 +1335,7 @@ class TestUrlsJson:
 
         result = CliRunner().invoke(cli, ["urls", str(tmp_path), "--json"])
         assert result.exit_code == 0
-        payload = json.loads(result.output)
+        payload = json.loads(result.stdout)
 
         assert payload["directory"] == str(tmp_path)
         assert payload["count"] == len(payload["files"])
@@ -1688,7 +1689,7 @@ class TestAssessEscapesPaths:
     def test_json_keeps_the_real_path(self, tmp_path):
         (tmp_path / "[bold]evil.py").write_text("x = 1\n")
         payload = json.loads(
-            CliRunner().invoke(cli, ["assess", str(tmp_path), "--json"]).output)
+            CliRunner().invoke(cli, ["assess", str(tmp_path), "--json"]).stdout)
         assert any(r["path"] == "[bold]evil.py" for r in payload["files"])
 
 
@@ -1718,7 +1719,7 @@ class TestShebangIsUntrusted:
         target = tmp_path / "trap"
         target.write_text("#!/usr/bin/env python3\n")
         payload = json.loads(
-            CliRunner().invoke(cli, ["file", str(target), "--json"]).output)
+            CliRunner().invoke(cli, ["file", str(target), "--json"]).stdout)
         assert payload["shebang"] == "#!/usr/bin/env python3"
 ```
 
