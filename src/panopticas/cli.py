@@ -3,8 +3,13 @@ import re
 
 import click
 from prettytable import PrettyTable
+from rich.columns import Columns
+from rich.console import Console
 from . import core
 from .constants import VERSION
+
+# Shared console for all rich output.
+console = Console()
 
 
 @click.group(invoke_without_command=True)
@@ -112,6 +117,31 @@ def assess(directory, unknown, lines):
         print(f"Total files: {total_files}")
     
     print()
+
+
+def print_vocabulary(values, noun):
+    """Print a vocabulary as a column grid with a count beneath."""
+    console.print()
+    console.print(Columns(values, padding=(0, 2), equal=True))
+    console.print(f"\n{len(values)} {noun}\n")
+
+
+@cli.command("tags")
+def tags():
+    """Show every tag panopticas can assign to a file."""
+    print_vocabulary(core.get_tags(), "tags")
+
+
+@cli.command("languages")
+def languages():
+    """Show every language panopticas recognises."""
+    print_vocabulary(core.get_languages(), "languages")
+
+
+@cli.command("filetypes")
+def filetypes():
+    """Show every file type panopticas recognises, languages or not."""
+    print_vocabulary(core.get_filetypes(), "filetypes")
 
 # Filenames may contain almost any byte, and panopticas scans repositories
 # it does not control. An escape sequence in a path would be interpreted by
