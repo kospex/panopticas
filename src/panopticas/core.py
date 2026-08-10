@@ -8,6 +8,7 @@ from .constants import (
     AI_RULES,
     AI_TAG,
     EXT_FILETYPES,
+    IMPLICIT_TAGS,
     LANGUAGE_BY_BASENAME,
     LICENSE_TAG,
     METADATA_RULES,
@@ -116,6 +117,35 @@ def get_filename_metatypes(file_path):
         tags.extend([AI_TAG, ai_metadata["product"], ai_metadata["kind"]])
 
     return tags
+
+def get_tags():
+    """
+    Return every tag get_filename_metatypes() can emit, sorted.
+
+    Derived by traversing METADATA_RULES and AI_RULES rather than maintained
+    by hand, so a new detection rule joins the vocabulary the moment it is
+    added.
+
+    AI kinds come from the values used in AI_RULES, not from
+    AI_ARTIFACT_KINDS. The two differ by one: `directory` is synthesised
+    inside find_ai_files(all_files=True) and never reaches a file's tags, so
+    including it would offer a tag nothing can be searched by.
+    """
+    tags = set(IMPLICIT_TAGS)
+
+    for rule_set in ("extension_rules", "exact_filename_rules",
+                     "path_contains_rules"):
+        for tag_list in METADATA_RULES[rule_set].values():
+            tags.update(tag_list)
+
+    for _func_name, tag_list in METADATA_RULES["function_rules"]:
+        tags.update(tag_list)
+
+    for match_mode in AI_RULES.values():
+        for product, kind in match_mode.values():
+            tags.update((product, kind))
+
+    return sorted(tags, key=str.lower)
 
 def check_shebang(file_path):
     """ Check if a file has a shebang """
