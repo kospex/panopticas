@@ -24,6 +24,7 @@ from .core import (
     is_pip_requirements,
     get_tags,
     get_filetypes,
+    get_languages,
 )
 
 __version__ = VERSION
@@ -49,4 +50,5 @@ __all__ = [
     'is_pip_requirements',
     'get_tags',
     'get_filetypes',
+    'get_languages',
 ]

@@ -10,6 +10,7 @@ from .constants import (
     EXT_FILETYPES,
     IMPLICIT_TAGS,
     LANGUAGE_BY_BASENAME,
+    LANGUAGE_FILETYPES,
     LICENSE_TAG,
     METADATA_RULES,
 )
@@ -159,6 +160,21 @@ def get_filetypes():
     """
     filetypes = set(EXT_FILETYPES.values()) | set(LANGUAGE_BY_BASENAME.values())
     return sorted(filetypes, key=str.lower)
+
+def get_languages():
+    """
+    Return the programming and presentation languages panopticas recognises,
+    sorted.
+
+    A subset of get_filetypes(). Data formats (JSON, YAML, XML), prose
+    formats (Markdown), binaries (PNG, ZIP) and named config files
+    (.gitignore, go.sum) are file types but not languages.
+
+    The classification is explicit rather than derived — nothing in the data
+    says whether PNG is a language — and a test asserts every file type is
+    classified, so a newly added extension cannot slip in unclassified.
+    """
+    return sorted(LANGUAGE_FILETYPES, key=str.lower)
 
 def check_shebang(file_path):
     """ Check if a file has a shebang """

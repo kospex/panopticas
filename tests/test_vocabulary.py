@@ -9,7 +9,8 @@ here rather than shipping silently.
 
 import pytest
 
-from panopticas import get_filename_metatypes, get_filetypes, get_tags
+from panopticas import (
+    get_filename_metatypes, get_filetypes, get_languages, get_tags)
 from panopticas.constants import AI_RULES, IMPLICIT_TAGS, METADATA_RULES
 
 
@@ -108,3 +109,57 @@ class TestGetFiletypes:
 
         expected = set(EXT_FILETYPES.values()) | set(LANGUAGE_BY_BASENAME.values())
         assert set(get_filetypes()) == expected
+
+
+class TestLanguageClassification:
+    """Every filetype must be explicitly classified — this is the drift guard."""
+
+    def test_classification_is_complete(self):
+        from panopticas.constants import (
+            LANGUAGE_FILETYPES, NON_LANGUAGE_FILETYPES)
+
+        classified = set(LANGUAGE_FILETYPES) | set(NON_LANGUAGE_FILETYPES)
+        unclassified = set(get_filetypes()) - classified
+        assert not unclassified, (
+            f"unclassified file types: {sorted(unclassified)} — add each to "
+            "LANGUAGE_FILETYPES or NON_LANGUAGE_FILETYPES in constants.py")
+
+    def test_no_stale_classifications(self):
+        from panopticas.constants import (
+            LANGUAGE_FILETYPES, NON_LANGUAGE_FILETYPES)
+
+        classified = set(LANGUAGE_FILETYPES) | set(NON_LANGUAGE_FILETYPES)
+        stale = classified - set(get_filetypes())
+        assert not stale, f"classified but no longer a file type: {sorted(stale)}"
+
+    def test_sets_do_not_overlap(self):
+        from panopticas.constants import (
+            LANGUAGE_FILETYPES, NON_LANGUAGE_FILETYPES)
+
+        assert not (set(LANGUAGE_FILETYPES) & set(NON_LANGUAGE_FILETYPES))
+
+
+class TestGetLanguages:
+    """get_languages() — the language subset of get_filetypes()."""
+
+    def test_returns_sorted_deduplicated_list(self):
+        languages = get_languages()
+        assert isinstance(languages, list)
+        assert languages == sorted(languages, key=str.lower)
+        assert len(languages) == len(set(languages))
+
+    def test_is_a_subset_of_filetypes(self):
+        assert set(get_languages()) <= set(get_filetypes())
+
+    def test_includes_languages(self):
+        languages = get_languages()
+        for expected in ("Python", "Java", "HTML", "CSS", "JSX", "TSX", "SQL"):
+            assert expected in languages
+
+    def test_excludes_non_languages(self):
+        # The classification calls most likely to be flipped by accident.
+        languages = get_languages()
+        for excluded in ("PNG", "JSON", "YAML", "Markdown", "SVG",
+                         "ASP.NET", "go.sum", "Text"):
+            assert excluded not in languages
+            assert excluded in get_filetypes()
