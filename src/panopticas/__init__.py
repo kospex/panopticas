@@ -23,6 +23,7 @@ from .core import (
     extract_urls_from_file,
     is_pip_requirements,
     get_tags,
+    get_filetypes,
 )
 
 __version__ = VERSION
@@ -47,4 +48,5 @@ __all__ = [
     'extract_urls_from_file',
     'is_pip_requirements',
     'get_tags',
+    'get_filetypes',
 ]

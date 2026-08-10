@@ -147,6 +147,19 @@ def get_tags():
 
     return sorted(tags, key=str.lower)
 
+def get_filetypes():
+    """
+    Return every file type get_language() can return from the lookup tables,
+    sorted.
+
+    Two caveats. Shebang detection can return an interpreter name that is not
+    in this list (`bash`, `awk`), because it reads the file rather than a
+    table. And UNKNOWN ("Unknown") is a sentinel for unrecognised files, not a
+    member of the vocabulary.
+    """
+    filetypes = set(EXT_FILETYPES.values()) | set(LANGUAGE_BY_BASENAME.values())
+    return sorted(filetypes, key=str.lower)
+
 def check_shebang(file_path):
     """ Check if a file has a shebang """
     try:

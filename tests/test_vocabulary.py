@@ -9,7 +9,7 @@ here rather than shipping silently.
 
 import pytest
 
-from panopticas import get_filename_metatypes, get_tags
+from panopticas import get_filename_metatypes, get_filetypes, get_tags
 from panopticas.constants import AI_RULES, IMPLICIT_TAGS, METADATA_RULES
 
 
@@ -81,3 +81,30 @@ class TestTagDrift:
         # Guards the guard: if the synthesis above stopped matching rules,
         # the drift test would pass vacuously.
         assert all(get_filename_metatypes(p) for p in sample_paths())
+
+
+class TestGetFiletypes:
+    """get_filetypes() — everything get_language() can return from the tables."""
+
+    def test_returns_sorted_deduplicated_list(self):
+        filetypes = get_filetypes()
+        assert isinstance(filetypes, list)
+        assert filetypes == sorted(filetypes, key=str.lower)
+        assert len(filetypes) == len(set(filetypes))
+
+    def test_includes_extension_and_basename_values(self):
+        filetypes = get_filetypes()
+        assert "Python" in filetypes      # from EXT_FILETYPES
+        assert "go.mod" in filetypes      # from LANGUAGE_BY_BASENAME
+        assert "PNG" in filetypes
+
+    def test_excludes_the_unknown_sentinel(self):
+        # get_language() returns "Unknown" for unrecognised files. It is a
+        # sentinel, not a member of the vocabulary.
+        assert "Unknown" not in get_filetypes()
+
+    def test_covers_every_table_value(self):
+        from panopticas.constants import EXT_FILETYPES, LANGUAGE_BY_BASENAME
+
+        expected = set(EXT_FILETYPES.values()) | set(LANGUAGE_BY_BASENAME.values())
+        assert set(get_filetypes()) == expected
