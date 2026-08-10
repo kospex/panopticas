@@ -690,3 +690,21 @@ class TestIdentifyFilesWithMetrics:
     def test_honors_gitignore(self, sample_tree):
         result = identify_files_with_metrics(sample_tree)
         assert "secret.txt" not in result
+
+
+class TestImplicitTags:
+    """The tags get_filename_metatypes() emits without a rule table entry."""
+
+    def test_license_tag_still_applied(self):
+        assert "license" in get_filename_metatypes("LICENSE")
+        assert "license" in get_filename_metatypes("license.md")
+
+    def test_ai_tag_still_applied(self):
+        assert "AI" in get_filename_metatypes("CLAUDE.md")
+
+    def test_implicit_tags_exported(self):
+        from panopticas.constants import AI_TAG, IMPLICIT_TAGS, LICENSE_TAG
+
+        assert AI_TAG == "AI"
+        assert LICENSE_TAG == "license"
+        assert set(IMPLICIT_TAGS) == {"AI", "license"}

@@ -4,7 +4,14 @@ Analysis functions for Panopticas.
 import os
 import re
 import pathspec
-from .constants import AI_RULES, EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
+from .constants import (
+    AI_RULES,
+    AI_TAG,
+    EXT_FILETYPES,
+    LANGUAGE_BY_BASENAME,
+    LICENSE_TAG,
+    METADATA_RULES,
+)
 
 UNKNOWN = "Unknown"
 
@@ -99,14 +106,14 @@ def get_filename_metatypes(file_path):
 
     # Special case for license files
     if file_no_ext == "license":
-        tags.append("license")
+        tags.append(LICENSE_TAG)
 
     # AI coding agent artifacts. Runs last so it appends to — rather than
     # competes with — the rules above; .github/copilot-instructions.md
     # keeps its GitHub/Git tags and gains the AI ones.
     ai_metadata = get_ai_metadata(file_path)
     if ai_metadata:
-        tags.extend(["AI", ai_metadata["product"], ai_metadata["kind"]])
+        tags.extend([AI_TAG, ai_metadata["product"], ai_metadata["kind"]])
 
     return tags
 

@@ -9,6 +9,15 @@ try:
 except PackageNotFoundError:
     VERSION = "unknown"
 
+# Tags emitted directly by get_filename_metatypes() rather than by a rule
+# table. "AI" prefixes every AI artifact's tags. "license" is matched on the
+# basename-without-extension (LICENSE, license.md, license.txt) so it cannot
+# be expressed as an exact_filename rule. get_tags() reads IMPLICIT_TAGS so
+# these two are not restated anywhere.
+AI_TAG = "AI"
+LICENSE_TAG = "license"
+IMPLICIT_TAGS = (AI_TAG, LICENSE_TAG)
+
 EXT_FILETYPES = {
     ".c": "C",
     ".class": "Java Class",
