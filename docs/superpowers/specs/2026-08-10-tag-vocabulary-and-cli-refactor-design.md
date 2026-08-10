@@ -33,7 +33,7 @@ migration. Shipped as one release.
 | Functions | `get_tags()`, `get_filetypes()`, `get_languages()` |
 | Return type | Sorted `list[str]`, deduplicated, `key=str.lower` |
 | `directory` kind | **Excluded** from `get_tags()` |
-| Language classification | Explicit set in `constants.py` + completeness test |
+| Language classification | Explicit language **and** non-language sets in `constants.py` + completeness test |
 | CLI commands | `tags`, `languages`, `filetypes` — one per function |
 | Vocabulary display | `rich.columns.Columns` grid; `--json` serves machines |
 | JSON flag | Both `--json` and `-json` accepted |
@@ -211,11 +211,25 @@ current.
 
 ### Keeping the classification honest
 
-Store the exclusions in `constants.py` as `NON_LANGUAGE_FILETYPES`, and
-enforce a **completeness test**: every value in `EXT_FILETYPES` and
-`LANGUAGE_BY_BASENAME` must be classified. Adding an extension without
-deciding whether it is a language fails `pytest` with the unclassified value
-named.
+Store **both** sides of the classification in `constants.py` —
+`LANGUAGE_FILETYPES` (32) and `NON_LANGUAGE_FILETYPES` (44) — and enforce a
+**completeness test**:
+
+```python
+classified = LANGUAGE_FILETYPES | NON_LANGUAGE_FILETYPES
+assert classified == all_filetypes   # nothing unclassified, nothing stale
+assert not (LANGUAGE_FILETYPES & NON_LANGUAGE_FILETYPES)   # no value in both
+```
+
+Both sets are required. An exclusion list alone cannot be complete: a new
+entry such as `.webp` → `WebP` would default to *language* simply by not
+appearing in the exclusions, which is the exact drift the test exists to
+catch. With both sets, an unclassified value fails `pytest` by name and the
+author has to decide.
+
+`get_languages()` returns `sorted(LANGUAGE_FILETYPES, key=str.lower)` rather
+than subtracting one set from the other, so the returned list is the
+classification rather than a derivation from it.
 
 This is what makes an explicit list acceptable here where it was rejected in
 Part 1 — the drift is caught by the build rather than trusted to reviewers.
@@ -391,7 +405,7 @@ One spec, one plan, three commits, one release (0.0.19).
 
 | Phase | Scope |
 |---|---|
-| 1 | `IMPLICIT_TAGS`, `NON_LANGUAGE_FILETYPES`, three functions, `__init__.py` exports, three CLI commands, vocabulary tests |
+| 1 | `IMPLICIT_TAGS`, `LANGUAGE_FILETYPES` + `NON_LANGUAGE_FILETYPES`, three functions, `__init__.py` exports, three CLI commands, vocabulary tests |
 | 2 | `--json`/`-json` on all seven commands, `click.Path` constraints tightened, stdout/stderr split, JSON tests |
 | 3 | prettytable → rich across all commands, `cell()` escaping, dependency swap |
 
