@@ -106,3 +106,49 @@ class TestAiJson:
             CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"]).stdout)
 
         assert any(r["path"] == "[bold]dir/CLAUDE.md" for r in payload["paths"])
+
+
+class TestFileJson:
+    """file --json describes a single file."""
+
+    def test_documents_every_detection_method(self, tmp_path):
+        target = tmp_path / "example.py"
+        target.write_text("#!/usr/bin/env python3\n# see https://example.com\n")
+
+        result = CliRunner().invoke(cli, ["file", str(target), "--json"])
+        assert result.exit_code == 0
+        payload = json.loads(result.stdout)
+
+        assert payload["file"] == str(target)
+        assert payload["extension"] == ".py"
+        assert payload["filetype"] == "Python"
+        assert payload["shebang"] == "#!/usr/bin/env python3"
+        assert payload["shebang_language"] == "Python"
+        assert payload["meta"] == []
+        assert payload["urls"] == ["https://example.com"]
+
+    def test_absent_shebang_is_null(self, tmp_path):
+        target = tmp_path / "notes.md"
+        target.write_text("hello\n")
+        payload = json.loads(
+            CliRunner().invoke(cli, ["file", str(target), "--json"]).stdout)
+        assert payload["shebang"] is None
+        assert payload["shebang_language"] is None
+
+
+class TestUrlsJson:
+    """urls --json returns one record per file."""
+
+    def test_documents_urls_per_file(self, tmp_path):
+        (tmp_path / "README.md").write_text("see https://example.com\n")
+        (tmp_path / "empty.md").write_text("nothing here\n")
+
+        result = CliRunner().invoke(cli, ["urls", str(tmp_path), "--json"])
+        assert result.exit_code == 0
+        payload = json.loads(result.stdout)
+
+        assert payload["directory"] == str(tmp_path)
+        assert payload["count"] == len(payload["files"])
+        by_path = {r["path"]: r["urls"] for r in payload["files"]}
+        assert by_path["README.md"] == ["https://example.com"]
+        assert by_path["empty.md"] == []

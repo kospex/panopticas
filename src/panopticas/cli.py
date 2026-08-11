@@ -1,5 +1,6 @@
 # panopticas CLI
 import json
+import os
 import re
 
 import click
@@ -268,9 +269,27 @@ def ai(directory, all_files, as_json):
     print()
 
 @cli.command("file")
-@click.argument('file', required=True,type=click.Path(exists=True))
-def identify(file):
+@json_option
+@click.argument('file', required=True, type=click.Path(exists=True))
+def identify(file, as_json):
     """Assess a filetype."""
+    extension = core.get_fileext(file)
+    shebang = core.check_shebang(file)
+    payload = {
+        "file": file,
+        "extension": extension,
+        "filetype": core.get_extension_filetype(extension),
+        "shebang": shebang,
+        "shebang_language": (
+            core.extract_shebang_language(shebang) if shebang else None),
+        "meta": core.get_filename_metatypes(file),
+        "urls": core.extract_urls_from_file(file),
+    }
+
+    if as_json:
+        emit_json(payload)
+        return
+
     click.echo(f'\nAssessing filetype for file {file}')
     click.echo()
     table = PrettyTable()
@@ -278,39 +297,49 @@ def identify(file):
     table.align["Method"] = "l"
     table.align["Result"] = "l"
 
-    table.add_row(["File extenion", core.get_fileext(file)])
-    table.add_row(["File type", core.get_extension_filetype(core.get_fileext(file))])
-    shebang = core.check_shebang(file)
-    table.add_row(["Shebang", shebang])
-    table.add_row(["Shebang Language", core.extract_shebang_language(shebang) if shebang else None])
-    table.add_row(["Meta", core.get_filename_metatypes(file)])
-
-    urls = []
-
-    urls = core.extract_urls_from_file(file)
-    table.add_row(["URLs", '\n'.join(urls)])
+    table.add_row(["File extenion", payload["extension"]])
+    table.add_row(["File type", payload["filetype"]])
+    table.add_row(["Shebang", payload["shebang"]])
+    table.add_row(["Shebang Language", payload["shebang_language"]])
+    table.add_row(["Meta", payload["meta"]])
+    table.add_row(["URLs", '\n'.join(payload["urls"])])
 
     print(table)
     print()
 
+
 @cli.command("urls")
 @click.option('-all-files', is_flag=True, default=False, help="Show all files, no gitignore.")
+@json_option
 @click.argument('directory', required=True, type=click.Path(exists=True))
-def find_urls(directory,all_files):
+def find_urls(directory, all_files, as_json):
     """
     Find and show urls for all files in a given directory.
     """
-    files = core.find_files(directory,all_files=all_files)
+    files = core.find_files(directory, all_files=all_files)
+    # find_files() returns paths relative to `directory`, not to the
+    # process's cwd — join with `directory` to read the file, but keep the
+    # relative path in the record so JSON/table output matches prior output.
+    records = [
+        {"path": f, "urls": core.extract_urls_from_file(os.path.join(directory, f))}
+        for f in files
+    ]
+
+    if as_json:
+        emit_json({
+            "directory": directory,
+            "count": len(records),
+            "files": records,
+        })
+        return
 
     table = PrettyTable()
     table.field_names = ["Filename", "URLs"]
     table.align["Filename"] = "l"
     table.align["URLs"] = "l"
 
-    # core.find_files(directory)
-    for f in files:
-        urls = core.extract_urls_from_file(f)
-        table.add_row([f, '\n'.join(urls)])
+    for record in records:
+        table.add_row([record["path"], '\n'.join(record["urls"])])
 
     print(table)
     print()
