@@ -52,3 +52,57 @@ class TestBannerSanitisation:
         captured = capsys.readouterr()
         assert captured.out == ""
         assert "Assessing directory" in captured.err
+
+
+import json
+
+from click.testing import CliRunner
+
+from panopticas.cli import cli
+
+
+class TestAssessEscapesPaths:
+    """A crafted filename cannot style or corrupt assess output."""
+
+    def test_markup_in_filename_is_not_interpreted(self, tmp_path):
+        (tmp_path / "[bold]evil.py").write_text("x = 1\n")
+        result = CliRunner().invoke(cli, ["assess", str(tmp_path)])
+        assert result.exit_code == 0
+        # The literal name appears; the markup is not consumed as styling.
+        assert "evil.py" in result.output
+
+    def test_json_keeps_the_real_path(self, tmp_path):
+        (tmp_path / "[bold]evil.py").write_text("x = 1\n")
+        payload = json.loads(
+            CliRunner().invoke(cli, ["assess", str(tmp_path), "--json"]).stdout)
+        assert any(r["path"] == "[bold]evil.py" for r in payload["files"])
+
+
+class TestShebangIsUntrusted:
+    """The language column can come from the file's own first line."""
+
+    def test_crafted_shebang_does_not_reach_the_terminal_raw(self, tmp_path):
+        # get_language() falls back to extract_shebang_language(), which
+        # returns text read out of the file — a crafted shebang would
+        # otherwise be rendered as markup and control sequences.
+        target = tmp_path / "trap"
+        target.write_text("#!/usr/bin/env \x1b[31m[blink]sh\n")
+
+        result = CliRunner().invoke(cli, ["assess", str(tmp_path)])
+        assert result.exit_code == 0
+        assert "\x1b" not in result.output
+
+    def test_file_command_escapes_the_shebang(self, tmp_path):
+        target = tmp_path / "trap"
+        target.write_text("#!/usr/bin/env \x1b[31m[blink]sh\n")
+
+        result = CliRunner().invoke(cli, ["file", str(target)])
+        assert result.exit_code == 0
+        assert "\x1b" not in result.output
+
+    def test_json_keeps_the_raw_shebang(self, tmp_path):
+        target = tmp_path / "trap"
+        target.write_text("#!/usr/bin/env python3\n")
+        payload = json.loads(
+            CliRunner().invoke(cli, ["file", str(target), "--json"]).stdout)
+        assert payload["shebang"] == "#!/usr/bin/env python3"

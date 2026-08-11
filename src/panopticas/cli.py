@@ -8,6 +8,7 @@ from prettytable import PrettyTable
 from rich.columns import Columns
 from rich.console import Console
 from rich.markup import escape
+from rich.table import Table
 from . import core
 from .constants import VERSION
 
@@ -94,40 +95,39 @@ def assess(directory, unknown, lines, as_json):
         emit_json(payload)
         return
 
-    banner(f'Found {len(files)} files.\n', as_json)
-    table = PrettyTable()
-
-    if lines:
-        table.field_names = ["File", "Language", "Meta", "Lines"]
-        table.align["Lines"] = "r"
-    else:
-        table.field_names = ["File", "Language", "Meta"]
-
-    table.align["File"] = "l"
-    table.align["Language"] = "l"
-    table.align["Meta"] = "l"
-
-    for record in records:
-        row = [record["path"], record["language"], ", ".join(record["meta"])]
-        if lines:
-            row.append(record["lines"] if record["lines"] is not None else "N/A")
-        table.add_row(row)
-
-    print(table, "\n")
-
-    total_files = len(records)
+    caption = f"{len(records)} files"
     if lines:
         counted = [r["lines"] for r in records if r["lines"] is not None]
-        excluded = total_files - len(counted)
+        excluded = len(records) - len(counted)
+        caption = f"{len(records)} files, {sum(counted):,} lines"
         if excluded:
-            print(f"Total files: {total_files}, Total # of Lines: {sum(counted):,} "
-                  f"({excluded} files excluded - binary/N/A)")
-        else:
-            print(f"Total files: {total_files}, Total # of Lines: {sum(counted):,}")
-    else:
-        print(f"Total files: {total_files}")
+            caption += f" ({excluded} excluded — binary/N/A)"
 
-    print()
+    table = Table(title=f"Assessment of {cell(directory)}",
+                  caption=caption, caption_style="dim")
+    table.add_column("File", justify="left", style="cyan", no_wrap=True)
+    table.add_column("Language", justify="left", style="magenta")
+    table.add_column("Meta", justify="left", style="green")
+    if lines:
+        table.add_column("Lines", justify="right", style="bright_black")
+
+    for record in records:
+        row = [
+            cell(record["path"]),
+            # The language is untrusted too. get_language() falls back to
+            # extract_shebang_language(), which returns text read out of the
+            # file's first line — a crafted shebang reaches this column
+            # verbatim. Only the Meta column is trusted (it comes from
+            # constants.py).
+            cell(record["language"] or ""),
+            ", ".join(record["meta"]),
+        ]
+        if lines:
+            row.append(str(record["lines"]) if record["lines"] is not None else "N/A")
+        table.add_row(*row)
+
+    console.print(table)
+    console.print()
 
 
 def print_vocabulary(values, noun):
@@ -308,22 +308,23 @@ def identify(file, as_json):
         emit_json(payload)
         return
 
-    click.echo(f'\nAssessing filetype for file {file}')
-    click.echo()
-    table = PrettyTable()
-    table.field_names = ["Method", "Result"]
-    table.align["Method"] = "l"
-    table.align["Result"] = "l"
+    console.print(f"\nAssessing filetype for file {cell(file)}\n")
+    table = Table()
+    table.add_column("Method", justify="left", style="cyan", no_wrap=True)
+    table.add_column("Result", justify="left", style="magenta")
 
-    table.add_row(["File extenion", payload["extension"]])
-    table.add_row(["File type", payload["filetype"]])
-    table.add_row(["Shebang", payload["shebang"]])
-    table.add_row(["Shebang Language", payload["shebang_language"]])
-    table.add_row(["Meta", payload["meta"]])
-    table.add_row(["URLs", '\n'.join(payload["urls"])])
+    # Extension and file type are looked up in constants.py and are trusted.
+    # The shebang rows are read out of the file's first line, so they are
+    # untrusted and must go through cell() like the path and the URLs.
+    table.add_row("File extenion", payload["extension"] or "")
+    table.add_row("File type", payload["filetype"] or "")
+    table.add_row("Shebang", cell(payload["shebang"] or ""))
+    table.add_row("Shebang Language", cell(payload["shebang_language"] or ""))
+    table.add_row("Meta", ", ".join(payload["meta"]))
+    table.add_row("URLs", "\n".join(cell(url) for url in payload["urls"]))
 
-    print(table)
-    print()
+    console.print(table)
+    console.print()
 
 
 @cli.command("urls")
