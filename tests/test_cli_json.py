@@ -41,13 +41,22 @@ class TestAssessJson:
         assert isinstance(payload["total_lines"], int)
         assert all("lines" in r for r in payload["files"])
 
-    def test_binary_line_count_is_null(self):
-        # count_lines() returns "N/A" for undecodable files; JSON says null.
+    def test_binary_line_count_is_null(self, tmp_path):
+        # count_lines() returns the string "N/A" for undecodable files; the
+        # JSON contract says null. src/tests/ holds only empty files, so this
+        # builds a genuinely non-UTF-8 file rather than passing vacuously.
+        (tmp_path / "payload.bin").write_bytes(b"\xff\xfe\x00\x01binary\x80")
+        (tmp_path / "readable.py").write_text("x = 1\n")
+
         payload = json.loads(
             CliRunner().invoke(
-                cli, ["assess", FIXTURES_DIR, "--lines", "--json"]).stdout)
-        for record in payload["files"]:
-            assert record["lines"] is None or isinstance(record["lines"], int)
+                cli, ["assess", str(tmp_path), "--lines", "--json"]).stdout)
+
+        by_path = {r["path"]: r["lines"] for r in payload["files"]}
+        assert by_path["payload.bin"] is None
+        assert by_path["readable.py"] == 1
+        # The undecodable file must not inflate or corrupt the total.
+        assert payload["total_lines"] == 1
 
     def test_stdout_is_only_the_document(self):
         # NOTE: Click 8.2+ changed Result.output to mix stdout+stderr in
