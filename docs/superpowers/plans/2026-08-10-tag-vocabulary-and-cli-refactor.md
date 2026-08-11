@@ -1189,11 +1189,15 @@ class TestAiJson:
 
     def test_paths_are_not_sanitised_in_json(self, tmp_path):
         # JSON escaping already neutralises control characters, and a
-        # consumer needs the real path to open the file.
-        (tmp_path / "[bold]CLAUDE.md").write_text("x")
+        # consumer needs the real path to open the file. The markup goes in a
+        # directory component because AI_RULES matches on the basename — a
+        # file named "[bold]CLAUDE.md" is not detected as an AI artifact.
+        agents = tmp_path / "[bold]dir"
+        agents.mkdir()
+        (agents / "CLAUDE.md").write_text("guidance")
         payload = json.loads(
             CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"]).stdout)
-        assert any(r["path"] == "[bold]CLAUDE.md" for r in payload["paths"])
+        assert any(r["path"] == "[bold]dir/CLAUDE.md" for r in payload["paths"])
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
