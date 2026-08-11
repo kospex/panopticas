@@ -67,3 +67,42 @@ class TestAssessJson:
             cli, ["assess", FIXTURES_DIR, "--json"], catch_exceptions=False)
         json.loads(result.stdout)  # raises if chatter leaked onto stdout
         assert "Assessing directory" not in result.stdout
+
+
+class TestAiJson:
+    """ai --json returns one record per AI artifact."""
+
+    def test_documents_paths_and_products(self, tmp_path):
+        (tmp_path / "CLAUDE.md").write_text("guidance")
+        (tmp_path / ".cursorrules").write_text("rules")
+
+        result = CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"])
+        assert result.exit_code == 0
+        payload = json.loads(result.stdout)
+
+        assert payload["count"] == 2
+        assert payload["products"] == {"Claude": 1, "Cursor": 1}
+        by_path = {r["path"]: r for r in payload["paths"]}
+        assert by_path["CLAUDE.md"]["product"] == "Claude"
+        assert by_path["CLAUDE.md"]["kind"] == "instructions"
+
+    def test_empty_directory_is_still_an_object(self, tmp_path):
+        payload = json.loads(
+            CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"]).stdout)
+        assert payload["count"] == 0
+        assert payload["paths"] == []
+        assert payload["products"] == {}
+
+    def test_paths_are_not_sanitised_in_json(self, tmp_path):
+        # JSON escaping already neutralises control characters, and a consumer
+        # needs the real path to open the file. The markup goes in a directory
+        # component because AI_RULES matches on the basename — a file named
+        # "[bold]CLAUDE.md" is not detected as an AI artifact at all.
+        agents = tmp_path / "[bold]dir"
+        agents.mkdir()
+        (agents / "CLAUDE.md").write_text("guidance")
+
+        payload = json.loads(
+            CliRunner().invoke(cli, ["ai", str(tmp_path), "--json"]).stdout)
+
+        assert any(r["path"] == "[bold]dir/CLAUDE.md" for r in payload["paths"])

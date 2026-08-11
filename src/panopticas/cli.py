@@ -208,19 +208,41 @@ def sanitise_for_display(text):
 @cli.command("ai")
 @click.option('--all-files', is_flag=True, default=False,
               help="Include gitignored files and bare AI directories.")
+@json_option
 @click.argument('directory', required=False,
                  type=click.Path(exists=True, file_okay=False, dir_okay=True))
-def ai(directory, all_files):
+def ai(directory, all_files, as_json):
     """Find AI coding agent files and directories."""
-    click.echo()
+    if not as_json:
+        click.echo()
     if directory:
-        click.echo(f'Assessing directory: {directory}')
+        banner(f'Assessing directory: {directory}', as_json)
     else:
-        click.echo('Assessing current directory.')
+        banner('Assessing current directory.', as_json)
         directory = "."
-    click.echo()
+    if not as_json:
+        click.echo()
 
     ai_files = core.find_ai_files(directory, all_files=all_files)
+
+    # Most-used product first, then alphabetical.
+    counts = {}
+    for metadata in ai_files.values():
+        counts[metadata["product"]] = counts.get(metadata["product"], 0) + 1
+    counts = dict(sorted(counts.items(), key=lambda item: (-item[1], item[0])))
+
+    if as_json:
+        emit_json({
+            "directory": directory,
+            "count": len(ai_files),
+            "products": counts,
+            "paths": [
+                {"path": path, "product": ai_files[path]["product"],
+                 "kind": ai_files[path]["kind"]}
+                for path in sorted(ai_files)
+            ],
+        })
+        return
 
     table = PrettyTable()
     table.field_names = ["Path", "Product", "Kind"]
@@ -236,16 +258,9 @@ def ai(directory, all_files):
 
     print(table, "\n")
 
-    # Summarise which products the repo uses, most-used first.
-    counts = {}
-    for metadata in ai_files.values():
-        counts[metadata["product"]] = counts.get(metadata["product"], 0) + 1
-
     if counts:
         products = ", ".join(
-            f"{product} ({count})" for product, count in
-            sorted(counts.items(), key=lambda item: (-item[1], item[0]))
-        )
+            f"{product} ({count})" for product, count in counts.items())
         print(f"Found {len(ai_files)} AI paths. Products: {products}")
     else:
         print("Found 0 AI paths.")
