@@ -2066,6 +2066,9 @@ Add a `0.0.19` section in Keep a Changelog format:
 - Path arguments are validated at the CLI boundary: `assess` and `urls` require a directory, `file` requires a file. Previously a wrong path type produced empty output or an unhandled error.
 - `assess -unknown` now reports totals for the rows it shows. Previously it filtered the rows but the footer still counted every scanned file.
 
+### Fixed
+- `panopticas urls DIRECTORY` failed with `FileNotFoundError` whenever the target was not the current working directory, and silently read the wrong file when a same-named file existed in the current directory. `find_files()` returns paths relative to the scanned directory; they are now resolved against it before being opened.
+
 ### Removed
 - The `prettytable` dependency.
 ```
