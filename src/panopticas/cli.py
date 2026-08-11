@@ -7,6 +7,7 @@ import click
 from prettytable import PrettyTable
 from rich.columns import Columns
 from rich.console import Console
+from rich.markup import escape
 from . import core
 from .constants import VERSION
 
@@ -205,6 +206,22 @@ CONTROL_CHARACTERS = re.compile(r'[\x00-\x1f\x7f-\x9f]')
 def sanitise_for_display(text):
     """Remove control characters and ANSI escapes from text bound for a terminal."""
     return CONTROL_CHARACTERS.sub('', text)
+
+
+def cell(value):
+    """
+    Render an untrusted value safely for the terminal.
+
+    Two distinct problems. sanitise_for_display() removes control characters
+    a crafted filename could use to rewrite what the operator sees. Rich adds
+    a second surface: it parses [...] in any string it prints as markup, so
+    escape() is needed as well, or a file named "[blink]evil.py" would style
+    the output instead of appearing in it.
+
+    Applies to paths and URLs. Tags, products, kinds and file types come from
+    constants.py and are trusted.
+    """
+    return escape(sanitise_for_display(value))
 
 
 @cli.command("ai")
