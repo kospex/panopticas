@@ -48,7 +48,8 @@ def cli(ctx):
 @click.option('-unknown', is_flag=True, default=False, help="Show only files with an unknown language type.")
 @click.option('--lines', is_flag=True, default=False, help="Include line count for each file.")
 @json_option
-@click.argument('directory', required=False, type=click.Path(exists=True))
+@click.argument('directory', required=False,
+                type=click.Path(exists=True, file_okay=False, dir_okay=True))
 def assess(directory, unknown, lines, as_json):
     """Assess a directory."""
     if not as_json:
@@ -270,7 +271,7 @@ def ai(directory, all_files, as_json):
 
 @cli.command("file")
 @json_option
-@click.argument('file', required=True, type=click.Path(exists=True))
+@click.argument('file', required=True, type=click.Path(exists=True, dir_okay=False))
 def identify(file, as_json):
     """Assess a filetype."""
     extension = core.get_fileext(file)
@@ -311,7 +312,8 @@ def identify(file, as_json):
 @cli.command("urls")
 @click.option('-all-files', is_flag=True, default=False, help="Show all files, no gitignore.")
 @json_option
-@click.argument('directory', required=True, type=click.Path(exists=True))
+@click.argument('directory', required=True,
+                type=click.Path(exists=True, file_okay=False, dir_okay=True))
 def find_urls(directory, all_files, as_json):
     """
     Find and show urls for all files in a given directory.

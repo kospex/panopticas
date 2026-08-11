@@ -152,3 +152,35 @@ class TestUrlsJson:
         by_path = {r["path"]: r["urls"] for r in payload["files"]}
         assert by_path["README.md"] == ["https://example.com"]
         assert by_path["empty.md"] == []
+
+
+class TestPathValidation:
+    """Wrong path types fail at the Click boundary, not inside a handler."""
+
+    def test_assess_rejects_a_file(self, tmp_path):
+        target = tmp_path / "example.py"
+        target.write_text("x = 1\n")
+        result = CliRunner().invoke(cli, ["assess", str(target)])
+        assert result.exit_code == 2
+        assert "directory" in result.output.lower()
+
+    def test_urls_rejects_a_file(self, tmp_path):
+        target = tmp_path / "example.py"
+        target.write_text("x = 1\n")
+        result = CliRunner().invoke(cli, ["urls", str(target)])
+        assert result.exit_code == 2
+
+    def test_file_rejects_a_directory(self, tmp_path):
+        result = CliRunner().invoke(cli, ["file", str(tmp_path)])
+        assert result.exit_code == 2
+
+    def test_missing_path_still_rejected(self):
+        result = CliRunner().invoke(cli, ["assess", "/no/such/directory"])
+        assert result.exit_code == 2
+
+    def test_valid_paths_still_accepted(self, tmp_path):
+        (tmp_path / "example.py").write_text("x = 1\n")
+        assert CliRunner().invoke(
+            cli, ["assess", str(tmp_path), "--json"]).exit_code == 0
+        assert CliRunner().invoke(
+            cli, ["file", str(tmp_path / "example.py"), "--json"]).exit_code == 0
