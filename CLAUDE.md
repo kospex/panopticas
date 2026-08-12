@@ -87,6 +87,14 @@ panopticas urls /path/to/directory
 panopticas ai
 panopticas ai /path/to/directory
 panopticas ai --all-files          # include gitignored files and bare AI directories
+
+# Show the vocabularies panopticas uses
+panopticas tags
+panopticas languages
+panopticas filetypes
+
+# Any command can emit JSON
+panopticas assess --json
 ```
 
 ## File Structure
