@@ -106,3 +106,17 @@ class TestShebangIsUntrusted:
         payload = json.loads(
             CliRunner().invoke(cli, ["file", str(target), "--json"]).stdout)
         assert payload["shebang"] == "#!/usr/bin/env python3"
+
+
+class TestAiEscapesPaths:
+    """The ai command renders untrusted paths safely."""
+
+    def test_markup_in_ai_filename_is_escaped(self, tmp_path):
+        agents = tmp_path / "[bold]dir"
+        agents.mkdir()
+        (agents / "CLAUDE.md").write_text("guidance")
+
+        result = CliRunner().invoke(cli, ["ai", str(tmp_path)])
+        assert result.exit_code == 0
+        assert "CLAUDE.md" in result.output
+        assert "Claude" in result.output

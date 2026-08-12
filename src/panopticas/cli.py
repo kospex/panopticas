@@ -4,7 +4,6 @@ import os
 import re
 
 import click
-from prettytable import PrettyTable
 from rich.columns import Columns
 from rich.console import Console
 from rich.markup import escape
@@ -263,28 +262,26 @@ def ai(directory, all_files, as_json):
         })
         return
 
-    table = PrettyTable()
-    table.field_names = ["Path", "Product", "Kind"]
-    table.align["Path"] = "l"
-    table.align["Product"] = "l"
-    table.align["Kind"] = "l"
+    if counts:
+        products = ", ".join(
+            f"{product} ({count})" for product, count in counts.items())
+        caption = f"{len(ai_files)} AI paths • {products}"
+    else:
+        caption = "0 AI paths"
+
+    table = Table(title=f"AI artifacts in {cell(directory)}",
+                  caption=caption, caption_style="dim")
+    table.add_column("Path", justify="left", style="cyan", no_wrap=True)
+    table.add_column("Product", justify="left", style="magenta")
+    table.add_column("Kind", justify="left", style="green")
 
     for path in sorted(ai_files):
         metadata = ai_files[path]
         # Only the path is untrusted — product and kind come from AI_RULES.
-        table.add_row(
-            [sanitise_for_display(path), metadata["product"], metadata["kind"]])
+        table.add_row(cell(path), metadata["product"], metadata["kind"])
 
-    print(table, "\n")
-
-    if counts:
-        products = ", ".join(
-            f"{product} ({count})" for product, count in counts.items())
-        print(f"Found {len(ai_files)} AI paths. Products: {products}")
-    else:
-        print("Found 0 AI paths.")
-
-    print()
+    console.print(table)
+    console.print()
 
 @cli.command("file")
 @json_option
@@ -353,16 +350,18 @@ def find_urls(directory, all_files, as_json):
         })
         return
 
-    table = PrettyTable()
-    table.field_names = ["Filename", "URLs"]
-    table.align["Filename"] = "l"
-    table.align["URLs"] = "l"
+    table = Table(title=f"URLs in {cell(directory)}",
+                  caption=f"{len(records)} files", caption_style="dim")
+    table.add_column("Filename", justify="left", style="cyan", no_wrap=True)
+    table.add_column("URLs", justify="left", style="magenta")
 
     for record in records:
-        table.add_row([record["path"], '\n'.join(record["urls"])])
+        table.add_row(
+            cell(record["path"]),
+            "\n".join(cell(url) for url in record["urls"]))
 
-    print(table)
-    print()
+    console.print(table)
+    console.print()
 
 if __name__ == '__main__':
     cli()

@@ -392,7 +392,7 @@ class TestAiCommand:
         with tempfile.TemporaryDirectory() as root:
             result = CliRunner().invoke(cli, ["ai", root])
             assert result.exit_code == 0
-            assert "Found 0 AI paths." in result.output
+            assert "0 AI paths" in result.output
 
     def test_rejects_a_file_argument(self):
         with tempfile.TemporaryDirectory() as root:
