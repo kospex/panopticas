@@ -104,7 +104,10 @@ def assess(directory, unknown, lines, as_json):
 
     table = Table(title=f"Assessment of {cell(directory)}",
                   caption=caption, caption_style="dim")
-    table.add_column("File", justify="left", style="cyan")
+    # Paths wrap rather than truncate. Rich's default is an ellipsis that cuts
+    # the end of the string — on a long path that hides the filename, which is
+    # the part identifying the row. Folding keeps every path readable in full.
+    table.add_column("File", justify="left", style="cyan", overflow="fold")
     table.add_column("Language", justify="left", style="magenta")
     table.add_column("Meta", justify="left", style="green")
     if lines:
@@ -271,7 +274,8 @@ def ai(directory, all_files, as_json):
 
     table = Table(title=f"AI artifacts in {cell(directory)}",
                   caption=caption, caption_style="dim")
-    table.add_column("Path", justify="left", style="cyan")
+    # Fold rather than truncate — see the note in assess().
+    table.add_column("Path", justify="left", style="cyan", overflow="fold")
     table.add_column("Product", justify="left", style="magenta")
     table.add_column("Kind", justify="left", style="green")
 
@@ -362,8 +366,10 @@ def find_urls(directory, all_files, as_json):
 
     table = Table(title=f"URLs in {cell(directory)}",
                   caption=f"{len(records)} files", caption_style="dim")
-    table.add_column("Filename", justify="left", style="cyan")
-    table.add_column("URLs", justify="left", style="magenta")
+    # Fold rather than truncate — see the note in assess(). URLs fold too: a
+    # truncated URL is not clickable and not searchable.
+    table.add_column("Filename", justify="left", style="cyan", overflow="fold")
+    table.add_column("URLs", justify="left", style="magenta", overflow="fold")
 
     for record in records:
         table.add_row(

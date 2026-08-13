@@ -139,3 +139,60 @@ class TestAiEscapesPaths:
         assert result.exit_code == 0
         assert "CLAUDE.md" in result.output
         assert "Claude" in result.output
+
+
+class TestLongPathsAreNotTruncated:
+    """Long paths fold onto extra lines rather than losing their filename.
+
+    Rich's default overflow is an ellipsis cutting the END of a string, so a
+    long path would keep its directory prefix and drop the filename — exactly
+    the part identifying the row. overflow="fold" wraps instead. Folded
+    fragments are separated by the table's own border characters, so the
+    column has to be reassembled before asserting on it.
+    """
+
+    @staticmethod
+    def column(output, index):
+        """Reassemble one column of a rich table from its rendered rows."""
+        return "".join(
+            line.split("\u2502")[index].strip()
+            for line in output.splitlines()
+            if line.startswith("\u2502"))
+
+    def _long_tree(self, tmp_path):
+        deep = tmp_path / "a-very-long-directory-name-for-testing-column-overflow"
+        deep.mkdir()
+        target = deep / "module_with_a_distinctly_long_filename.py"
+        target.write_text("x = 1\n")
+        return target
+
+    def test_assess_keeps_the_filename(self, tmp_path):
+        self._long_tree(tmp_path)
+        result = CliRunner().invoke(cli, ["assess", str(tmp_path)])
+        assert result.exit_code == 0
+        assert "\u2026" not in result.output   # no ellipsis truncation
+        assert ("a-very-long-directory-name-for-testing-column-overflow/"
+                "module_with_a_distinctly_long_filename.py"
+                in self.column(result.output, 1))
+
+    def test_urls_keeps_the_filename_and_url(self, tmp_path):
+        target = self._long_tree(tmp_path)
+        target.write_text("see https://example.com/a/deliberately/long/url/path\n")
+        result = CliRunner().invoke(cli, ["urls", str(tmp_path)])
+        assert result.exit_code == 0
+        assert "\u2026" not in result.output
+        assert ("a-very-long-directory-name-for-testing-column-overflow/"
+                "module_with_a_distinctly_long_filename.py"
+                in self.column(result.output, 1))
+        assert ("https://example.com/a/deliberately/long/url/path"
+                in self.column(result.output, 2))
+
+    def test_ai_keeps_the_path(self, tmp_path):
+        deep = tmp_path / "a-very-long-directory-name-for-testing-column-overflow"
+        deep.mkdir()
+        (deep / "CLAUDE.md").write_text("guidance")
+        result = CliRunner().invoke(cli, ["ai", str(tmp_path)])
+        assert result.exit_code == 0
+        assert "\u2026" not in result.output
+        assert ("a-very-long-directory-name-for-testing-column-overflow/CLAUDE.md"
+                in self.column(result.output, 1))
