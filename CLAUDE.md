@@ -113,7 +113,7 @@ panopticas assess --json
 ## Dependencies
 
 - **Click** (>=8.3.1) — CLI framework
-- **prettytable** (>=3.17.0) — Table formatting for CLI output
+- **rich** (>=14.0.0) — Table formatting for CLI output
 - **pathspec** (>=0.12.1) — Git-style path matching for `.gitignore` support
 
 ## Code Style

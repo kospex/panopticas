@@ -16,6 +16,8 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ### Fixed
  - `panopticas urls DIRECTORY` failed with `FileNotFoundError` whenever the target was not the current working directory, and silently read the wrong file when a same-named file existed in the current directory. `find_files()` returns paths relative to the scanned directory; they are now resolved against it before being opened.
+ - `extract_urls_from_file()` crashed with `TypeError` instead of raising `UnicodeDecodeError` on undecodable input, because the error handler re-raised `UnicodeDecodeError` with only a message argument when its constructor requires five. This crashed `panopticas urls` and `panopticas file` on any binary file. The handler now preserves the original exception's fields, and `panopticas urls` treats an undecodable file as having no URLs instead of aborting the whole scan.
+ - `assess -unknown` never matched anything, because `get_language()` returns the string `"Unknown"` and the filter compared against `None`. It now also matches `core.UNKNOWN`.
 
 ### Removed
  - The `prettytable` dependency.

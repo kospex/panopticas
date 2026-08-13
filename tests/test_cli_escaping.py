@@ -108,6 +108,25 @@ class TestShebangIsUntrusted:
         assert payload["shebang"] == "#!/usr/bin/env python3"
 
 
+class TestFileCommandEscapesExtension:
+    """The extension row can carry a raw, attacker-controlled filename."""
+
+    def test_extensionless_filename_is_escaped_and_sanitised(self, tmp_path):
+        # get_fileext() falls back to os.path.basename() when the file has
+        # no extension (core.py), so an extensionless file's raw name lands
+        # in the "File extenion" row. Without cell() the markup would be
+        # consumed as styling and the ESC byte would reach the terminal raw.
+        target = tmp_path / "ev\x1b[31m[bold]il"
+        target.write_text("plain content\n")
+
+        result = CliRunner().invoke(cli, ["file", str(target)])
+        assert result.exit_code == 0
+        assert "\x1b" not in result.output
+        # Escaped markup renders as literal text rather than being consumed
+        # as a style directive — "bold" survives in the visible output.
+        assert "bold" in result.output
+
+
 class TestAiEscapesPaths:
     """The ai command renders untrusted paths safely."""
 

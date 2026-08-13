@@ -58,6 +58,21 @@ class TestAssessJson:
         # The undecodable file must not inflate or corrupt the total.
         assert payload["total_lines"] == 1
 
+    def test_unknown_filter_matches_the_unknown_language_string(self, tmp_path):
+        # Regression test: get_language() returns the string "Unknown"
+        # (core.UNKNOWN), never None. The old filter compared against None,
+        # so `-unknown` never matched anything.
+        (tmp_path / "readable.py").write_text("x = 1\n")
+        (tmp_path / "mystery.zzqx").write_text("no idea what this is\n")
+
+        payload = json.loads(
+            CliRunner().invoke(
+                cli, ["assess", str(tmp_path), "-unknown", "--json"]).stdout)
+
+        assert payload["count"] == 1
+        assert payload["files"][0]["path"] == "mystery.zzqx"
+        assert payload["files"][0]["language"] == "Unknown"
+
     def test_stdout_is_only_the_document(self):
         # NOTE: Click 8.2+ changed Result.output to mix stdout+stderr in
         # write order (see Result.output docstring); Result.stdout is the
@@ -152,6 +167,22 @@ class TestUrlsJson:
         by_path = {r["path"]: r["urls"] for r in payload["files"]}
         assert by_path["README.md"] == ["https://example.com"]
         assert by_path["empty.md"] == []
+
+    def test_undecodable_file_is_skipped_not_fatal(self, tmp_path):
+        # extract_urls_from_file() raises UnicodeDecodeError on binary
+        # content. `urls` scans a whole directory, so one bad file (e.g. a
+        # .png) must not abort the command for every other file — it is
+        # reported with no URLs rather than propagating the error.
+        (tmp_path / "README.md").write_text("see https://example.com\n")
+        (tmp_path / "image.bin").write_bytes(b"\xff\xfe\x00\x01not valid utf-8")
+
+        result = CliRunner().invoke(cli, ["urls", str(tmp_path), "--json"])
+        assert result.exit_code == 0
+        payload = json.loads(result.stdout)
+
+        by_path = {r["path"]: r["urls"] for r in payload["files"]}
+        assert by_path["README.md"] == ["https://example.com"]
+        assert by_path["image.bin"] == []
 
 
 class TestPathValidation:

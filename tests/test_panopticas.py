@@ -19,6 +19,7 @@ from panopticas import (
     extract_shebang_language,
     check_shebang,
     extract_urls,
+    extract_urls_from_file,
     is_pip_requirements,
     count_lines,
     identify_files,
@@ -509,6 +510,31 @@ class TestExtractUrls:
     def test_url_with_path(self):
         urls = extract_urls("Check https://github.com/kospex/panopticas")
         assert "https://github.com/kospex/panopticas" in urls
+
+
+class TestExtractUrlsFromFile:
+    """Tests for extract_urls_from_file() — including undecodable files."""
+
+    def test_nonexistent_file_raises_file_not_found(self):
+        with pytest.raises(FileNotFoundError):
+            extract_urls_from_file("/nonexistent/file.txt")
+
+    def test_binary_file_raises_unicode_decode_error_not_type_error(self):
+        # Regression test: the handler used to re-raise UnicodeDecodeError
+        # with only a message argument, but UnicodeDecodeError.__init__
+        # requires five positional arguments (encoding, object, start, end,
+        # reason). That raised TypeError instead of UnicodeDecodeError,
+        # crashing `urls` and `file` on any binary input.
+        with tempfile.NamedTemporaryFile(suffix=".bin", delete=False) as f:
+            f.write(b"\xff\xfe\x00\x01not valid utf-8")
+            f.flush()
+            path = f.name
+        try:
+            with pytest.raises(UnicodeDecodeError) as excinfo:
+                extract_urls_from_file(path)
+            assert path in str(excinfo.value)
+        finally:
+            os.unlink(path)
 
 
 class TestCountLines:

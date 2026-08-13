@@ -69,7 +69,7 @@ def assess(directory, unknown, lines, as_json):
     records = []
     for file, file_info in files.items():
         file_type = file_info['type'] if lines else file_info
-        if unknown and file_type is not None:
+        if unknown and file_type not in (None, core.UNKNOWN):
             continue
         record = {
             "path": file,
@@ -104,7 +104,7 @@ def assess(directory, unknown, lines, as_json):
 
     table = Table(title=f"Assessment of {cell(directory)}",
                   caption=caption, caption_style="dim")
-    table.add_column("File", justify="left", style="cyan", no_wrap=True)
+    table.add_column("File", justify="left", style="cyan")
     table.add_column("Language", justify="left", style="magenta")
     table.add_column("Meta", justify="left", style="green")
     if lines:
@@ -271,7 +271,7 @@ def ai(directory, all_files, as_json):
 
     table = Table(title=f"AI artifacts in {cell(directory)}",
                   caption=caption, caption_style="dim")
-    table.add_column("Path", justify="left", style="cyan", no_wrap=True)
+    table.add_column("Path", justify="left", style="cyan")
     table.add_column("Product", justify="left", style="magenta")
     table.add_column("Kind", justify="left", style="green")
 
@@ -310,10 +310,12 @@ def identify(file, as_json):
     table.add_column("Method", justify="left", style="cyan", no_wrap=True)
     table.add_column("Result", justify="left", style="magenta")
 
-    # Extension and file type are looked up in constants.py and are trusted.
-    # The shebang rows are read out of the file's first line, so they are
-    # untrusted and must go through cell() like the path and the URLs.
-    table.add_row("File extenion", payload["extension"] or "")
+    # Only file type is a constants.py lookup and is trusted. The extension
+    # is untrusted: get_fileext() falls back to the basename when the file
+    # has none, so an extensionless file's raw name would land here — it
+    # must go through cell() like the path and the URLs. The shebang rows
+    # are read out of the file's first line, so they are untrusted too.
+    table.add_row("File extenion", cell(payload["extension"] or ""))
     table.add_row("File type", payload["filetype"] or "")
     table.add_row("Shebang", cell(payload["shebang"] or ""))
     table.add_row("Shebang Language", cell(payload["shebang_language"] or ""))
@@ -337,10 +339,18 @@ def find_urls(directory, all_files, as_json):
     # find_files() returns paths relative to `directory`, not to the
     # process's cwd — join with `directory` to read the file, but keep the
     # relative path in the record so JSON/table output matches prior output.
-    records = [
-        {"path": f, "urls": core.extract_urls_from_file(os.path.join(directory, f))}
-        for f in files
-    ]
+    #
+    # This command scans a whole directory, so one undecodable file (a
+    # binary such as a .png) must not abort the run for every other file.
+    # extract_urls_from_file() raises UnicodeDecodeError for those; treat
+    # them the same as a file with no URLs rather than propagating.
+    records = []
+    for f in files:
+        try:
+            urls = core.extract_urls_from_file(os.path.join(directory, f))
+        except UnicodeDecodeError:
+            urls = []
+        records.append({"path": f, "urls": urls})
 
     if as_json:
         emit_json({
@@ -352,7 +362,7 @@ def find_urls(directory, all_files, as_json):
 
     table = Table(title=f"URLs in {cell(directory)}",
                   caption=f"{len(records)} files", caption_style="dim")
-    table.add_column("Filename", justify="left", style="cyan", no_wrap=True)
+    table.add_column("Filename", justify="left", style="cyan")
     table.add_column("URLs", justify="left", style="magenta")
 
     for record in records:

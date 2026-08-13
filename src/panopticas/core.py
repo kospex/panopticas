@@ -499,7 +499,9 @@ def extract_urls_from_file(file_path):
             content = file.read()
             return extract_urls(content)
     except UnicodeDecodeError as e:
-        raise UnicodeDecodeError(f"Unable to decode file {file_path} as UTF-8: {str(e)}")
+        raise UnicodeDecodeError(
+            e.encoding, e.object, e.start, e.end,
+            f"Unable to decode file {file_path} as UTF-8: {e.reason}") from e
 
 def is_pip_requirements(filename: str) -> bool:
     """
