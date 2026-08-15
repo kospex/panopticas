@@ -2,7 +2,7 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## 0.0.19 - 2026-08-12
+## 0.0.19 - 2026-08-15
 
 ### Added
  - `get_tags()`, `get_filetypes()` and `get_languages()` return the vocabularies panopticas uses. The tag vocabulary is derived from the detection rules, so it cannot drift.
