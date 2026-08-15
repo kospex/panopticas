@@ -4,7 +4,16 @@ Analysis functions for Panopticas.
 import os
 import re
 import pathspec
-from .constants import AI_RULES, EXT_FILETYPES, LANGUAGE_BY_BASENAME, METADATA_RULES
+from .constants import (
+    AI_RULES,
+    AI_TAG,
+    EXT_FILETYPES,
+    IMPLICIT_TAGS,
+    LANGUAGE_BY_BASENAME,
+    LANGUAGE_FILETYPES,
+    LICENSE_TAG,
+    METADATA_RULES,
+)
 
 UNKNOWN = "Unknown"
 
@@ -99,16 +108,73 @@ def get_filename_metatypes(file_path):
 
     # Special case for license files
     if file_no_ext == "license":
-        tags.append("license")
+        tags.append(LICENSE_TAG)
 
     # AI coding agent artifacts. Runs last so it appends to — rather than
     # competes with — the rules above; .github/copilot-instructions.md
     # keeps its GitHub/Git tags and gains the AI ones.
     ai_metadata = get_ai_metadata(file_path)
     if ai_metadata:
-        tags.extend(["AI", ai_metadata["product"], ai_metadata["kind"]])
+        tags.extend([AI_TAG, ai_metadata["product"], ai_metadata["kind"]])
 
     return tags
+
+def get_tags():
+    """
+    Return every tag get_filename_metatypes() can emit, sorted.
+
+    Derived by traversing METADATA_RULES and AI_RULES rather than maintained
+    by hand, so a new detection rule joins the vocabulary the moment it is
+    added.
+
+    AI kinds come from the values used in AI_RULES, not from
+    AI_ARTIFACT_KINDS. The two differ by one: `directory` is synthesised
+    inside find_ai_files(all_files=True) and never reaches a file's tags, so
+    including it would offer a tag nothing can be searched by.
+    """
+    tags = set(IMPLICIT_TAGS)
+
+    for rule_set in ("extension_rules", "exact_filename_rules",
+                     "path_contains_rules"):
+        for tag_list in METADATA_RULES[rule_set].values():
+            tags.update(tag_list)
+
+    for _func_name, tag_list in METADATA_RULES["function_rules"]:
+        tags.update(tag_list)
+
+    for match_mode in AI_RULES.values():
+        for product, kind in match_mode.values():
+            tags.update((product, kind))
+
+    return sorted(tags, key=str.lower)
+
+def get_filetypes():
+    """
+    Return every file type get_language() can return from the lookup tables,
+    sorted.
+
+    Two caveats. Shebang detection can return an interpreter name that is not
+    in this list (`bash`, `awk`), because it reads the file rather than a
+    table. And UNKNOWN ("Unknown") is a sentinel for unrecognised files, not a
+    member of the vocabulary.
+    """
+    filetypes = set(EXT_FILETYPES.values()) | set(LANGUAGE_BY_BASENAME.values())
+    return sorted(filetypes, key=str.lower)
+
+def get_languages():
+    """
+    Return the programming and presentation languages panopticas recognises,
+    sorted.
+
+    A subset of get_filetypes(). Data formats (JSON, YAML, XML), prose
+    formats (Markdown), binaries (PNG, ZIP) and named config files
+    (.gitignore, go.sum) are file types but not languages.
+
+    The classification is explicit rather than derived — nothing in the data
+    says whether PNG is a language — and a test asserts every file type is
+    classified, so a newly added extension cannot slip in unclassified.
+    """
+    return sorted(LANGUAGE_FILETYPES, key=str.lower)
 
 def check_shebang(file_path):
     """ Check if a file has a shebang """
@@ -433,7 +499,9 @@ def extract_urls_from_file(file_path):
             content = file.read()
             return extract_urls(content)
     except UnicodeDecodeError as e:
-        raise UnicodeDecodeError(f"Unable to decode file {file_path} as UTF-8: {str(e)}")
+        raise UnicodeDecodeError(
+            e.encoding, e.object, e.start, e.end,
+            f"Unable to decode file {file_path} as UTF-8: {e.reason}") from e
 
 def is_pip_requirements(filename: str) -> bool:
     """

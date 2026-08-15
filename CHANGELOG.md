@@ -2,6 +2,26 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.0.19 - 2026-08-12
+
+### Added
+ - `get_tags()`, `get_filetypes()` and `get_languages()` return the vocabularies panopticas uses. The tag vocabulary is derived from the detection rules, so it cannot drift.
+ - `panopticas tags`, `panopticas languages` and `panopticas filetypes` commands.
+ - `--json` (also accepted as `-json`) on every command. In JSON mode stdout carries only the document; progress messages go to stderr.
+
+### Changed
+ - Table output now uses `rich` instead of `prettytable`, matching kospex and foundationx.
+ - Path arguments are validated at the CLI boundary: `assess` and `urls` require a directory, `file` requires a file. Previously a wrong path type produced empty output or an unhandled error.
+ - `assess -unknown` now reports totals for the rows it shows. Previously it filtered the rows but the footer still counted every scanned file.
+
+### Fixed
+ - `panopticas urls DIRECTORY` failed with `FileNotFoundError` whenever the target was not the current working directory, and silently read the wrong file when a same-named file existed in the current directory. `find_files()` returns paths relative to the scanned directory; they are now resolved against it before being opened.
+ - `extract_urls_from_file()` crashed with `TypeError` instead of raising `UnicodeDecodeError` on undecodable input, because the error handler re-raised `UnicodeDecodeError` with only a message argument when its constructor requires five. This crashed `panopticas urls` and `panopticas file` on any binary file. The handler now preserves the original exception's fields, and `panopticas urls` treats an undecodable file as having no URLs instead of aborting the whole scan.
+ - `assess -unknown` never matched anything, because `get_language()` returns the string `"Unknown"` and the filter compared against `None`. It now also matches `core.UNKNOWN`.
+
+### Removed
+ - The `prettytable` dependency.
+
 ## 0.0.18 - 2026-08-09
 
 ### Added

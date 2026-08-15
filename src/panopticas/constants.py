@@ -9,6 +9,15 @@ try:
 except PackageNotFoundError:
     VERSION = "unknown"
 
+# Tags emitted directly by get_filename_metatypes() rather than by a rule
+# table. "AI" prefixes every AI artifact's tags. "license" is matched on the
+# basename-without-extension (LICENSE, license.md, license.txt) so it cannot
+# be expressed as an exact_filename rule. get_tags() reads IMPLICIT_TAGS so
+# these two are not restated anywhere.
+AI_TAG = "AI"
+LICENSE_TAG = "license"
+IMPLICIT_TAGS = (AI_TAG, LICENSE_TAG)
+
 EXT_FILETYPES = {
     ".c": "C",
     ".class": "Java Class",
@@ -103,6 +112,111 @@ LANGUAGE_BY_BASENAME = {
     # formats elsewhere, so a blanket ".cfg" -> INI rule would over-claim.
     "setup.cfg": "INI",
 }
+
+# Classification of every value in EXT_FILETYPES and LANGUAGE_BY_BASENAME as
+# a language or not. get_languages() returns the first set.
+#
+# The principle: a language expresses behaviour or presentation. Excluded are
+# data and prose formats, binaries, named single-purpose files that are a
+# filename convention rather than a format, and framework artifacts whose
+# actual language is something else (the code in a .aspx file is C# or
+# Visual Basic).
+#
+# Both sets are required, and a test asserts they cover every value exactly
+# once. An exclusion list alone would silently classify a newly added file
+# type as a language.
+#
+# This deliberately diverges from GitHub Linguist on three values, which is
+# the closest available benchmark. GitHub's language bar counts only
+# Linguist's `programming` and `markup` types, so its `data` and `prose`
+# languages (JSON, YAML, Markdown, reStructuredText) are excluded there too.
+# See docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md
+LANGUAGE_FILETYPES = frozenset({
+    "C",
+    "C Header",
+    "C#",
+    "C++",
+    "CSS",
+    "Dockerfile",
+    "Go",
+    "Groovy",
+    "Groovy Server Pages",
+    "HTML",
+    "Java",
+    "JavaScript",
+    "JSX",
+    "Jupyter Notebook",
+    "Kotlin",
+    "Makefile",
+    "Objective-C",
+    "Perl",
+    "PHP",
+    "PowerShell",
+    "Python",
+    "R",
+    "Ruby",
+    "Rust",
+    "Scala",
+    "Shell",
+    "SQL",  # Linguist types SQL as `data`; excluding it would read as a bug.
+    "Swift",
+    "Terraform",
+    "TSX",
+    "TypeScript",
+    "Vue",
+})
+
+NON_LANGUAGE_FILETYPES = frozenset({
+    # Binary and media formats
+    "DLL",
+    "Excel",
+    "Executable",
+    "GIF",
+    "ICO",
+    "JPEG",
+    "Java Archive",
+    "Java Class",
+    "PDF",
+    "PNG",
+    "ZIP",
+    # Data and config formats — carry data, not behaviour
+    "CSV",
+    "INI",
+    "JSON",
+    "Properties",
+    "TOML",
+    "TSV",
+    "XML",
+    "YAML",
+    # Prose formats
+    "Markdown",
+    "ReStructuredText",
+    "Text",
+    # Named single-purpose files — a filename convention, not a format
+    "CNAME",
+    "CODEOWNERS",
+    "Dockerignore",
+    "GitAttributes",
+    "Gitignore",
+    "GitLeaksIgnore",
+    "Lock",
+    "Mailmap",
+    "nvmrc",
+    "python-version",
+    "go.mod",
+    "go.sum",
+    "SQLFluff",
+    "SQLFluffIgnore",
+    # Framework and tool artifacts — the real language is something else
+    "ASP.NET",
+    "ASP.NET Global",
+    "ASP.NET User Control",
+    "Apache JMeter",
+    "C# Project",
+    "SARIF",
+    "SVG",
+    "Visual Studio Solution",
+})
 
 METADATA_RULES = {
     "extension_rules": {
