@@ -1,6 +1,13 @@
+---
+layout: default
+title: AI Detection Rules
+---
+
 # AI Coding Agent Detection — Rules Reference
 
-**Rules verified:** 2026-08-01 (panopticas 0.0.17)
+**Rules verified:** 2026-08-01 (panopticas 0.0.17). Unchanged since — 0.0.18 and
+0.0.19 added no AI rules, and the inventory below matches `AI_RULES` as shipped in
+0.0.19.
 **Inventory below generated from:** `AI_RULES` in `src/panopticas/constants.py`
 
 Panopticas detects the file and directory artifacts of AI coding agents and tags
@@ -15,11 +22,12 @@ CLAUDE.md                       -> ['AI', 'Claude', 'instructions']
 This document is the **reference and evidence base**: what is detected, the source
 that confirms each convention, and — equally important — what was rejected and why.
 
-> For the *principles* governing additions, see `CLAUDE.md` → *AI Agent Detection*.
-> For the original design rationale, see
-> `changes/design/specs/2026-07-31-ai-agent-detection-design.md` — but note its
-> proposed rule table predates verification and contains entries that were
-> subsequently rejected. **This document supersedes that table.**
+> For the *principles* governing additions, see
+> [`CLAUDE.md`](https://github.com/kospex/panopticas/blob/main/CLAUDE.md) →
+> *AI Agent Detection*. For the original design rationale, see
+> [`changes/design/specs/2026-07-31-ai-agent-detection-design.md`](https://github.com/kospex/panopticas/blob/main/changes/design/specs/2026-07-31-ai-agent-detection-design.md)
+> — but note its proposed rule table predates verification and contains entries
+> that were subsequently rejected. **This document supersedes that table.**
 
 ## How matching works
 
