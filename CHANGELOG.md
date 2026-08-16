@@ -2,6 +2,11 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+ - `panopticas file` labelled its first table row `File extenion`. Cosmetic, and the only change to shipped code since 0.0.19 — no library function, tag or JSON field changes, so kospex is unaffected and its pin does not need bumping for this
+
 ## 0.0.19 - 2026-08-15
 
 ### Added
@@ -130,7 +135,6 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 
 ## VERSION - DATE
-## [Unreleased]
 
 ### Added
 
