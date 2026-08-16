@@ -108,7 +108,34 @@ panopticas assess --json
 - `pyproject.toml` — Build configuration and dependencies
 - `requirements.txt` — Pinned Python dependencies
 - `CHANGELOG.md` — Version history following Keep a Changelog format
-- `docs/` — Website and documentation
+- `docs/` — The panopticas.io website (see below)
+
+## The docs site
+
+`docs/` is the published GitHub Pages site for [panopticas.io](https://panopticas.io),
+not a place for working documents. Pages is configured as `build_type: "legacy"`
+serving `main:/docs`, which means GitHub builds it with its own `github-pages`
+gem set (Jekyll 3.9.x) and **ignores `docs/Gemfile` and `docs/Gemfile.lock`
+entirely**.
+
+Those two files are therefore local-preview scaffolding only, and are
+gitignored — tracking them produced Dependabot alerts for gems the published
+site never uses. They still exist in a working checkout; recreate them with
+`bundle init` and `gem "jekyll", "~> 4.3"` if they are missing.
+
+To preview locally:
+
+```bash
+cd docs && bundle exec jekyll serve
+```
+
+Note the fidelity gap: local preview runs Jekyll 4.x while Pages publishes with
+Jekyll 3.9.x. Fine for markdown pages and the existing layout; do not rely on it
+for Jekyll-4-only features.
+
+Adding a page means front matter (`layout: default` plus a `title`) — without it
+Jekyll copies the file verbatim instead of rendering it — and a nav entry in
+`docs/_layouts/default.html`.
 
 ## Dependencies
 

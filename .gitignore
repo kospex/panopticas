@@ -173,3 +173,8 @@ docs/_site/
 docs/.jekyll-cache/
 docs/.bundle/
 docs/.sass-cache/
+# Local preview toolchain only. GitHub Pages builds this site with build_type
+# "legacy", which uses its own github-pages gem set and never reads these —
+# tracking them only produced Dependabot alerts for gems the site never uses.
+docs/Gemfile
+docs/Gemfile.lock
