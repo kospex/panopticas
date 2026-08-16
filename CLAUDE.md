@@ -115,7 +115,9 @@ panopticas assess --json
 `docs/` is the published GitHub Pages site for [panopticas.io](https://panopticas.io),
 not a place for working documents. Pages is configured as `build_type: "legacy"`
 serving `main:/docs`, which means GitHub builds it with its own `github-pages`
-gem set (Jekyll 3.9.x) and **ignores `docs/Gemfile` and `docs/Gemfile.lock`
+gem set (github-pages 232, Jekyll 3.10.0 — see
+[pages.github.com/versions](https://pages.github.com/versions/)) and **ignores
+`docs/Gemfile` and `docs/Gemfile.lock`
 entirely**.
 
 Those two files are therefore local-preview scaffolding only, and are
@@ -130,7 +132,7 @@ cd docs && bundle exec jekyll serve
 ```
 
 Note the fidelity gap: local preview runs Jekyll 4.x while Pages publishes with
-Jekyll 3.9.x. Fine for markdown pages and the existing layout; do not rely on it
+Jekyll 3.10.0. Fine for markdown pages and the existing layout; do not rely on it
 for Jekyll-4-only features.
 
 Adding a page means front matter (`layout: default` plus a `title`) — without it
