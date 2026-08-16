@@ -114,7 +114,7 @@ class TestFileCommandEscapesExtension:
     def test_extensionless_filename_is_escaped_and_sanitised(self, tmp_path):
         # get_fileext() falls back to os.path.basename() when the file has
         # no extension (core.py), so an extensionless file's raw name lands
-        # in the "File extenion" row. Without cell() the markup would be
+        # in the "File extension" row. Without cell() the markup would be
         # consumed as styling and the ESC byte would reach the terminal raw.
         target = tmp_path / "ev\x1b[31m[bold]il"
         target.write_text("plain content\n")

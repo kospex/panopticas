@@ -319,7 +319,7 @@ def identify(file, as_json):
     # has none, so an extensionless file's raw name would land here — it
     # must go through cell() like the path and the URLs. The shebang rows
     # are read out of the file's first line, so they are untrusted too.
-    table.add_row("File extenion", cell(payload["extension"] or ""))
+    table.add_row("File extension", cell(payload["extension"] or ""))
     table.add_row("File type", payload["filetype"] or "")
     table.add_row("Shebang", cell(payload["shebang"] or ""))
     table.add_row("Shebang Language", cell(payload["shebang_language"] or ""))

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.12+, Click (CLI), prettytable (output), pathspec (gitignore), pytest (tests).
 
-**Spec:** `docs/superpowers/specs/2026-07-31-ai-agent-detection-design.md`
+**Spec:** `changes/design/specs/2026-07-31-ai-agent-detection-design.md`
 
 ## Global Constraints
 
@@ -1165,7 +1165,7 @@ gone. Verified that nothing in kospex queries it.
 
 ## Design
 
-See `docs/superpowers/specs/2026-07-31-ai-agent-detection-design.md`.
+See `changes/design/specs/2026-07-31-ai-agent-detection-design.md`.
 ```
 
 - [ ] **Step 3: Add the CHANGELOG entry**
