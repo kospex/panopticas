@@ -111,17 +111,6 @@ pip install -e .
 pytest -v
 ```
 
-### Building and Publishing
-
-```bash
-python -m build
-twine upload dist/panopticas-X.Y.Z*
-```
-
-Scope the glob to the version being released. `dist/` accumulates artifacts from
-every previous release, so `dist/*` re-sends them all and the upload aborts when
-PyPI rejects the duplicates.
-
 ## Relationship to kospex
 
 Panopticas is a dependency of [kospex](https://github.com/kospex/kospex), which
