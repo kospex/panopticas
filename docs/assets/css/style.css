@@ -61,6 +61,10 @@ header {
 .nav-menu {
     display: flex;
     align-items: center;
+    /* Five items plus the social icon overflow a narrow desktop window
+       without this; below 768px the media query already wraps them. */
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .nav-menu li {
