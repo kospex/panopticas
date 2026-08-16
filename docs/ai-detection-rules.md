@@ -17,7 +17,7 @@ that confirms each convention, and — equally important — what was rejected a
 
 > For the *principles* governing additions, see `CLAUDE.md` → *AI Agent Detection*.
 > For the original design rationale, see
-> `docs/superpowers/specs/2026-07-31-ai-agent-detection-design.md` — but note its
+> `changes/design/specs/2026-07-31-ai-agent-detection-design.md` — but note its
 > proposed rule table predates verification and contains entries that were
 > subsequently rejected. **This document supersedes that table.**
 

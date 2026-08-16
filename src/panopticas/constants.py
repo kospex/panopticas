@@ -130,7 +130,7 @@ LANGUAGE_BY_BASENAME = {
 # the closest available benchmark. GitHub's language bar counts only
 # Linguist's `programming` and `markup` types, so its `data` and `prose`
 # languages (JSON, YAML, Markdown, reStructuredText) are excluded there too.
-# See docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md
+# See changes/design/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md
 LANGUAGE_FILETYPES = frozenset({
     "C",
     "C Header",

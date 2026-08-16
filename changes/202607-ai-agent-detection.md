@@ -65,4 +65,4 @@ this branch).
 
 ## Design
 
-See `docs/superpowers/specs/2026-07-31-ai-agent-detection-design.md`.
+See `changes/design/specs/2026-07-31-ai-agent-detection-design.md`.

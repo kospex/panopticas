@@ -137,6 +137,13 @@ When making changes:
 
 Each feature or significant change should have a markdown file in `/changes/`. Naming convention: `YYYYMM-short-description.md`.
 
+Design specs and implementation plans live under `/changes/design/specs/` and
+`/changes/design/plans/`, named `YYYY-MM-DD-short-description[-design].md`.
+
+**Do not put working documents in `docs/`.** `docs/` is the published GitHub Pages
+site for [panopticas.io](https://panopticas.io) — anything added there is public
+web content, not repository documentation.
+
 ## Release Process
 
 1. Bump version in `pyproject.toml`

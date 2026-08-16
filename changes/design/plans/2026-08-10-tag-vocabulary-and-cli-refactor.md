@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.12+, Click 8.3.1+, rich 14.0.0+, pathspec, pytest.
 
-Design spec: [`docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md`](../specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md)
+Design spec: [`changes/design/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md`](../specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md)
 
 ## Global Constraints
 
@@ -506,7 +506,7 @@ In `src/panopticas/constants.py`, after `LANGUAGE_BY_BASENAME`:
 # the closest available benchmark. GitHub's language bar counts only
 # Linguist's `programming` and `markup` types, so its `data` and `prose`
 # languages (JSON, YAML, Markdown, reStructuredText) are excluded there too.
-# See docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md
+# See changes/design/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md
 LANGUAGE_FILETYPES = frozenset({
     "C",
     "C Header",
@@ -1992,7 +1992,7 @@ Create `changes/2026-08-tag-vocabulary-and-cli-refactor.md`:
 # Tag vocabulary, JSON output and rich migration
 
 **Version:** 0.0.19
-**Design:** [`docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md`](../docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md)
+**Design:** [`changes/design/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md`](design/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md)
 
 ## What changed
 

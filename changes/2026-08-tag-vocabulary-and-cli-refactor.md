@@ -1,7 +1,7 @@
 # Tag vocabulary, JSON output and rich migration
 
 **Version:** 0.0.19
-**Design:** [`docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md`](../docs/superpowers/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md)
+**Design:** [`changes/design/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md`](design/specs/2026-08-10-tag-vocabulary-and-cli-refactor-design.md)
 
 ## What changed
 

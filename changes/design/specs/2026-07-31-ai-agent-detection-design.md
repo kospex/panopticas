@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-31
 **Status:** Implemented in 0.0.17. **Rules table superseded** — see
-[`docs/ai-detection-rules.md`](../../ai-detection-rules.md).
+[`docs/ai-detection-rules.md`](../../../docs/ai-detection-rules.md).
 
 > ⚠️ **Do not extend the rules from this document.** The tables below are the
 > *pre-verification proposal*. Four candidates in them were investigated during
