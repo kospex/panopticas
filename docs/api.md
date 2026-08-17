@@ -1,6 +1,7 @@
 ---
 layout: default
 title: API Reference
+description: The panopticas Python API — functions and constants for file type detection and metadata extraction.
 ---
 
 # API Reference
