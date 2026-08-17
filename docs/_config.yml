@@ -1,5 +1,6 @@
 title: Panopticas
 description: Discover insights into the types of data and functions used in your code.
+# Needed by jekyll-seo-tag for absolute canonical and og:url values.
+url: https://panopticas.io
 plugins:
-- jekyll-feed
 - jekyll-seo-tag

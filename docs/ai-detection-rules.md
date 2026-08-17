@@ -1,6 +1,7 @@
 ---
 layout: default
 title: AI Detection Rules
+description: Every AI coding agent artifact panopticas detects, the source confirming each convention, and the candidates that were investigated and rejected.
 ---
 
 # AI Coding Agent Detection — Rules Reference

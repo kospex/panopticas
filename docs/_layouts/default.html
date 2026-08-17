@@ -3,16 +3,11 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>
-            {% if page.title %}{{ page.title }}{% else %}Panopticas{% endif %}
-        </title>
-
-        {% if site.github.is_project_page %}
-        <meta
-            name="description"
-            content="{{ site.description | default: site.github.project_tagline }}"
-        />
-        {% endif %}
+        <!-- jekyll-seo-tag emits the title, description, canonical link,
+             Open Graph and Twitter card tags. It replaces a hand-rolled title
+             and a description that sat inside an is_project_page conditional,
+             which is false here, so no description ever rendered. -->
+        {% seo %}
 
         <link
             rel="stylesheet"

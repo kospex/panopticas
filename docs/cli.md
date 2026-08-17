@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CLI Reference
+description: Every panopticas command, its options, and the JSON document each one emits.
 ---
 
 # CLI Reference
