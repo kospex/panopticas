@@ -173,31 +173,42 @@ Design specs and implementation plans live under `/changes/design/specs/` and
 site for [panopticas.io](https://panopticas.io) — anything added there is public
 web content, not repository documentation.
 
-## Release Process
+## Releases
 
-1. Bump version in `pyproject.toml`
-2. Update `CHANGELOG.md` with the new version and changes
-3. Run tests: `pytest -v`
-4. Build: `python -m build`
-5. Upload to PyPI: `twine upload dist/panopticas-X.Y.Z*` — scope the glob to this release; `dist/*` re-sends every past artifact and the upload aborts on the duplicates
-6. Tag the release:
-   ```bash
-   git tag vX.Y.Z
-   git push origin vX.Y.Z
-   ```
-7. Create GitHub release:
-   ```bash
-   gh release create vX.Y.Z --title "vX.Y.Z" --notes-file CHANGELOG.md
-   ```
-8. Update kospex's dependency on panopticas. Read both files rather than
-   assuming — they are pinned differently, and the difference decides whether
-   this step is urgent:
-   - `pyproject.toml` uses a **floor** (`panopticas>=X.Y.Z`), so a PyPI install
-     of kospex picks up a new release without any change here. Raise the floor
-     only when kospex starts depending on something the new release added.
-   - `requirements.txt` uses an **exact** pin (`panopticas==X.Y.Z`), so
-     development and deployment installs stay on the old version until it is
-     regenerated. Do this for every release.
+**Releases are not cut from this repository.** Building, publishing to PyPI,
+tagging and creating the GitHub release are run from a separate operations
+repository against a maintained runbook, by a human — there is no stored PyPI
+credential on any machine, so the upload is deliberately manual.
+
+Do not reconstruct those steps from memory or from this file. A partial
+release is worse than none: publishing before the tests and dependency
+records are in order leaves an immutable PyPI artifact that cannot be
+replaced, only yanked.
+
+What belongs in *this* repo, and what an agent working here should do:
+
+1. Bump the version in `pyproject.toml` — the single source of truth, read at
+   runtime via `importlib.metadata`. There is no second value to keep in sync.
+2. Record the change in `CHANGELOG.md` under `## [Unreleased]`. **Leave it as
+   `[Unreleased]`** — the release date is set on the day of release, and a date
+   written in advance is usually wrong by the time it ships.
+3. Write the `changes/` note for the feature.
+4. Make sure `pytest -v` passes.
+
+Everything after that — build, upload, tag, GitHub release, SBOM, dependency
+records, the downstream kospex pin — is the runbook's job.
+
+Two things that are easy to get wrong if you do try to run it from here:
+
+- **Never publish `CHANGELOG.md` as the GitHub release body.** It puts the
+  entire file on a single version's release page. This is not hypothetical: it
+  happened to v0.0.17, whose page carried ten version headings back to 0.0.8
+  until it was corrected. The release body is one version's section only.
+- **Never tag a version that is not confirmed live on PyPI.** A tag pointing at
+  a failed publish is worse than no tag.
+
+For how kospex depends on this project and when its pins need to move, see
+*Relationship to kospex* below.
 
 ## Relationship to kospex
 
