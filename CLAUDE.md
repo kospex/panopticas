@@ -189,7 +189,15 @@ web content, not repository documentation.
    ```bash
    gh release create vX.Y.Z --title "vX.Y.Z" --notes-file CHANGELOG.md
    ```
-8. Update `panopticas==X.Y.Z` in kospex's `pyproject.toml` — kospex uses an **exact pin**, so a new release does not reach it until this is bumped. This step is mandatory, not conditional.
+8. Update kospex's dependency on panopticas. Read both files rather than
+   assuming — they are pinned differently, and the difference decides whether
+   this step is urgent:
+   - `pyproject.toml` uses a **floor** (`panopticas>=X.Y.Z`), so a PyPI install
+     of kospex picks up a new release without any change here. Raise the floor
+     only when kospex starts depending on something the new release added.
+   - `requirements.txt` uses an **exact** pin (`panopticas==X.Y.Z`), so
+     development and deployment installs stay on the old version until it is
+     regenerated. Do this for every release.
 
 ## Relationship to kospex
 
@@ -198,6 +206,13 @@ Panopticas is used by kospex for file type detection and metadata extraction. Ke
 - `kospex_git.py` calls `get_filename_metatypes()` and stores the result as `tech_type`
 - `kospex_schema.py` encodes tags as `|tag1|tag2|`; `kospex_query.py` queries them with `tech_type LIKE '%|tag|%'`
 - `kospex_core.py` tracks `last_panopticas_version` and re-syncs when it changes, so a version bump re-tags already-synced repos
-- kospex pins `panopticas==X.Y.Z` in its `pyproject.toml` — an **exact** pin, so releases do not flow through until it is bumped. Read the current value from kospex's `pyproject.toml` rather than trusting a version quoted here; this line claimed `0.0.16` long after kospex had moved to `0.0.17`
+- kospex pins panopticas in two places, differently: a **floor** in
+  `pyproject.toml` (`panopticas>=X.Y.Z`) and an **exact** pin in
+  `requirements.txt` (`panopticas==X.Y.Z`). A PyPI install of kospex therefore
+  picks up a new panopticas release automatically; a `requirements.txt` install
+  does not. Read both files for the current values rather than trusting any
+  version quoted here — this entry claimed an exact `pyproject.toml` pin long
+  after kospex had moved to `>=`, and before that quoted `0.0.16` when kospex
+  was on `0.0.17`
 
 When making breaking changes to panopticas, check kospex integration points first. Adding a tag is safe; renaming or removing one is not, since kospex stores tags in a database that is only refreshed on re-sync.
