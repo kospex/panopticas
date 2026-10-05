@@ -294,10 +294,20 @@ def identify(file, as_json):
     """Assess a filetype."""
     extension = core.get_fileext(file)
     shebang = core.check_shebang(file)
+
+    # get_language() consults LANGUAGE_BY_BASENAME before the extension table,
+    # so files typed by basename (go.mod, setup.cfg, staticcheck.conf) report
+    # the same type here as they do in `assess`. Reading the extension table
+    # alone left those null. skip_shebang keeps this row distinct from the
+    # shebang rows below, and the UNKNOWN sentinel becomes null.
+    filetype = core.get_language(file, skip_shebang=True)
+    if filetype == core.UNKNOWN:
+        filetype = None
+
     payload = {
         "file": file,
         "extension": extension,
-        "filetype": core.get_extension_filetype(extension),
+        "filetype": filetype,
         "shebang": shebang,
         "shebang_language": (
             core.extract_shebang_language(shebang) if shebang else None),
@@ -344,15 +354,17 @@ def find_urls(directory, all_files, as_json):
     # process's cwd — join with `directory` to read the file, but keep the
     # relative path in the record so JSON/table output matches prior output.
     #
-    # This command scans a whole directory, so one undecodable file (a
-    # binary such as a .png) must not abort the run for every other file.
-    # extract_urls_from_file() raises UnicodeDecodeError for those; treat
-    # them the same as a file with no URLs rather than propagating.
+    # This command scans a whole directory, so one file that cannot be read
+    # must not abort the run for every other file. extract_urls_from_file()
+    # raises by design — UnicodeDecodeError for a binary such as a .png, and
+    # OSError for anything the filesystem refuses (unreadable, a dangling
+    # symlink, a file deleted mid-scan). Treat all of them as a file with no
+    # URLs rather than propagating.
     records = []
     for f in files:
         try:
             urls = core.extract_urls_from_file(os.path.join(directory, f))
-        except UnicodeDecodeError:
+        except (OSError, UnicodeDecodeError):
             urls = []
         records.append({"path": f, "urls": urls})
 

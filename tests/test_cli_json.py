@@ -3,6 +3,8 @@
 import json
 import os
 
+import pytest
+
 from click.testing import CliRunner
 
 from panopticas.cli import cli
@@ -142,6 +144,58 @@ class TestFileJson:
         assert payload["meta"] == []
         assert payload["urls"] == ["https://example.com"]
 
+    def test_filetype_honours_basename_mappings(self, tmp_path):
+        # The File type row used to read get_extension_filetype(), which only
+        # consults EXT_FILETYPES. Files typed by basename — go.mod, setup.cfg,
+        # .isort.cfg, staticcheck.conf — reported null here while `assess`
+        # reported their type, because assess calls get_language().
+        for name, expected in (
+            ("go.mod", "go.mod"),
+            ("setup.cfg", "INI"),
+            (".isort.cfg", "INI"),
+            ("staticcheck.conf", "TOML"),
+        ):
+            target = tmp_path / name
+            target.write_text("")
+            payload = json.loads(
+                CliRunner().invoke(
+                    cli, ["file", str(target), "--json"]).stdout)
+            assert payload["filetype"] == expected, name
+
+    def test_filetype_agrees_with_assess(self, tmp_path):
+        for name in ("go.mod", ".isort.cfg", "staticcheck.conf", "module.mjs"):
+            (tmp_path / name).write_text("")
+
+        one = json.loads(
+            CliRunner().invoke(
+                cli, ["assess", str(tmp_path), "--json"]).stdout)
+        by_path = {r["path"]: r["language"] for r in one["files"]}
+
+        for name in by_path:
+            payload = json.loads(
+                CliRunner().invoke(
+                    cli, ["file", str(tmp_path / name), "--json"]).stdout)
+            assert payload["filetype"] == by_path[name], name
+
+    def test_unrecognised_filetype_is_null_not_the_sentinel(self, tmp_path):
+        # get_language() returns the string "Unknown" for unrecognised files.
+        # The JSON contract says null.
+        target = tmp_path / "mystery.xyz123"
+        target.write_text("nothing recognisable\n")
+        payload = json.loads(
+            CliRunner().invoke(cli, ["file", str(target), "--json"]).stdout)
+        assert payload["filetype"] is None
+
+    def test_filetype_does_not_absorb_the_shebang_language(self, tmp_path):
+        # File type and Shebang Language are separate rows. A shebang-only
+        # script must leave File type null rather than reporting Shell.
+        target = tmp_path / "runme"
+        target.write_text("#!/bin/bash\necho hi\n")
+        payload = json.loads(
+            CliRunner().invoke(cli, ["file", str(target), "--json"]).stdout)
+        assert payload["filetype"] is None
+        assert payload["shebang_language"] == "bash"
+
     def test_absent_shebang_is_null(self, tmp_path):
         target = tmp_path / "notes.md"
         target.write_text("hello\n")
@@ -167,6 +221,28 @@ class TestUrlsJson:
         by_path = {r["path"]: r["urls"] for r in payload["files"]}
         assert by_path["README.md"] == ["https://example.com"]
         assert by_path["empty.md"] == []
+
+    @pytest.mark.skipif(
+        hasattr(os, "geteuid") and os.geteuid() == 0,
+        reason="root can read a mode-000 file")
+    def test_unreadable_file_is_skipped_not_fatal(self, tmp_path):
+        # Same reasoning as the undecodable case below: scanning a whole
+        # directory must survive one file it cannot open. The handler caught
+        # UnicodeDecodeError but not PermissionError, so a single unreadable
+        # file aborted the command for every other file.
+        (tmp_path / "README.md").write_text("see https://example.com\n")
+        locked = tmp_path / "locked.md"
+        locked.write_text("https://hidden.example\n")
+        locked.chmod(0o000)
+        try:
+            result = CliRunner().invoke(cli, ["urls", str(tmp_path), "--json"])
+            assert result.exit_code == 0, result.output
+            payload = json.loads(result.stdout)
+            by_path = {r["path"]: r["urls"] for r in payload["files"]}
+            assert by_path["README.md"] == ["https://example.com"]
+            assert by_path["locked.md"] == []
+        finally:
+            locked.chmod(0o644)
 
     def test_undecodable_file_is_skipped_not_fatal(self, tmp_path):
         # extract_urls_from_file() raises UnicodeDecodeError on binary

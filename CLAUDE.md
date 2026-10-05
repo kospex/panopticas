@@ -45,6 +45,41 @@ Rules to follow when adding a product:
 - `exact_filename` and `path_contains` keys are lowercase; path fragments end with `/`.
 - **Verify the convention against the product's current official docs before adding it.** A wrong rule mislabels a repository and the label flows into kospex. A missing rule is better than a wrong one. Watch for user-level paths (`~/.config/<tool>/`) — those are not repository artifacts and must not be added.
 
+### Linter, Formatter and Type Checker Detection
+
+> **Before adding or changing a rule, read [`docs/linter-detection-rules.md`](docs/linter-detection-rules.md)** — the full inventory, the source confirming each convention, and the candidates already investigated and **rejected**. Eleven were rejected as wrong; re-adding one would mislabel repositories.
+
+`LINTER_RULES` in `constants.py` describes each tool once — its languages, its
+roles, and the files that identify it:
+
+```python
+"ESLint": {
+    "languages": ["JavaScript", "TypeScript"],
+    "roles": ["linter"],
+    "config": ["eslint.config.js", ..., ".eslintrc.json"],
+    "ignore": [".eslintignore"],
+},
+```
+
+`_expand_linter_rules()` writes those into the existing `METADATA_RULES`
+tables at import — `config`/`ignore` into `exact_filename_rules`,
+`path_contains` into `path_contains_rules`, `extensions` into
+`extension_rules`. Tags are `languages + roles + [tool] + ["config"|"ignore"]`.
+`get_tags()` reads the expanded tables, so a new tool joins the vocabulary with
+no other change.
+
+Rules to follow when adding a tool:
+
+- Detection is **path-based only** — never open a file.
+- `roles` must come from `LINTER_ROLES` (`linter`, `formatter`, `typechecker`). A tool may hold several; Ruff, Biome, RuboCop, Standard and SQLFluff all lint and format.
+- Tool names use the vendor's own brand casing (`ESLint`, `RuboCop`, `golangci-lint`, `mypy`). This is the one thing the pre-existing rules got inconsistent.
+- `languages` names what the tool actually targets, not the ecosystem it ships in — Stylelint is `CSS`, not `JavaScript`. Leave it empty for genuinely neutral tools (`.editorconfig`).
+- `config` and `ignore` keys are lowercase; path fragments end with `/`.
+- Generated exclusion files are `ignore`, not `config` — `.rubocop_todo.yml` excludes offences.
+- **Do not add shared config files** (`pyproject.toml`, `setup.cfg`, `tox.ini`, `package.json`). They really do hold linter config, but which tool is inside is not knowable from the path, so tagging them mislabels nearly every repository that has one.
+- **Verify the convention against the tool's current official docs before adding it.** Watch for user-level paths — revive's only auto-discovered config is `$HOME/revive.toml` and was rejected for exactly this reason. A missing rule is better than a wrong one.
+- If a tool's config file has no extension, give it a filetype too: map to the documented content format where the tool documents one, otherwise give it its own name. Add every new filetype name to `NON_LANGUAGE_FILETYPES` — a test asserts the classification is complete.
+
 ## Development Commands
 
 ### Installation (Development)

@@ -177,7 +177,16 @@ def get_languages():
     return sorted(LANGUAGE_FILETYPES, key=str.lower)
 
 def check_shebang(file_path):
-    """ Check if a file has a shebang """
+    """
+    Return a file's shebang line, or None if it has none or cannot be read.
+
+    Callers may pass a path that is not a readable file — a name being
+    classified without touching disk, a directory, something unreadable — so
+    this never propagates an exception. A shebang is one signal among several
+    in get_language(), which falls back to the extension tables, and
+    identify_files() walks whole trees where one bad file must not abort the
+    scan.
+    """
     try:
 
         with open(file_path) as file:
@@ -187,12 +196,13 @@ def check_shebang(file_path):
             else:
                 return None
 
-    except FileNotFoundError:
-        # TODO - better logging instead of print
-        #print(f"File {file_path} not found")
-        return None
-    except UnicodeDecodeError:
-        # TODO - log this exception
+    # OSError covers every filesystem refusal: missing (FileNotFoundError),
+    # a directory (IsADirectoryError), unreadable (PermissionError), a name
+    # the OS rejects as too long. ValueError covers undecodable content
+    # (UnicodeDecodeError is a subclass) and a NUL byte in the path, which
+    # open() rejects before it reaches the filesystem.
+    # TODO - log the exception rather than discarding it silently
+    except (OSError, ValueError):
         return None
 
 
