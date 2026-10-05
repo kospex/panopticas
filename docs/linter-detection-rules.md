@@ -79,8 +79,24 @@ Each of these was investigated against the tool's current documentation and
 | **Spotless** | Configured only in `build.gradle` / `pom.xml`. |
 | **gofmt**, **gofumpt**, **go vet** | No configuration file at all. |
 | **pycodestyle** | Project-level config lives in `setup.cfg` or `tox.ini`; the dedicated file is the user-level `~/.config/pycodestyle`. |
-| **dprint** | Plausible (`dprint.json`), but the filename list could not be confirmed from the official docs. Left out pending verification — a missing rule is better than a wrong one. |
 | **Sonar**, **Bandit**, **Brakeman**, **GitLeaks** | Security scanners, out of scope. GitLeaks is already detected separately via `.gitleaksignore`. |
+
+### How dprint was settled
+
+dprint was initially left out because its documentation never enumerates the
+filenames it discovers. The answer is in the source —
+`POSSIBLE_CONFIG_FILE_NAMES` in
+[`resolve_main_config_path.rs`](https://github.com/dprint/dprint/blob/main/crates/dprint/src/configuration/resolve_main_config_path.rs)
+— which lists exactly four names, searched in order while walking up ancestor
+directories, with no `config/` subdirectory. The setup page corroborates the
+two hidden variants.
+
+Worth noting against the user-level trap that disqualified revive: dprint also
+reads a global config at `~/.config/dprint/dprint.jsonc`, reusing the
+`dprint.jsonc` name. That does not disqualify it. revive's *only*
+auto-discovered config is user-level, so a repository rule would be fiction;
+dprint's four names are genuinely project-level, and its global config merely
+shares a name in a different directory.
 
 ### Two judgement calls worth knowing
 
@@ -146,6 +162,7 @@ documentation:
 | Biome | [Configure Biome](https://biomejs.dev/guides/configure-biome/) |
 | oxlint | [Linter config](https://oxc.rs/docs/guide/usage/linter/config.html) |
 | TypeScript | [tsconfig.json](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) |
+| dprint | [Setup](https://dprint.dev/setup/) and `POSSIBLE_CONFIG_FILE_NAMES` in [resolve_main_config_path.rs](https://github.com/dprint/dprint/blob/main/crates/dprint/src/configuration/resolve_main_config_path.rs) |
 | EditorConfig | [editorconfig.org](https://editorconfig.org/) |
 | Ruff | [Configuration](https://docs.astral.sh/ruff/configuration/) |
 | Flake8 | [Configuring flake8](https://flake8.pycqa.org/en/latest/user/configuration.html) |
@@ -192,6 +209,7 @@ re-read the rejected list before adding anything in it.
 | **Stylelint** | linter | `CSS` | `stylelint.config.js`, `stylelint.config.mjs`, `stylelint.config.cjs`, `stylelint.config.ts`, `.stylelintrc`, `.stylelintrc.js`, `.stylelintrc.mjs`, `.stylelintrc.cjs`, `.stylelintrc.yml`, `.stylelintrc.yaml`, `.stylelintrc.json` | `.stylelintignore` |
 | **Biome** | linter, formatter | `JavaScript`, `TypeScript`, `CSS` | `biome.json`, `biome.jsonc`, `.biome.json`, `.biome.jsonc` | — |
 | **oxlint** | linter | `JavaScript`, `TypeScript` | `.oxlintrc.json`, `.oxlintrc.jsonc`, `oxlint.config.ts`, `oxlint.config.mts` | — |
+| **dprint** | formatter | `JavaScript`, `TypeScript` | `dprint.json`, `dprint.jsonc`, `.dprint.json`, `.dprint.jsonc` | — |
 | **JSHint** | linter | `JavaScript` | `.jshintrc` | `.jshintignore` |
 | **TypeScript** | typechecker | `TypeScript`, `JavaScript` | `tsconfig.json`, `jsconfig.json` | — |
 | **EditorConfig** | formatter | *(none)* | `.editorconfig` | — |
@@ -253,4 +271,4 @@ re-read the rejected list before adding anything in it.
 |---|---|---|---|---|
 | **SQLFluff** | linter, formatter | `SQL` | `.sqlfluff` | `.sqlfluffignore` |
 
-<!-- 30 tools, 96 exact filenames -->
+<!-- 31 tools, 100 exact filenames -->

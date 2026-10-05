@@ -5,7 +5,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 ## [Unreleased]
 
 ### Added
- - Detection of linter, formatter and type checker configuration files and their ignore counterparts: 30 tools across JavaScript, TypeScript, CSS, Python, Go, Ruby, Java, Groovy, C#/.NET and SQL, covering 96 exact filenames. Every convention was verified against the tool's current official documentation; see [`docs/linter-detection-rules.md`](https://panopticas.io/linter-detection-rules) for the inventory, the sources, and the candidates that were investigated and rejected.
+ - Detection of linter, formatter and type checker configuration files and their ignore counterparts: 31 tools across JavaScript, TypeScript, CSS, Python, Go, Ruby, Java, Groovy, C#/.NET and SQL, covering 100 exact filenames. Every convention was verified against the tool's current official documentation; see [`docs/linter-detection-rules.md`](https://panopticas.io/linter-detection-rules) for the inventory, the sources, and the candidates that were investigated and rejected.
  - `LINTER_RULES` in `constants.py` is the single table describing those tools, expanded into the existing `METADATA_RULES` tables at import. `LINTER_ROLES` constrains the legal roles.
  - Two new role tags, `formatter` and `typechecker`, joining the existing `linter`. A tool may hold more than one — Ruff, Biome, RuboCop, Standard and SQLFluff all lint and format.
  - `.mjs` and `.cjs` now report as JavaScript, `.mts` and `.cts` as TypeScript. These were missing from the extension table entirely, so every file using them reported `Unknown` regardless of linters.

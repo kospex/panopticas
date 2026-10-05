@@ -47,7 +47,7 @@ Rules to follow when adding a product:
 
 ### Linter, Formatter and Type Checker Detection
 
-> **Before adding or changing a rule, read [`docs/linter-detection-rules.md`](docs/linter-detection-rules.md)** — the full inventory, the source confirming each convention, and the candidates already investigated and **rejected**. Eleven were rejected as wrong; re-adding one would mislabel repositories.
+> **Before adding or changing a rule, read [`docs/linter-detection-rules.md`](docs/linter-detection-rules.md)** — the full inventory, the source confirming each convention, and the candidates already investigated and **rejected**. Ten were rejected as wrong; re-adding one would mislabel repositories.
 
 `LINTER_RULES` in `constants.py` describes each tool once — its languages, its
 roles, and the files that identify it:

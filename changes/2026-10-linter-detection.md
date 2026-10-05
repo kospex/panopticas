@@ -6,7 +6,7 @@
 ## What changed
 
 Panopticas now detects the configuration and exclusion files of code-quality
-tooling — 30 tools, 96 exact filenames — across JavaScript, TypeScript, CSS,
+tooling — 31 tools, 100 exact filenames — across JavaScript, TypeScript, CSS,
 Python, Go, Ruby, Java, Groovy, C#/.NET and SQL.
 
 Before this change the only linters detected were ESLint's flat config and
@@ -69,7 +69,7 @@ Every convention was verified against the tool's current official
 documentation before being added. The full evidence base, the sources, and the
 rejected candidates are in `docs/linter-detection-rules.md`.
 
-Eleven candidates were investigated and **rejected**, each of which would have
+Ten candidates were investigated and **rejected**, each of which would have
 been a wrong rule:
 
 - **revive** auto-discovers only `$HOME/revive.toml` — a user-level path, not
@@ -79,8 +79,16 @@ been a wrong rule:
 - **Black**, **StandardJS** and **Spotless** have no dedicated config file.
 - **gofmt**, **gofumpt** and **go vet** have no configuration at all.
 - **pycodestyle**'s dedicated file is user-level.
-- **dprint** is plausible but its filename list could not be confirmed.
 - Security scanners (Sonar, Bandit, Brakeman) are out of scope.
+
+**dprint** was initially in that list and has since been added. Its docs never
+enumerate the filenames it discovers, so the answer came from
+`POSSIBLE_CONFIG_FILE_NAMES` in dprint's
+`crates/dprint/src/configuration/resolve_main_config_path.rs`: exactly four
+names, walking up ancestor directories, no `config/` subdirectory. It also
+reads a user-level global config reusing the `dprint.jsonc` name, which does
+not disqualify it the way revive's user-level-only config did — dprint's four
+names are genuinely project-level.
 
 `pyproject.toml`, `setup.cfg`, `tox.ini` and `package.json` genuinely hold
 linter configuration, but which tool is inside is not knowable from the path,
