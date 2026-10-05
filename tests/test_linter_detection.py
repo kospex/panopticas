@@ -185,6 +185,24 @@ class TestJavaScriptAndTypeScript:
     def test_oxlint_config(self, filename):
         assert {"linter", "oxlint"} <= tags_for(filename)
 
+    @pytest.mark.parametrize("filename", [
+        "dprint.json", "dprint.jsonc", ".dprint.json", ".dprint.jsonc",
+    ])
+    def test_dprint_config(self, filename):
+        # POSSIBLE_CONFIG_FILE_NAMES in dprint's
+        # crates/dprint/src/configuration/resolve_main_config_path.rs — the
+        # four names it auto-discovers, walking up ancestor directories.
+        assert {"formatter", "dprint", "config"} <= tags_for(filename)
+
+    def test_dprint_is_a_formatter_not_a_linter(self):
+        assert "linter" not in tags_for("dprint.json")
+
+    def test_dprint_has_no_ignore_file(self):
+        # Exclusions are `excludes` globs inside the config, as with
+        # golangci-lint. There is no .dprintignore to detect.
+        from panopticas.constants import LINTER_RULES
+        assert not LINTER_RULES["dprint"].get("ignore")
+
     def test_jshint_config_and_ignore(self):
         assert {"JavaScript", "linter", "JSHint", "config"} \
             <= tags_for(".jshintrc")

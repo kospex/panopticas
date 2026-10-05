@@ -401,6 +401,22 @@ LINTER_RULES = {
         "config": [".oxlintrc.json", ".oxlintrc.jsonc", "oxlint.config.ts",
                    "oxlint.config.mts"],
     },
+    "dprint": {
+        # A plugin platform rather than one formatter; the TypeScript and
+        # JavaScript plugin is the flagship. It also formats JSON, Markdown,
+        # TOML and Dockerfiles, which is why only the two main languages are
+        # tagged.
+        "languages": ["JavaScript", "TypeScript"],
+        "roles": ["formatter"],
+        # POSSIBLE_CONFIG_FILE_NAMES in dprint's
+        # crates/dprint/src/configuration/resolve_main_config_path.rs. dprint
+        # also reads a user-level global config that reuses the dprint.jsonc
+        # name under ~/.config/dprint/ — not a repository artifact, and not
+        # matched by these rules, which are relative to the scanned tree.
+        "config": ["dprint.json", "dprint.jsonc", ".dprint.json",
+                   ".dprint.jsonc"],
+        # Exclusions are `excludes` globs inside the config; no ignore file.
+    },
     "JSHint": {
         "languages": ["JavaScript"],
         "roles": ["linter"],
