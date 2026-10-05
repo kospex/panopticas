@@ -23,6 +23,8 @@ EXT_FILETYPES = {
     ".class": "Java Class",
     ".cpp": "C++",
     ".cs": "C#",
+    ".cjs": "JavaScript",   # CommonJS module, explicit
+    ".cts": "TypeScript",   # TypeScript emitting CommonJS
     ".csproj": "C# Project",
     ".css": "CSS",
     ".csv": "CSV",
@@ -53,12 +55,16 @@ EXT_FILETYPES = {
     ".jpeg": "JPEG",
     ".js": "JavaScript",
     ".json": "JSON",
+    ".json5": "JSON5",
+    ".jsonc": "JSONC",      # JSON with comments
     ".jsx": "JSX",
     ".kt": "Kotlin",
     ".lock": "Lock",
     ".m": "Objective-C",
     ".mailmap": "Mailmap",
     ".md": "Markdown",
+    ".mjs": "JavaScript",   # ES module, explicit
+    ".mts": "TypeScript",   # TypeScript emitting an ES module
     ".nvmrc": "nvmrc",
     ".pdf": "PDF",
     ".php": "PHP",
@@ -96,11 +102,32 @@ EXT_FILETYPES = {
     ".yaml": "YAML",
     ".yml": "YAML",
     ".zip": "ZIP",
+    # Linter, formatter and type checker config files. Where the tool
+    # documents a single content format the extension maps to that format;
+    # where several are accepted the file gets its own name. See LINTER_RULES.
+    ".editorconfig": "INI",
+    ".eslintignore": "ESLintIgnore",
+    ".eslintrc": "ESLintRC",            # JSON, YAML or JS
+    ".flake8": "INI",
+    ".globalconfig": "INI",
+    ".jshintignore": "JSHintIgnore",
+    ".jshintrc": "JSON",
+    ".prettierignore": "PrettierIgnore",
+    ".prettierrc": "Prettierrc",        # JSON or YAML
+    ".pylintrc": "INI",
+    ".ruleset": "XML",
+    ".rufo": "Ruby",                    # evaluated as Ruby by the formatter
+    ".stylelintignore": "StylelintIgnore",
+    ".stylelintrc": "StylelintRC",      # JSON or YAML
+    ".yapf": "INI",                     # .style.yapf
+    ".yapfignore": "YapfIgnore",
     # Special cases for files without extensions or .format files
     "codeowners": "CODEOWNERS",
     "dockerfile": "Dockerfile",
     "license": "Text",
     "makefile": "Makefile",
+    "pylintrc": "INI",
+    "steepfile": "Ruby",
     "cname": "CNAME",  # Often GitHub et al will use a CNAME file for a URL to host from
 }
 
@@ -111,6 +138,10 @@ LANGUAGE_BY_BASENAME = {
     # than adding ".cfg" to EXT_FILETYPES — that extension is used for arbitrary
     # formats elsewhere, so a blanket ".cfg" -> INI rule would over-claim.
     "setup.cfg": "INI",
+    # ".cfg" and ".conf" are used for arbitrary formats elsewhere, so these
+    # are mapped by basename for the same reason setup.cfg is.
+    ".isort.cfg": "INI",
+    "staticcheck.conf": "TOML",
 }
 
 # Classification of every value in EXT_FILETYPES and LANGUAGE_BY_BASENAME as
@@ -183,6 +214,8 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "CSV",
     "INI",
     "JSON",
+    "JSON5",
+    "JSONC",
     "Properties",
     "TOML",
     "TSV",
@@ -199,6 +232,14 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "GitAttributes",
     "Gitignore",
     "GitLeaksIgnore",
+    "ESLintIgnore",
+    "ESLintRC",
+    "JSHintIgnore",
+    "PrettierIgnore",
+    "Prettierrc",
+    "StylelintIgnore",
+    "StylelintRC",
+    "YapfIgnore",
     "Lock",
     "Mailmap",
     "nvmrc",
@@ -250,7 +291,6 @@ METADATA_RULES = {
         "web.config": [".NET", "ASP.NET", "config"],
         "app.config": [".NET", "config"],
         "codeowners": ["Git"],
-        "eslint.config.js": ["JavaScript", "linter", "eslint", "config"],
         "pyproject.toml": ["build", "dependencies", "Python"],
         # setup.py / setup.cfg are setuptools-specific, so they carry the
         # backend tag. pyproject.toml does not: its build-backend is declared
@@ -268,7 +308,6 @@ METADATA_RULES = {
         "jenkinsfile.groovy": ["pipeline", "Jenkins"],
         ".mailmap": ["Git"],
         ".python-version": ["Python", "dependencies"],
-        ".sqlfluff": ["SQLFluff", "SQL", "linter"],
         ".nvmrc": ["Node", "dependencies"],
         ".gitignore": ["Git", "ignore"],
         "dockerfile": ["IaC", "Docker", "dependencies"],
@@ -276,7 +315,6 @@ METADATA_RULES = {
         "makefile": ["build"],
         "go.mod": ["Go", "module", "dependencies"],
         "go.sum": ["Go", "dependencies", "checksum"],
-        ".sqlfluffignore": ["SQLFluff", "ignore"],
         "codefresh.yml": ["pipeline", "Codefresh"],
         ".travis.yml": ["pipeline", "TravisCI"],
         "package.json": ["npm", "dependencies"],
@@ -300,6 +338,241 @@ METADATA_RULES = {
         ("is_pip_requirements", ["pip", "Python", "PyPi", "dependencies"]),
     ],
 }
+
+# The roles a code-quality tool can play. A LINTER_RULES entry may not use a
+# role outside this set.
+LINTER_ROLES = frozenset({
+    "linter",       # reports violations
+    "formatter",    # rewrites code to a canonical form
+    "typechecker",  # checks static types
+})
+
+LINTER_RULES = {
+    # --- JavaScript / TypeScript ---------------------------------------
+    "ESLint": {
+        "languages": ["JavaScript", "TypeScript"],
+        "roles": ["linter"],
+        "config": [
+            # Flat config, the current format.
+            "eslint.config.js", "eslint.config.mjs", "eslint.config.cjs",
+            "eslint.config.ts", "eslint.config.mts", "eslint.config.cts",
+            # eslintrc, removed in v9 but still present in many repositories.
+            ".eslintrc", ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.yaml",
+            ".eslintrc.yml", ".eslintrc.json",
+        ],
+        "ignore": [".eslintignore"],
+    },
+    "Prettier": {
+        # Prettier formats far more than these three, but tagging every
+        # parser it ships would put seven languages on one config file.
+        "languages": ["JavaScript", "TypeScript", "CSS"],
+        "roles": ["formatter"],
+        "config": [
+            ".prettierrc", ".prettierrc.json", ".prettierrc.yml",
+            ".prettierrc.yaml", ".prettierrc.json5", ".prettierrc.js",
+            ".prettierrc.mjs", ".prettierrc.cjs", ".prettierrc.ts",
+            ".prettierrc.mts", ".prettierrc.cts", ".prettierrc.toml",
+            "prettier.config.js", "prettier.config.mjs",
+            "prettier.config.cjs", "prettier.config.ts",
+            "prettier.config.mts", "prettier.config.cts",
+        ],
+        "ignore": [".prettierignore"],
+    },
+    "Stylelint": {
+        "languages": ["CSS"],
+        "roles": ["linter"],
+        "config": [
+            "stylelint.config.js", "stylelint.config.mjs",
+            "stylelint.config.cjs", "stylelint.config.ts",
+            ".stylelintrc", ".stylelintrc.js", ".stylelintrc.mjs",
+            ".stylelintrc.cjs", ".stylelintrc.yml", ".stylelintrc.yaml",
+            ".stylelintrc.json",
+        ],
+        "ignore": [".stylelintignore"],
+    },
+    "Biome": {
+        "languages": ["JavaScript", "TypeScript", "CSS"],
+        "roles": ["linter", "formatter"],
+        "config": ["biome.json", "biome.jsonc", ".biome.json", ".biome.jsonc"],
+    },
+    "oxlint": {
+        "languages": ["JavaScript", "TypeScript"],
+        "roles": ["linter"],
+        "config": [".oxlintrc.json", ".oxlintrc.jsonc", "oxlint.config.ts",
+                   "oxlint.config.mts"],
+    },
+    "JSHint": {
+        "languages": ["JavaScript"],
+        "roles": ["linter"],
+        "config": [".jshintrc"],
+        "ignore": [".jshintignore"],
+    },
+    # tsc is a compiler, but tsconfig.json is where a project's type checking
+    # is configured (strict, noImplicitAny). jsconfig.json is the same file
+    # applied to a JavaScript project.
+    "TypeScript": {
+        "languages": ["TypeScript", "JavaScript"],
+        "roles": ["typechecker"],
+        "config": ["tsconfig.json", "jsconfig.json"],
+    },
+    # Language-neutral by design, so it carries no language tag.
+    "EditorConfig": {
+        "languages": [],
+        "roles": ["formatter"],
+        "config": [".editorconfig"],
+    },
+    # --- Python ---------------------------------------------------------
+    "Ruff": {
+        "languages": ["Python"],
+        "roles": ["linter", "formatter"],
+        "config": ["ruff.toml", ".ruff.toml"],
+    },
+    "Flake8": {
+        "languages": ["Python"],
+        "roles": ["linter"],
+        "config": [".flake8"],
+    },
+    "Pylint": {
+        "languages": ["Python"],
+        "roles": ["linter"],
+        "config": ["pylintrc", ".pylintrc", "pylintrc.toml", ".pylintrc.toml"],
+    },
+    "mypy": {
+        "languages": ["Python"],
+        "roles": ["typechecker"],
+        "config": ["mypy.ini", ".mypy.ini"],
+    },
+    "Pyright": {
+        "languages": ["Python"],
+        "roles": ["typechecker"],
+        "config": ["pyrightconfig.json"],
+    },
+    "isort": {
+        "languages": ["Python"],
+        "roles": ["formatter"],
+        "config": [".isort.cfg"],
+    },
+    "yapf": {
+        "languages": ["Python"],
+        "roles": ["formatter"],
+        "config": [".style.yapf"],
+        "ignore": [".yapfignore"],
+    },
+    "Prospector": {
+        "languages": ["Python"],
+        "roles": ["linter"],
+        "config": [".prospector.yaml", ".prospector.yml"],
+    },
+    # --- Go -------------------------------------------------------------
+    "golangci-lint": {
+        "languages": ["Go"],
+        "roles": ["linter"],
+        "config": [".golangci.yml", ".golangci.yaml", ".golangci.toml",
+                   ".golangci.json"],
+    },
+    "staticcheck": {
+        "languages": ["Go"],
+        "roles": ["linter"],
+        "config": ["staticcheck.conf"],
+    },
+    # --- Ruby -----------------------------------------------------------
+    "RuboCop": {
+        "languages": ["Ruby"],
+        "roles": ["linter", "formatter"],
+        "config": [".rubocop.yml"],
+        # Written by --auto-gen-config to exclude existing offences, so it is
+        # the exclusion file rather than a second config.
+        "ignore": [".rubocop_todo.yml"],
+    },
+    "Standard": {
+        "languages": ["Ruby"],
+        "roles": ["linter", "formatter"],
+        "config": [".standard.yml"],
+        "ignore": [".standard_todo.yml"],
+    },
+    "Reek": {
+        "languages": ["Ruby"],
+        "roles": ["linter"],
+        "config": [".reek.yml"],
+    },
+    "Rufo": {
+        "languages": ["Ruby"],
+        "roles": ["formatter"],
+        "config": [".rufo"],
+    },
+    "erb_lint": {
+        "languages": ["Ruby"],
+        "roles": ["linter"],
+        "config": [".erb_lint.yml"],
+    },
+    "Steep": {
+        "languages": ["Ruby"],
+        "roles": ["typechecker"],
+        "config": ["steepfile"],
+    },
+    "Sorbet": {
+        "languages": ["Ruby"],
+        "roles": ["typechecker"],
+        # sorbet/config plus the generated sorbet/rbi tree.
+        "path_contains": ["sorbet/"],
+    },
+    # --- Java -----------------------------------------------------------
+    # Checkstyle itself documents no fixed filename; google_checks.xml and
+    # sun_checks.xml ship with the distribution and config/checkstyle/ is the
+    # Gradle plugin's documented default. PMD and SpotBugs are deliberately
+    # absent — their ruleset and filter files are arbitrarily named.
+    "Checkstyle": {
+        "languages": ["Java"],
+        "roles": ["linter"],
+        "config": ["checkstyle.xml", "google_checks.xml", "sun_checks.xml"],
+        "path_contains": ["config/checkstyle/"],
+    },
+    # --- Groovy ---------------------------------------------------------
+    "npm-groovy-lint": {
+        "languages": ["Groovy"],
+        "roles": ["linter"],
+        "config": [".groovylintrc.json", ".groovylintrc.js",
+                   ".groovylintrc.yml"],
+    },
+    # --- C# / .NET ------------------------------------------------------
+    "Roslyn": {
+        "languages": ["C#", ".NET"],
+        "roles": ["linter"],
+        "config": [".globalconfig"],
+        # Legacy Code Analysis rule sets, deprecated for .globalconfig but
+        # still common in older solutions.
+        "extensions": [".ruleset"],
+    },
+    "StyleCop": {
+        "languages": ["C#", ".NET"],
+        "roles": ["linter"],
+        "config": ["stylecop.json", ".stylecop.json"],
+    },
+    # --- SQL ------------------------------------------------------------
+    "SQLFluff": {
+        "languages": ["SQL"],
+        "roles": ["linter", "formatter"],
+        "config": [".sqlfluff"],
+        "ignore": [".sqlfluffignore"],
+    },
+}
+
+
+def _expand_linter_rules():
+    """Expand LINTER_RULES into the METADATA_RULES tables."""
+    for tool, spec in LINTER_RULES.items():
+        base = list(spec.get("languages", [])) + list(spec["roles"]) + [tool]
+        for filename in spec.get("config", ()):
+            METADATA_RULES["exact_filename_rules"][filename] = base + ["config"]
+        for filename in spec.get("ignore", ()):
+            METADATA_RULES["exact_filename_rules"][filename] = base + ["ignore"]
+        for fragment in spec.get("path_contains", ()):
+            METADATA_RULES["path_contains_rules"][fragment] = base + ["config"]
+        for ext in spec.get("extensions", ()):
+            METADATA_RULES["extension_rules"][ext] = base + ["config"]
+
+
+_expand_linter_rules()
 
 # The complete set of legal `kind` values for an AI artifact.
 # A rule may not use a kind outside this set.

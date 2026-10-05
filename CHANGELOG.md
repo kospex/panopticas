@@ -4,7 +4,24 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Added
+ - Detection of linter, formatter and type checker configuration files and their ignore counterparts: 30 tools across JavaScript, TypeScript, CSS, Python, Go, Ruby, Java, Groovy, C#/.NET and SQL, covering 96 exact filenames. Every convention was verified against the tool's current official documentation; see [`docs/linter-detection-rules.md`](https://panopticas.io/linter-detection-rules) for the inventory, the sources, and the candidates that were investigated and rejected.
+ - `LINTER_RULES` in `constants.py` is the single table describing those tools, expanded into the existing `METADATA_RULES` tables at import. `LINTER_ROLES` constrains the legal roles.
+ - Two new role tags, `formatter` and `typechecker`, joining the existing `linter`. A tool may hold more than one — Ruff, Biome, RuboCop, Standard and SQLFluff all lint and format.
+ - `.mjs` and `.cjs` now report as JavaScript, `.mts` and `.cts` as TypeScript. These were missing from the extension table entirely, so every file using them reported `Unknown` regardless of linters.
+ - Filetypes for extensionless config dotfiles that previously reported `Unknown`: `.editorconfig`, `.flake8`, `.globalconfig`, `.pylintrc`, `pylintrc`, `.isort.cfg` and `.style.yapf` resolve to `INI`, `.jshintrc` to `JSON`, `staticcheck.conf` to `TOML`, `.rufo` and `Steepfile` to `Ruby`, and `*.ruleset` to `XML`. Files accepting several formats get their own name: `ESLintRC`, `Prettierrc`, `StylelintRC`, plus `ESLintIgnore`, `PrettierIgnore`, `StylelintIgnore`, `JSHintIgnore` and `YapfIgnore`. `JSONC` and `JSON5` were also added.
+
+### Changed
+ - The tag vocabulary grew from 85 to 118 tags and the filetype vocabulary from 76 to 86. Both are still derived from the rules, so neither can drift.
+ - `eslint.config.js` tagged `eslint`; it now tags `ESLint`, matching the brand casing every other tool uses, and gains a `TypeScript` tag. kospex matches tags with a case-insensitive `LIKE`, so stored queries are unaffected.
+ - `.sqlfluff` and `.sqlfluffignore` moved into `LINTER_RULES`. Purely additive: `.sqlfluff` keeps `SQLFluff`, `SQL` and `linter` and gains `formatter` and `config`.
+
+ All tag changes are additions or case-only, so kospex is compatible either way; a bump is needed only to pick up the new tags, which requires a re-sync.
+
 ### Fixed
+ - `check_shebang()` caught only `FileNotFoundError` and `UnicodeDecodeError`, so any other way `open()` can fail propagated out of `get_language()`. A single unreadable file aborted a whole `panopticas assess` scan with `PermissionError`, and passing a directory raised `IsADirectoryError`. It now returns `None` for every path it cannot read, letting `get_language()` fall back to the extension tables. Passing a filename that does not exist on disk was already safe and still is.
+ - `panopticas urls` aborted the whole scan on one unreadable file. The loop caught `UnicodeDecodeError` — added in 0.0.19 so a binary file could not kill the run — but not `OSError`. Both are now treated as a file with no URLs. `extract_urls_from_file()` still raises by design; the handling belongs in the caller that is scanning a tree.
+ - `panopticas file` reported no file type for any file typed by basename rather than by extension, because it read `get_extension_filetype()`, which consults only `EXT_FILETYPES`. `panopticas file go.mod` showed a blank file type while `panopticas assess` showed `go.mod`; `setup.cfg` was blank the same way. The row now reads `get_language(skip_shebang=True)`, so both commands agree. The shebang rows are unaffected — a shebang-only script still reports no file type rather than borrowing its interpreter.
  - `panopticas file` labelled its first table row `File extenion`. Cosmetic, and the only change to shipped code since 0.0.19 — no library function, tag or JSON field changes, so kospex is unaffected and its pin does not need bumping for this
 
 ## 0.0.19 - 2026-08-15

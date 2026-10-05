@@ -271,6 +271,89 @@ class TestCheckShebang:
             os.unlink(f.name)
 
 
+class TestCheckShebangUnopenablePaths:
+    """
+    check_shebang() must never propagate an exception from open().
+
+    A shebang is one signal among several in get_language(), and
+    identify_files() walks whole trees — so a path that cannot be opened has
+    to fall through to extension-based detection rather than abort the
+    caller. It caught FileNotFoundError and UnicodeDecodeError but not the
+    other ways open() fails, so a single unreadable file killed a whole scan.
+    """
+
+    needs_non_root = pytest.mark.skipif(
+        hasattr(os, "geteuid") and os.geteuid() == 0,
+        reason="root can read a mode-000 file")
+
+    def test_a_directory_returns_none(self, tmp_path):
+        # open() on a directory raises IsADirectoryError, an OSError that is
+        # not a FileNotFoundError.
+        assert check_shebang(str(tmp_path)) is None
+
+    @needs_non_root
+    def test_an_unreadable_file_returns_none(self, tmp_path):
+        target = tmp_path / "locked"
+        target.write_text("#!/bin/bash\n")
+        target.chmod(0o000)
+        try:
+            assert check_shebang(str(target)) is None
+        finally:
+            target.chmod(0o644)
+
+    def test_a_path_the_os_rejects_returns_none(self, tmp_path):
+        # A NUL byte in a path raises ValueError, not OSError.
+        assert check_shebang("bad\x00name") is None
+
+    def test_an_absurdly_long_name_returns_none(self, tmp_path):
+        assert check_shebang(str(tmp_path / ("x" * 5000))) is None
+
+
+class TestGetLanguageUnopenablePaths:
+    """get_language() classifies by path even when the file cannot be read."""
+
+    needs_non_root = TestCheckShebangUnopenablePaths.needs_non_root
+
+    def test_a_directory_does_not_raise(self, tmp_path):
+        assert get_language(str(tmp_path)) == "Unknown"
+
+    @needs_non_root
+    def test_an_unreadable_file_falls_back_to_the_extension(self, tmp_path):
+        target = tmp_path / "script.py"
+        target.write_text("x = 1\n")
+        target.chmod(0o000)
+        try:
+            # The extension still identifies it; only the shebang is lost.
+            assert get_language(str(target)) == "Python"
+        finally:
+            target.chmod(0o644)
+
+    @needs_non_root
+    def test_an_unreadable_unrecognised_file_is_unknown(self, tmp_path):
+        target = tmp_path / "locked"
+        target.write_text("#!/bin/bash\n")
+        target.chmod(0o000)
+        try:
+            assert get_language(str(target)) == "Unknown"
+        finally:
+            target.chmod(0o644)
+
+    @needs_non_root
+    def test_one_unreadable_file_does_not_abort_a_scan(self, tmp_path):
+        # The real-world failure: identify_files() walks a tree and a single
+        # unreadable file aborted the whole scan with PermissionError.
+        (tmp_path / "readable.py").write_text("x = 1\n")
+        locked = tmp_path / "locked"
+        locked.write_text("#!/bin/bash\n")
+        locked.chmod(0o000)
+        try:
+            results = identify_files(str(tmp_path))
+            assert results["readable.py"] == "Python"
+            assert "locked" in results
+        finally:
+            locked.chmod(0o644)
+
+
 class TestGetFilenameMetatypes:
     """Tests for get_filename_metatypes() — metadata tag extraction."""
 
