@@ -4,6 +4,13 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Added
+ - `.kts` now reports as Kotlin and `.gradle` as Groovy. Both were missing from the extension table, so Kotlin scripts and every Gradle build script — `build.gradle`, `settings.gradle`, `build.gradle.kts`, `settings.gradle.kts` — reported `Unknown`. Gradle selects the DSL by extension alone, so the mapping is exact. Repositories built with Gradle will now show a small Groovy or Kotlin count from their build scripts.
+ - `build.gradle.kts` now carries the same `gradle`, `build` and `dependencies` tags as `build.gradle`. A project using the Gradle Kotlin DSL previously looked like it declared no dependencies.
+ - `settings.gradle` and `settings.gradle.kts` are tagged `gradle` and `build`. They declare project structure rather than dependencies, so they do not carry `dependencies`.
+
+ All three are new tags on previously untagged files, so kospex is compatible either way; a re-sync is needed to pick them up.
+
 ## 0.0.20 - 2026-10-05
 
 ### Added
