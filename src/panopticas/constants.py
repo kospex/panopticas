@@ -66,6 +66,7 @@ EXT_FILETYPES = {
     ".mailmap": "Mailmap",
     ".md": "Markdown",
     ".mjs": "JavaScript",   # ES module, explicit
+    ".mm": "Objective-C++",
     ".mts": "TypeScript",   # TypeScript emitting an ES module
     ".nvmrc": "nvmrc",
     ".pdf": "PDF",
@@ -144,6 +145,9 @@ LANGUAGE_BY_BASENAME = {
     # are mapped by basename for the same reason setup.cfg is.
     ".isort.cfg": "INI",
     "staticcheck.conf": "TOML",
+    # Swift Package Manager's lock file is JSON. Mapped by basename because
+    # ".resolved" is shared with Carthage's Cartfile.resolved, which is not.
+    "package.resolved": "JSON",
 }
 
 # Classification of every value in EXT_FILETYPES and LANGUAGE_BY_BASENAME as
@@ -182,6 +186,7 @@ LANGUAGE_FILETYPES = frozenset({
     "Kotlin",
     "Makefile",
     "Objective-C",
+    "Objective-C++",
     "Perl",
     "PHP",
     "PowerShell",
@@ -306,6 +311,8 @@ METADATA_RULES = {
         "uv.lock": ["dependencies", "Python", "uv"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],
+        "package.swift": ["build", "dependencies", "Swift", "SwiftPM"],
+        "package.resolved": ["dependencies", "Swift", "SwiftPM"],
         ".gitattributes": ["Git"],
         ".gitlab-ci.yml": ["pipeline", "GitLab"],  # Three letter YAML extension
         ".gitlab-ci.yaml": ["pipeline", "GitLab"],  # Full four letter YAML extension

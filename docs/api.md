@@ -14,7 +14,7 @@ Everything listed here is exported from the top-level package:
 import panopticas
 
 panopticas.get_language("app.py")   # "Python"
-panopticas.VERSION                  # "0.0.19"
+panopticas.VERSION                  # "0.0.21"
 ```
 
 The examples below import from `panopticas.core` and `panopticas.constants`, which
@@ -53,7 +53,7 @@ EXT_FILETYPES["dockerfile"]  # "Dockerfile" (special case)
 `EXT_FILETYPES` mixes two kinds of value: things that are programming languages
 (`Python`, `Go`) and things that are file types but not languages (`PNG`,
 `Gitignore`, `Lock`). These two collections classify every value in the table —
-32 languages and 44 non-languages. `get_languages()` and `get_filetypes()` read
+33 languages and 54 non-languages. `get_languages()` and `get_filetypes()` read
 from them.
 
 ```python
@@ -369,7 +369,7 @@ Return every tag panopticas can assign to a file.
 from panopticas.core import get_tags
 
 get_tags()
-# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (85 tags)
+# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (121 tags)
 ```
 
 **Returns:** Sorted list of tag strings, case-insensitively ordered
@@ -386,7 +386,7 @@ Return every file type panopticas recognises, languages or not.
 from panopticas.core import get_filetypes
 
 get_filetypes()
-# Returns: ['Apache JMeter', 'ASP.NET', ..., 'ZIP']  (76 file types)
+# Returns: ['Apache JMeter', 'ASP.NET', ..., 'ZIP']  (87 file types)
 ```
 
 **Returns:** Sorted list of file type strings
@@ -399,7 +399,7 @@ Return every file type that is a programming language.
 from panopticas.core import get_languages
 
 get_languages()
-# Returns: ['C', 'C Header', 'C#', 'C++', 'CSS', ..., 'Vue']  (32 languages)
+# Returns: ['C', 'C Header', 'C#', 'C++', 'CSS', ..., 'Vue']  (33 languages)
 ```
 
 **Returns:** Sorted list of language names — the subset of `get_filetypes()`
