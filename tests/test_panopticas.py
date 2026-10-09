@@ -83,6 +83,9 @@ class TestGetExtensionFiletype:
     def test_kotlin_script(self):
         assert get_extension_filetype(".kts") == "Kotlin"
 
+    def test_objective_cpp(self):
+        assert get_extension_filetype(".mm") == "Objective-C++"
+
     def test_ruby(self):
         assert get_extension_filetype(".rb") == "Ruby"
 
@@ -212,6 +215,14 @@ class TestGetLanguageEdgeCases:
 
     def test_go_sum(self):
         assert get_language_edge_cases("go.sum") == "go.sum"
+
+    def test_swiftpm_lock_file_is_json(self):
+        # Package.resolved is JSON, but ".resolved" is not mapped as a whole:
+        # Carthage's Cartfile.resolved shares the extension and is plain text.
+        assert get_language_edge_cases("Package.resolved") == "JSON"
+
+    def test_other_resolved_files_are_not_claimed(self):
+        assert get_language_edge_cases("Cartfile.resolved") is None
 
     def test_go_mod_in_path(self):
         assert get_language_edge_cases("/some/path/go.mod") == "go.mod"
@@ -403,6 +414,24 @@ class TestGetFilenameMetatypes:
         tags = get_filename_metatypes("app/build.gradle.kts")
         assert "gradle" in tags
         assert "dependencies" in tags
+
+    def test_swiftpm_manifest(self):
+        assert set(get_filename_metatypes("Package.swift")) == \
+            {"build", "dependencies", "Swift", "SwiftPM"}
+
+    def test_swiftpm_lock_file(self):
+        # A lock file pins dependencies; it does not build anything.
+        assert set(get_filename_metatypes("Package.resolved")) == \
+            {"dependencies", "Swift", "SwiftPM"}
+
+    def test_swiftpm_lock_file_inside_xcode_project(self):
+        path = ("App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/"
+                "Package.resolved")
+        assert "SwiftPM" in get_filename_metatypes(path)
+
+    def test_ordinary_swift_file_is_not_a_manifest(self):
+        assert "SwiftPM" not in get_filename_metatypes("Sources/App/Package.swift.bak")
+        assert get_filename_metatypes("Sources/App/main.swift") == []
 
     def test_setup_py_in_subdirectory(self):
         tags = get_filename_metatypes("packages/foo/setup.py")
@@ -709,6 +738,15 @@ class TestFixtureFiles:
 
     def test_gradle_kotlin_settings_detected(self, fixtures_exist):
         assert get_language("settings.gradle.kts") == "Kotlin"
+
+    def test_objective_cpp_detected(self, fixtures_exist):
+        assert get_language("file.mm") == "Objective-C++"
+
+    def test_swiftpm_manifest_detected(self, fixtures_exist):
+        assert get_language("Package.swift") == "Swift"
+
+    def test_swiftpm_lock_file_detected(self, fixtures_exist):
+        assert get_language("Package.resolved") == "JSON"
 
     def test_java_class_detected(self, fixtures_exist):
         assert get_language("somefile.class") == "Java Class"

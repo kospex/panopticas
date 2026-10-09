@@ -379,10 +379,10 @@ $ panopticas tags
 
 .NET           agent      Agents      AI            Aider
 Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
-binary         Bitbucket  build       Buildkite     C#
+binary         Biome      Bitbucket   build         Buildkite
 ...
 
-85 tags
+121 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
@@ -395,9 +395,9 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 85}` |
-| `languages` | `{"languages": [...], "count": 32}` |
-| `filetypes` | `{"filetypes": [...], "count": 76}` |
+| `tags` | `{"tags": [...], "count": 121}` |
+| `languages` | `{"languages": [...], "count": 33}` |
+| `filetypes` | `{"filetypes": [...], "count": 87}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'
