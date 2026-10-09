@@ -6,9 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "panopticas"
 version = "0.0.21"
 description = "The panopticas file type and CLI tool."
-authors = [{ name = "Peter Freiberg", email = "peter.freiberg@gmail.com" }]
+authors = [{ name = "Peter Freiberg", email = "peter@kospex.io" }]
 dependencies = [
-    "Click>=8.3.1",
+    "Click>=8.3.3",
     "pathspec>=0.12.1",
     "rich>=14.0.0",
 ]

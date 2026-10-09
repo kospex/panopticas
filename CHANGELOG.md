@@ -11,6 +11,10 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
  All three are new tags on previously untagged files, so kospex is compatible either way; a re-sync is needed to pick them up.
 
+### Changed
+ - The Click floor moved from `>=8.3.1` to `>=8.3.3`, so an install can no longer resolve to a vulnerable Click release.
+ - The package author email is now `peter@kospex.io`.
+
 ## 0.0.20 - 2026-10-05
 
 ### Added
