@@ -34,6 +34,7 @@ EXT_FILETYPES = {
     ".gitignore": "Gitignore",
     ".gitattributes": "GitAttributes",
     ".go": "Go",
+    ".gradle": "Groovy",    # Gradle picks the DSL by extension: Groovy here
     ".gif": "GIF",
     ".global.asax": "ASP.NET Global",
     ".gitleaksignore": "GitLeaksIgnore",
@@ -59,6 +60,7 @@ EXT_FILETYPES = {
     ".jsonc": "JSONC",      # JSON with comments
     ".jsx": "JSX",
     ".kt": "Kotlin",
+    ".kts": "Kotlin",       # Kotlin script, including the Gradle Kotlin DSL
     ".lock": "Lock",
     ".m": "Objective-C",
     ".mailmap": "Mailmap",
@@ -283,6 +285,10 @@ METADATA_RULES = {
         "azure-pipelines.yml": ["pipeline", "Azure DevOps"],
         "bitbucket-pipelines.yml": ["pipeline", "Bitbucket"],
         "build.gradle": ["gradle", "build", "dependencies"],
+        "build.gradle.kts": ["gradle", "build", "dependencies"],
+        # Settings files declare project structure, not dependencies.
+        "settings.gradle": ["gradle", "build"],
+        "settings.gradle.kts": ["gradle", "build"],
         "dependabot.yml": ["Dependabot", "GitHub", "dependencies", "security"],
         "dependabot.yaml": ["Dependabot", "GitHub", "dependencies", "security"],
         "global.asax": [".NET", "ASP.NET"],

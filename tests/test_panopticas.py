@@ -80,6 +80,9 @@ class TestGetExtensionFiletype:
     def test_kotlin(self):
         assert get_extension_filetype(".kt") == "Kotlin"
 
+    def test_kotlin_script(self):
+        assert get_extension_filetype(".kts") == "Kotlin"
+
     def test_ruby(self):
         assert get_extension_filetype(".rb") == "Ruby"
 
@@ -144,6 +147,11 @@ class TestGetExtensionFiletype:
     def test_groovy(self):
         assert get_extension_filetype(".groovy") == "Groovy"
         assert get_extension_filetype(".gvy") == "Groovy"
+
+    def test_gradle_script_is_groovy(self):
+        # Gradle picks the DSL by extension: .gradle is always Groovy,
+        # .gradle.kts is always Kotlin.
+        assert get_extension_filetype(".gradle") == "Groovy"
 
     # Infrastructure
     def test_terraform(self):
@@ -376,6 +384,25 @@ class TestGetFilenameMetatypes:
         assert "dependencies" in tags
         assert "Python" in tags
         assert "setuptools" in tags
+
+    def test_gradle_kotlin_dsl_build_file(self):
+        # Same tags as the Groovy build.gradle.
+        assert get_filename_metatypes("build.gradle.kts") == \
+            get_filename_metatypes("build.gradle")
+        assert set(get_filename_metatypes("build.gradle.kts")) == \
+            {"gradle", "build", "dependencies"}
+
+    @pytest.mark.parametrize("filename", [
+        "settings.gradle", "settings.gradle.kts",
+    ])
+    def test_gradle_settings_file(self, filename):
+        # Settings files declare project structure, not dependencies.
+        assert set(get_filename_metatypes(filename)) == {"gradle", "build"}
+
+    def test_gradle_kotlin_dsl_in_subdirectory(self):
+        tags = get_filename_metatypes("app/build.gradle.kts")
+        assert "gradle" in tags
+        assert "dependencies" in tags
 
     def test_setup_py_in_subdirectory(self):
         tags = get_filename_metatypes("packages/foo/setup.py")
@@ -670,6 +697,18 @@ class TestFixtureFiles:
 
     def test_groovy_detected(self, fixtures_exist):
         assert get_language("file.groovy") == "Groovy"
+
+    def test_gradle_groovy_dsl_detected(self, fixtures_exist):
+        assert get_language("build.gradle") == "Groovy"
+
+    def test_gradle_kotlin_dsl_detected(self, fixtures_exist):
+        assert get_language("build.gradle.kts") == "Kotlin"
+
+    def test_gradle_groovy_settings_detected(self, fixtures_exist):
+        assert get_language("settings.gradle") == "Groovy"
+
+    def test_gradle_kotlin_settings_detected(self, fixtures_exist):
+        assert get_language("settings.gradle.kts") == "Kotlin"
 
     def test_java_class_detected(self, fixtures_exist):
         assert get_language("somefile.class") == "Java Class"
