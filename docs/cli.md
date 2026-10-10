@@ -396,8 +396,8 @@ count.
 | Command | Shape |
 |---|---|
 | `tags` | `{"tags": [...], "count": 123}` |
-| `languages` | `{"languages": [...], "count": 33}` |
-| `filetypes` | `{"filetypes": [...], "count": 88}` |
+| `languages` | `{"languages": [...], "count": 34}` |
+| `filetypes` | `{"filetypes": [...], "count": 89}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'
