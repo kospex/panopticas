@@ -20,8 +20,11 @@ IMPLICIT_TAGS = (AI_TAG, LICENSE_TAG)
 
 EXT_FILETYPES = {
     ".c": "C",
+    ".c++": "C++",
+    ".cc": "C++",
     ".class": "Java Class",
     ".cpp": "C++",
+    ".cxx": "C++",
     ".cs": "C#",
     ".cjs": "JavaScript",   # CommonJS module, explicit
     ".cts": "TypeScript",   # TypeScript emitting CommonJS
@@ -42,6 +45,10 @@ EXT_FILETYPES = {
     ".groovy": "Groovy",
     ".gsp": "Groovy Server Pages",
     ".h": "C Header",
+    ".h++": "C++ Header",
+    ".hh": "C++ Header",
+    ".hpp": "C++ Header",
+    ".hxx": "C++ Header",
     ".aspx": "ASP.NET",
     ".ascx": "ASP.NET User Control",
     ".htm": "HTML",
@@ -179,6 +186,7 @@ LANGUAGE_FILETYPES = frozenset({
     "C Header",
     "C#",
     "C++",
+    "C++ Header",
     "CSS",
     "Dockerfile",
     "Go",

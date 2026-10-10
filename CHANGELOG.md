@@ -8,6 +8,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
  - `.kts` now reports as Kotlin and `.gradle` as Groovy. Both were missing from the extension table, so Kotlin scripts and every Gradle build script — `build.gradle`, `settings.gradle`, `build.gradle.kts`, `settings.gradle.kts` — reported `Unknown`. Gradle selects the DSL by extension alone, so the mapping is exact. Repositories built with Gradle will now show a small Groovy or Kotlin count from their build scripts.
  - `build.gradle.kts` now carries the same `gradle`, `build` and `dependencies` tags as `build.gradle`. A project using the Gradle Kotlin DSL previously looked like it declared no dependencies.
  - `settings.gradle` and `settings.gradle.kts` are tagged `gradle` and `build`. They declare project structure rather than dependencies, so they do not carry `dependencies`.
+ - `.cc`, `.cxx` and `.c++` now report as `C++`, and `.hpp`, `.hh`, `.hxx` and `.h++` as `C++ Header`, a new language paralleling `C Header`. Only `.cpp` was mapped before, so the rest reported `Unknown`. `.h` is unchanged and still reports `C Header`.
  - `.mm` now reports as `Objective-C++`, a new language. It was missing from the extension table and reported `Unknown`.
  - Swift Package Manager files are recognised. `Package.swift` is tagged `build`, `dependencies`, `Swift` and `SwiftPM`; its lock file `Package.resolved` is tagged `dependencies`, `Swift` and `SwiftPM` and reports as `JSON` instead of `Unknown`. A Swift package previously looked like it declared no dependencies. `Swift` and `SwiftPM` are new tags.
  - CocoaPods files are recognised. `Podfile` and `Podfile.lock` are tagged `dependencies` and `CocoaPods`, and `Podfile` reports as `Ruby` instead of `Unknown`.
@@ -16,7 +17,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
  All of these are new tags on previously untagged files, so kospex is compatible either way; a re-sync is needed to pick them up.
 
 ### Changed
- - The tag vocabulary grew from 119 to 123 tags, the filetype vocabulary from 86 to 88 and the language vocabulary from 32 to 33.
+ - The tag vocabulary grew from 119 to 123 tags, the filetype vocabulary from 86 to 89 and the language vocabulary from 32 to 34.
  - The Click floor moved from `>=8.3.1` to `>=8.3.3`, so an install can no longer resolve to a vulnerable Click release.
  - The package author email is now `peter@kospex.io`.
 

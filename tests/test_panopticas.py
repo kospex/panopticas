@@ -83,6 +83,18 @@ class TestGetExtensionFiletype:
     def test_kotlin_script(self):
         assert get_extension_filetype(".kts") == "Kotlin"
 
+    @pytest.mark.parametrize("ext", [".cc", ".cxx", ".c++"])
+    def test_cpp_source_extensions(self, ext):
+        assert get_extension_filetype(ext) == "C++"
+
+    @pytest.mark.parametrize("ext", [".hpp", ".hh", ".hxx", ".h++"])
+    def test_cpp_header_extensions(self, ext):
+        assert get_extension_filetype(ext) == "C++ Header"
+
+    def test_plain_h_is_still_a_c_header(self):
+        # .h is shared by C, C++ and Objective-C and is not resolved here.
+        assert get_extension_filetype(".h") == "C Header"
+
     def test_podfile_is_ruby(self):
         # CocoaPods loads an extensionless Podfile as Ruby.
         assert get_extension_filetype("Podfile") == "Ruby"
@@ -775,6 +787,18 @@ class TestFixtureFiles:
 
     def test_objective_cpp_detected(self, fixtures_exist):
         assert get_language("file.mm") == "Objective-C++"
+
+    @pytest.mark.parametrize("filename", [
+        "file.cc", "file.cxx", "file.c++",
+    ])
+    def test_cpp_sources_detected(self, fixtures_exist, filename):
+        assert get_language(filename) == "C++"
+
+    @pytest.mark.parametrize("filename", [
+        "file.hpp", "file.hh", "file.hxx", "file.h++",
+    ])
+    def test_cpp_headers_detected(self, fixtures_exist, filename):
+        assert get_language(filename) == "C++ Header"
 
     def test_podfile_detected(self, fixtures_exist):
         assert get_language("Podfile") == "Ruby"
