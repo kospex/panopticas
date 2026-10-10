@@ -1,5 +1,7 @@
 # CocoaPods and Carthage Detection
 
+Closes [#42](https://github.com/kospex/panopticas/issues/42).
+
 ## Summary
 
 Neither dependency manager's files were recognised. Only `Podfile.lock` had a
