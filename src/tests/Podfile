@@ -1,0 +1,6 @@
+platform :ios, '15.0'
+
+target 'Example' do
+  use_frameworks!
+  pod 'Alamofire', '~> 5.8'
+end

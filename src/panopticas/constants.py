@@ -131,6 +131,8 @@ EXT_FILETYPES = {
     "makefile": "Makefile",
     "pylintrc": "INI",
     "steepfile": "Ruby",
+    "podfile": "Ruby",      # CocoaPods loads an extensionless Podfile as Ruby
+    "cartfile": "Cartfile", # Carthage's own syntax, a restricted subset of OGDL
     "cname": "CNAME",  # Often GitHub et al will use a CNAME file for a URL to host from
 }
 
@@ -148,6 +150,10 @@ LANGUAGE_BY_BASENAME = {
     # Swift Package Manager's lock file is JSON. Mapped by basename because
     # ".resolved" is shared with Carthage's Cartfile.resolved, which is not.
     "package.resolved": "JSON",
+    # Carthage's other two files share the Cartfile syntax. Mapped by basename
+    # because ".private" and ".resolved" mean nothing on their own.
+    "cartfile.private": "Cartfile",
+    "cartfile.resolved": "Cartfile",
 }
 
 # Classification of every value in EXT_FILETYPES and LANGUAGE_BY_BASENAME as
@@ -233,6 +239,7 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "ReStructuredText",
     "Text",
     # Named single-purpose files — a filename convention, not a format
+    "Cartfile",
     "CNAME",
     "CODEOWNERS",
     "Dockerignore",
@@ -313,6 +320,13 @@ METADATA_RULES = {
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],
         "package.swift": ["build", "dependencies", "Swift", "SwiftPM"],
         "package.resolved": ["dependencies", "Swift", "SwiftPM"],
+        # CocoaPods and Carthage serve Swift and Objective-C alike, so
+        # neither carries a language tag.
+        "podfile": ["dependencies", "CocoaPods"],
+        "podfile.lock": ["dependencies", "CocoaPods"],
+        "cartfile": ["dependencies", "Carthage"],
+        "cartfile.private": ["dependencies", "Carthage"],
+        "cartfile.resolved": ["dependencies", "Carthage"],
         ".gitattributes": ["Git"],
         ".gitlab-ci.yml": ["pipeline", "GitLab"],  # Three letter YAML extension
         ".gitlab-ci.yaml": ["pipeline", "GitLab"],  # Full four letter YAML extension

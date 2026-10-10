@@ -83,6 +83,14 @@ class TestGetExtensionFiletype:
     def test_kotlin_script(self):
         assert get_extension_filetype(".kts") == "Kotlin"
 
+    def test_podfile_is_ruby(self):
+        # CocoaPods loads an extensionless Podfile as Ruby.
+        assert get_extension_filetype("Podfile") == "Ruby"
+
+    def test_cartfile_has_its_own_filetype(self):
+        # Carthage documents its own syntax, a restricted subset of OGDL.
+        assert get_extension_filetype("Cartfile") == "Cartfile"
+
     def test_objective_cpp(self):
         assert get_extension_filetype(".mm") == "Objective-C++"
 
@@ -221,8 +229,15 @@ class TestGetLanguageEdgeCases:
         # Carthage's Cartfile.resolved shares the extension and is plain text.
         assert get_language_edge_cases("Package.resolved") == "JSON"
 
-    def test_other_resolved_files_are_not_claimed(self):
-        assert get_language_edge_cases("Cartfile.resolved") is None
+    def test_carthage_lock_file_is_not_json(self):
+        assert get_language_edge_cases("Cartfile.resolved") == "Cartfile"
+
+    def test_carthage_private_manifest(self):
+        assert get_language_edge_cases("Cartfile.private") == "Cartfile"
+
+    def test_other_resolved_and_private_files_are_not_claimed(self):
+        assert get_language_edge_cases("Other.resolved") is None
+        assert get_language_edge_cases("key.private") is None
 
     def test_go_mod_in_path(self):
         assert get_language_edge_cases("/some/path/go.mod") == "go.mod"
@@ -414,6 +429,25 @@ class TestGetFilenameMetatypes:
         tags = get_filename_metatypes("app/build.gradle.kts")
         assert "gradle" in tags
         assert "dependencies" in tags
+
+    @pytest.mark.parametrize("filename", ["Podfile", "Podfile.lock"])
+    def test_cocoapods_files(self, filename):
+        assert set(get_filename_metatypes(filename)) == \
+            {"dependencies", "CocoaPods"}
+
+    @pytest.mark.parametrize("filename", [
+        "Cartfile", "Cartfile.private", "Cartfile.resolved",
+    ])
+    def test_carthage_files(self, filename):
+        assert set(get_filename_metatypes(filename)) == \
+            {"dependencies", "Carthage"}
+
+    def test_cocoapods_file_in_subdirectory(self):
+        assert "CocoaPods" in get_filename_metatypes("ios/Podfile")
+
+    def test_podfile_lookalikes_are_not_claimed(self):
+        assert get_filename_metatypes("Podfile.bak") == []
+        assert get_filename_metatypes("MyCartfile") == []
 
     def test_swiftpm_manifest(self):
         assert set(get_filename_metatypes("Package.swift")) == \
@@ -741,6 +775,18 @@ class TestFixtureFiles:
 
     def test_objective_cpp_detected(self, fixtures_exist):
         assert get_language("file.mm") == "Objective-C++"
+
+    def test_podfile_detected(self, fixtures_exist):
+        assert get_language("Podfile") == "Ruby"
+
+    def test_podfile_lock_detected(self, fixtures_exist):
+        assert get_language("Podfile.lock") == "Lock"
+
+    @pytest.mark.parametrize("filename", [
+        "Cartfile", "Cartfile.private", "Cartfile.resolved",
+    ])
+    def test_carthage_files_detected(self, fixtures_exist, filename):
+        assert get_language(filename) == "Cartfile"
 
     def test_swiftpm_manifest_detected(self, fixtures_exist):
         assert get_language("Package.swift") == "Swift"

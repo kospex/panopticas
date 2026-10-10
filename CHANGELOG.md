@@ -10,11 +10,13 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
  - `settings.gradle` and `settings.gradle.kts` are tagged `gradle` and `build`. They declare project structure rather than dependencies, so they do not carry `dependencies`.
  - `.mm` now reports as `Objective-C++`, a new language. It was missing from the extension table and reported `Unknown`.
  - Swift Package Manager files are recognised. `Package.swift` is tagged `build`, `dependencies`, `Swift` and `SwiftPM`; its lock file `Package.resolved` is tagged `dependencies`, `Swift` and `SwiftPM` and reports as `JSON` instead of `Unknown`. A Swift package previously looked like it declared no dependencies. `Swift` and `SwiftPM` are new tags.
+ - CocoaPods files are recognised. `Podfile` and `Podfile.lock` are tagged `dependencies` and `CocoaPods`, and `Podfile` reports as `Ruby` instead of `Unknown`.
+ - Carthage files are recognised. `Cartfile`, `Cartfile.private` and `Cartfile.resolved` are tagged `dependencies` and `Carthage`, and report as a new `Cartfile` filetype instead of `Unknown`. `CocoaPods` and `Carthage` are new tags. Neither tool's files carry a language tag, since both serve Swift and Objective-C alike.
 
  All of these are new tags on previously untagged files, so kospex is compatible either way; a re-sync is needed to pick them up.
 
 ### Changed
- - The tag vocabulary grew from 119 to 121 tags, the filetype vocabulary from 86 to 87 and the language vocabulary from 32 to 33.
+ - The tag vocabulary grew from 119 to 123 tags, the filetype vocabulary from 86 to 88 and the language vocabulary from 32 to 33.
  - The Click floor moved from `>=8.3.1` to `>=8.3.3`, so an install can no longer resolve to a vulnerable Click release.
  - The package author email is now `peter@kospex.io`.
 
