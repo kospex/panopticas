@@ -47,6 +47,12 @@ Result:
   project `Package.resolved` lives inside the project bundle, under
   `.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/`, and is tagged there
   too.
+- **`SwiftPM` is the tool's own short name**, not a panopticas convention.
+  The official documentation is titled
+  [Package Manager (SwiftPM)](https://docs.swift.org/latest/documentation/packagemanagerdocs/)
+  — set as the display name in
+  [`Documentation.md`](https://github.com/swiftlang/swift-package-manager/blob/main/Sources/PackageManagerDocs/Documentation.docc/Documentation.md)
+  — and the project README refers to "SwiftPM's bug tracker".
 - **`Swift` and `SwiftPM` are new tags** and `Objective-C++` a new language
   name. `Swift` existed as a language but had never been used as a tag. All
   are additions, so kospex is unaffected until a re-sync.
