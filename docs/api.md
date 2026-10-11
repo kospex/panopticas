@@ -492,5 +492,12 @@ spec.match_file("build/output.o")   # True
 ```
 
 **Returns:** A `pathspec.PathSpec`, or `None` if the directory has no
-`.gitignore`. Used internally by `find_files`, `identify_files` and
-`find_ai_files`.
+`.gitignore`.
+
+The spec always includes four built-in exclusions on top of the file's own
+patterns: `.git`, `.jekyll-cache`, `.ruff_cache` and `.DS_Store`.
+
+`find_files`, `identify_files`, `identify_files_with_metrics` and
+`find_ai_files` apply those four exclusions even when the directory has no
+`.gitignore`, so a repository's `.git` directory is never scanned. Passing
+`all_files=True` turns all filtering off, built-in exclusions included.
