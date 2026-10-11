@@ -245,8 +245,18 @@ def _ignore_spec(patterns):
     # for the registered 'gitignore' name: that is GitIgnoreBasicPattern,
     # which reads patterns literally and matches different files ("foo/*"
     # stops ignoring foo/bar/baz.txt, a bare "/" ignores everything).
-    return pathspec.PathSpec.from_lines(
-        GitIgnoreSpecPattern, [*patterns, *ALWAYS_IGNORED])
+    #
+    # Lines are compiled one at a time so that a line pathspec rejects is
+    # skipped, as Git skips it, instead of aborting the scan. Order is kept
+    # because a later negation overrides an earlier match.
+    compiled = []
+    for line in [*patterns, *ALWAYS_IGNORED]:
+        try:
+            compiled.extend(pathspec.PathSpec.from_lines(
+                GitIgnoreSpecPattern, [line]).patterns)
+        except (ValueError, re.error):
+            continue
+    return pathspec.PathSpec(compiled)
 
 def load_gitignore_patterns(directory):
     """
@@ -259,7 +269,10 @@ def load_gitignore_patterns(directory):
 
     if os.path.exists(gitignore_path):
 
-        with open(gitignore_path, 'r', encoding='utf-8') as file:
+        # errors='replace': Git reads the file as bytes, so a .gitignore that
+        # is not valid UTF-8 must not abort the scan either.
+        with open(gitignore_path, 'r', encoding='utf-8',
+                  errors='replace') as file:
             patterns = file.read().splitlines()
 
         return _ignore_spec(patterns)
