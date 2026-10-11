@@ -23,6 +23,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
  - The package author email is now `peter@kospex.io`.
 
 ### Fixed
+ - A repository with no `.gitignore` had its `.git` directory scanned. The built-in exclusions (`.git`, `.jekyll-cache`, `.ruff_cache`, `.DS_Store`) were applied only as extra lines on top of a `.gitignore`, so a directory without one got no filter at all: `panopticas assess` listed Git's internal files, `panopticas ai` could report a file inside `.git` as an AI artifact, and `identify_files()` returned them to callers. The exclusions now apply whether or not a `.gitignore` exists. `-all-files` still turns all filtering off, and `load_gitignore_patterns()` still returns `None` when there is no `.gitignore`. kospex already discarded `.git` paths itself, so its file inventory is unchanged.
  - `load_gitignore_patterns()` built its matcher with pathspec's deprecated `gitwildmatch` factory, raising a `DeprecationWarning` on every call — 168 of them in the test suite — and set to break when pathspec removes the name. It now passes `GitIgnoreSpecPattern` directly, the class the deprecated name was a thin subclass of, so which files are ignored is unchanged. The registered `gitignore` name was deliberately not used: it is a different implementation that matches different files.
 
 ## 0.0.20 - 2026-10-05

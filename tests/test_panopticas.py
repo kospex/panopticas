@@ -1024,3 +1024,68 @@ class TestLoadGitignorePatterns:
     def test_appended_literals_are_ignored(self, tmp_path, path):
         # Added by panopticas regardless of what the .gitignore says.
         assert self._spec(tmp_path, "").match_file(path)
+
+
+@pytest.fixture
+def repo_without_gitignore(tmp_path):
+    """A git repository that has no .gitignore.
+
+    Layout:
+        app.py
+        CLAUDE.md
+        .DS_Store
+        .git/config
+        .git/HEAD
+        .git/hooks/pre-commit.sample
+        .git/objects/ab/cdef
+        .git/CLAUDE.md          -> would be an AI artifact if scanned
+    """
+    (tmp_path / "app.py").write_text("print('hi')\n")
+    (tmp_path / "CLAUDE.md").write_text("# rules\n")
+    (tmp_path / ".DS_Store").write_text("x")
+    git = tmp_path / ".git"
+    (git / "hooks").mkdir(parents=True)
+    (git / "objects" / "ab").mkdir(parents=True)
+    (git / "config").write_text("[core]\n")
+    (git / "HEAD").write_text("ref: refs/heads/main\n")
+    (git / "hooks" / "pre-commit.sample").write_text("#!/bin/sh\n")
+    (git / "objects" / "ab" / "cdef").write_text("blob")
+    (git / "CLAUDE.md").write_text("# not a real artifact\n")
+    return str(tmp_path)
+
+
+class TestScanWithoutGitignore:
+    """A repository with no .gitignore must not have its .git directory scanned.
+
+    The built-in exclusions used to be applied only as extra lines on top of a
+    .gitignore, so a repository without one got no filter at all.
+    """
+
+    def test_identify_files_skips_git_directory(self, repo_without_gitignore):
+        result = identify_files(repo_without_gitignore)
+        assert set(result) == {"app.py", "CLAUDE.md"}
+
+    def test_identify_files_with_metrics_skips_git_directory(
+            self, repo_without_gitignore):
+        result = identify_files_with_metrics(repo_without_gitignore)
+        assert set(result) == {"app.py", "CLAUDE.md"}
+
+    def test_find_files_skips_git_directory(self, repo_without_gitignore):
+        assert set(find_files(repo_without_gitignore)) == {"app.py", "CLAUDE.md"}
+
+    def test_find_ai_files_skips_git_directory(self, repo_without_gitignore):
+        from panopticas import find_ai_files
+        assert set(find_ai_files(repo_without_gitignore)) == {"CLAUDE.md"}
+
+    def test_all_files_still_shows_everything(self, repo_without_gitignore):
+        # all_files means "no filtering", and that is unchanged.
+        result = find_files(repo_without_gitignore, all_files=True)
+        assert os.path.join(".git", "config") in result
+        assert ".DS_Store" in result
+
+    def test_same_exclusions_with_and_without_a_gitignore(
+            self, repo_without_gitignore):
+        without = set(find_files(repo_without_gitignore))
+        with open(os.path.join(repo_without_gitignore, ".gitignore"), "w") as f:
+            f.write("")
+        assert set(find_files(repo_without_gitignore)) - {".gitignore"} == without

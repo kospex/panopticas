@@ -236,9 +236,24 @@ def count_lines(file_path):
         # Handle any other exceptions gracefully
         return "N/A"
 
+# Excluded from every scan, whether or not the directory has a .gitignore.
+# .git is never repository content; the rest are tool caches and OS debris.
+ALWAYS_IGNORED = ('.git', '.jekyll-cache', '.ruff_cache', '.DS_Store')
+
+def _ignore_spec(patterns):
+    # GitIgnoreSpecPattern follows Git's actual behaviour. Do not swap it
+    # for the registered 'gitignore' name: that is GitIgnoreBasicPattern,
+    # which reads patterns literally and matches different files ("foo/*"
+    # stops ignoring foo/bar/baz.txt, a bare "/" ignores everything).
+    return pathspec.PathSpec.from_lines(
+        GitIgnoreSpecPattern, [*patterns, *ALWAYS_IGNORED])
+
 def load_gitignore_patterns(directory):
     """
-    Load gitignore patterns from a directory
+    Load gitignore patterns from a directory.
+
+    Returns None when the directory has no .gitignore. The walkers use
+    _scan_spec() instead, which still applies ALWAYS_IGNORED in that case.
     """
     gitignore_path = os.path.join(directory, '.gitignore')
 
@@ -246,19 +261,16 @@ def load_gitignore_patterns(directory):
 
         with open(gitignore_path, 'r', encoding='utf-8') as file:
             patterns = file.read().splitlines()
-            # Add .git to the patterns
-            patterns.append('.git')
-            # These seem to be ignore by git
-            patterns.append('.jekyll-cache')
-            patterns.append('.ruff_cache')
-            patterns.append('.DS_Store')
 
-        # GitIgnoreSpecPattern follows Git's actual behaviour. Do not swap it
-        # for the registered 'gitignore' name: that is GitIgnoreBasicPattern,
-        # which reads patterns literally and matches different files ("foo/*"
-        # stops ignoring foo/bar/baz.txt, a bare "/" ignores everything).
-        return pathspec.PathSpec.from_lines(GitIgnoreSpecPattern, patterns)
+        return _ignore_spec(patterns)
     return None
+
+def _scan_spec(directory):
+    """
+    The ignore matcher for walking a directory: its .gitignore plus
+    ALWAYS_IGNORED, or ALWAYS_IGNORED alone when it has no .gitignore.
+    """
+    return load_gitignore_patterns(directory) or _ignore_spec([])
 
 def identify_files(directory):
     """
@@ -266,7 +278,7 @@ def identify_files(directory):
     Returns a dict of the relative path filenames to their file_type
     """
 
-    gitignore_spec = load_gitignore_patterns(directory)
+    gitignore_spec = _scan_spec(directory)
 
     file_paths = {}
 
@@ -300,7 +312,7 @@ def identify_files_with_metrics(directory):
         dict: {relative_path: {'type': file_type, 'lines': line_count}}
     """
 
-    gitignore_spec = load_gitignore_patterns(directory)
+    gitignore_spec = _scan_spec(directory)
 
     file_paths = {}
 
@@ -330,7 +342,7 @@ def find_files(directory,all_files=None):
     Returns a list of the relative path filenames
     """
 
-    gitignore_spec = load_gitignore_patterns(directory)
+    gitignore_spec = _scan_spec(directory)
     if all_files:
         gitignore_spec = None
 
@@ -370,7 +382,7 @@ def find_ai_files(directory, all_files=False):
     surfaces tooling a team has configured locally but excluded from the
     repo, without flooding the output with arbitrary subdirectories.
     """
-    gitignore_spec = None if all_files else load_gitignore_patterns(directory)
+    gitignore_spec = None if all_files else _scan_spec(directory)
 
     ai_files = {}
 
