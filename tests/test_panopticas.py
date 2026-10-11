@@ -1089,3 +1089,46 @@ class TestScanWithoutGitignore:
         with open(os.path.join(repo_without_gitignore, ".gitignore"), "w") as f:
             f.write("")
         assert set(find_files(repo_without_gitignore)) - {".gitignore"} == without
+
+
+class TestMalformedGitignore:
+    """A .gitignore panopticas cannot fully process must not abort the scan.
+
+    Git skips a line it cannot use and applies the rest. One bad line used to
+    raise out of load_gitignore_patterns() and take the whole scan with it.
+    """
+
+    @staticmethod
+    def _repo(tmp_path, gitignore_bytes):
+        (tmp_path / ".gitignore").write_bytes(gitignore_bytes)
+        (tmp_path / "app.py").write_text("print('hi')\n")
+        (tmp_path / "a.log").write_text("x\n")
+        (tmp_path / "keep.log").write_text("x\n")
+        return str(tmp_path)
+
+    @pytest.mark.parametrize("bad_line", [
+        b"a[b-a]c",     # character range written backwards
+        b"\\",          # lone backslash
+        b"\xff\xfe x",  # not valid UTF-8
+    ])
+    def test_bad_line_is_skipped_and_the_rest_apply(self, tmp_path, bad_line):
+        repo = self._repo(tmp_path, b"*.log\n" + bad_line + b"\n!keep.log\n")
+        assert set(find_files(repo)) == {".gitignore", "app.py", "keep.log"}
+
+    def test_bad_line_does_not_abort_identify_files(self, tmp_path):
+        repo = self._repo(tmp_path, b"*.log\na[b-a]c\n")
+        assert set(identify_files(repo)) == {".gitignore", "app.py"}
+
+    def test_bad_line_does_not_drop_the_builtin_exclusions(self, tmp_path):
+        repo = self._repo(tmp_path, b"a[b-a]c\n")
+        os.makedirs(os.path.join(repo, ".git"))
+        with open(os.path.join(repo, ".git", "config"), "w") as f:
+            f.write("[core]\n")
+        assert os.path.join(".git", "config") not in find_files(repo)
+
+    def test_only_bad_lines_still_returns_a_matcher(self, tmp_path):
+        from panopticas.core import load_gitignore_patterns
+        repo = self._repo(tmp_path, b"a[b-a]c\n\\\n")
+        spec = load_gitignore_patterns(repo)
+        assert spec is not None
+        assert not spec.match_file("app.py")
