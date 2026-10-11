@@ -4,6 +4,7 @@ Analysis functions for Panopticas.
 import os
 import re
 import pathspec
+from pathspec.patterns.gitignore.spec import GitIgnoreSpecPattern
 from .constants import (
     AI_RULES,
     AI_TAG,
@@ -252,7 +253,11 @@ def load_gitignore_patterns(directory):
             patterns.append('.ruff_cache')
             patterns.append('.DS_Store')
 
-        return pathspec.PathSpec.from_lines('gitwildmatch', patterns)
+        # GitIgnoreSpecPattern follows Git's actual behaviour. Do not swap it
+        # for the registered 'gitignore' name: that is GitIgnoreBasicPattern,
+        # which reads patterns literally and matches different files ("foo/*"
+        # stops ignoring foo/bar/baz.txt, a bare "/" ignores everything).
+        return pathspec.PathSpec.from_lines(GitIgnoreSpecPattern, patterns)
     return None
 
 def identify_files(directory):

@@ -19,7 +19,11 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 ### Changed
  - The tag vocabulary grew from 119 to 123 tags, the filetype vocabulary from 86 to 89 and the language vocabulary from 32 to 34.
  - The Click floor moved from `>=8.3.1` to `>=8.3.3`, so an install can no longer resolve to a vulnerable Click release.
+ - The pathspec floor moved from `>=0.12.1` to `>=1.0.0`. The `.gitignore` matcher now names a class that only exists in pathspec 1.x. Installs already resolved to 1.x, so this only affects an environment that pins pathspec below 1.0.
  - The package author email is now `peter@kospex.io`.
+
+### Fixed
+ - `load_gitignore_patterns()` built its matcher with pathspec's deprecated `gitwildmatch` factory, raising a `DeprecationWarning` on every call — 168 of them in the test suite — and set to break when pathspec removes the name. It now passes `GitIgnoreSpecPattern` directly, the class the deprecated name was a thin subclass of, so which files are ignored is unchanged. The registered `gitignore` name was deliberately not used: it is a different implementation that matches different files.
 
 ## 0.0.20 - 2026-10-05
 

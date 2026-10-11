@@ -178,7 +178,7 @@ Jekyll copies the file verbatim instead of rendering it — and a nav entry in
 
 - **Click** (>=8.3.3) — CLI framework
 - **rich** (>=14.0.0) — Table formatting for CLI output
-- **pathspec** (>=0.12.1) — Git-style path matching for `.gitignore` support
+- **pathspec** (>=1.0.0) — Git-style path matching for `.gitignore` support
 
 ## Code Style
 
