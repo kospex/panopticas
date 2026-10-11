@@ -964,3 +964,63 @@ class TestImplicitTags:
         assert AI_TAG == "AI"
         assert LICENSE_TAG == "license"
         assert set(IMPLICIT_TAGS) == {"AI", "license"}
+
+
+class TestLoadGitignorePatterns:
+    """Tests for load_gitignore_patterns() — the matcher built from .gitignore.
+
+    The matcher decides which files are scanned at all, so a change in its
+    semantics alters detection results without failing anything else. These
+    pin the behaviour panopticas depends on.
+    """
+
+    @staticmethod
+    def _spec(tmp_path, gitignore):
+        from panopticas.core import load_gitignore_patterns
+        (tmp_path / ".gitignore").write_text(gitignore)
+        return load_gitignore_patterns(str(tmp_path))
+
+    def test_no_gitignore_returns_none(self, tmp_path):
+        from panopticas.core import load_gitignore_patterns
+        assert load_gitignore_patterns(str(tmp_path)) is None
+
+    def test_does_not_use_a_deprecated_pathspec_factory(self, tmp_path):
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", DeprecationWarning)
+            self._spec(tmp_path, "*.log\n")
+
+    def test_plain_file_and_directory_patterns(self, tmp_path):
+        spec = self._spec(tmp_path, "secret.txt\nbuild/\n*.log\n")
+        assert spec.match_file("secret.txt")
+        assert spec.match_file("build/out.o")
+        assert spec.match_file("sub/a.log")
+        assert not spec.match_file("app.py")
+
+    def test_star_pattern_ignores_nested_files(self, tmp_path):
+        # Git ignores foo/bar/ under "foo/*" and never descends into it. A
+        # matcher that reads the pattern literally stops at one level and
+        # would start scanning files the repository meant to exclude.
+        spec = self._spec(tmp_path, "foo/*\n")
+        assert spec.match_file("foo/x.txt")
+        assert spec.match_file("foo/bar/baz.txt")
+
+    def test_bare_slash_ignores_nothing(self, tmp_path):
+        # Git treats a lone "/" as matching nothing. A literal reading
+        # ignores every file in the repository.
+        spec = self._spec(tmp_path, "/\n")
+        assert not spec.match_file("app.py")
+        assert not spec.match_file("sub/app.py")
+
+    def test_negation_re_includes_a_file(self, tmp_path):
+        spec = self._spec(tmp_path, "*.log\n!important.log\n")
+        assert spec.match_file("a.log")
+        assert not spec.match_file("important.log")
+
+    @pytest.mark.parametrize("path", [
+        ".git/config", ".jekyll-cache/x", ".ruff_cache/x", ".DS_Store",
+        "sub/.DS_Store",
+    ])
+    def test_appended_literals_are_ignored(self, tmp_path, path):
+        # Added by panopticas regardless of what the .gitignore says.
+        assert self._spec(tmp_path, "").match_file(path)

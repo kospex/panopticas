@@ -9,7 +9,7 @@ description = "The panopticas file type and CLI tool."
 authors = [{ name = "Peter Freiberg", email = "peter@kospex.io" }]
 dependencies = [
     "Click>=8.3.3",
-    "pathspec>=0.12.1",
+    "pathspec>=1.0.0",
     "rich>=14.0.0",
 ]
 requires-python = ">=3.12"
