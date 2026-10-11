@@ -4,6 +4,8 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+## 0.0.21 - 2026-10-11
+
 ### Added
  - `.kts` now reports as Kotlin and `.gradle` as Groovy. Both were missing from the extension table, so Kotlin scripts and every Gradle build script — `build.gradle`, `settings.gradle`, `build.gradle.kts`, `settings.gradle.kts` — reported `Unknown`. Gradle selects the DSL by extension alone, so the mapping is exact. Repositories built with Gradle will now show a small Groovy or Kotlin count from their build scripts.
  - `build.gradle.kts` now carries the same `gradle`, `build` and `dependencies` tags as `build.gradle`. A project using the Gradle Kotlin DSL previously looked like it declared no dependencies.
