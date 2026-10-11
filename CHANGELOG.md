@@ -18,9 +18,11 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ### Changed
  - The tag vocabulary grew from 119 to 123 tags, the filetype vocabulary from 86 to 89 and the language vocabulary from 32 to 34.
- - The Click floor moved from `>=8.3.1` to `>=8.3.3`, so an install can no longer resolve to a vulnerable Click release.
  - The pathspec floor moved from `>=0.12.1` to `>=1.0.0`. The `.gitignore` matcher now names a class that only exists in pathspec 1.x. Installs already resolved to 1.x, so this only affects an environment that pins pathspec below 1.0.
  - The package author email is now `peter@kospex.io`.
+
+### Security
+ - The Click floor moved from `>=8.3.1` to `>=8.3.3` for CVE-2026-7246 (GHSA-47fr-3ffg-hgmw): command injection through the filename argument of `click.edit()`, which launches the editor through a shell (CWE-78). panopticas does not call `click.edit()`, and neither do its other dependencies, so panopticas itself was not exploitable. The floor still matters: `>=8.3.1` admitted the affected 8.3.1, and panopticas is installed as a dependency of kospex, so its floor is part of what a kospex install can resolve to.
 
 ### Fixed
  - A repository with no `.gitignore` had its `.git` directory scanned. The built-in exclusions (`.git`, `.jekyll-cache`, `.ruff_cache`, `.DS_Store`) were applied only as extra lines on top of a `.gitignore`, so a directory without one got no filter at all: `panopticas assess` listed Git's internal files, `panopticas ai` could report a file inside `.git` as an AI artifact, and `identify_files()` returned them to callers. The exclusions now apply whether or not a `.gitignore` exists. `-all-files` still turns all filtering off, and `load_gitignore_patterns()` still returns `None` when there is no `.gitignore`. kospex already discarded `.git` paths itself, so its file inventory is unchanged.
