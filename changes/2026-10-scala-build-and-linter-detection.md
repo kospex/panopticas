@@ -1,8 +1,9 @@
 # Scala, sbt, Mill and Scala Linter Detection
 
-**Status:** proposed, not yet implemented. Tracked in
-[#56](https://github.com/kospex/panopticas/issues/56), for which the research
-below is the evidence base.
+Closes [#56](https://github.com/kospex/panopticas/issues/56).
+
+**Status:** implemented as proposed below. The research is kept as the
+evidence base for each rule.
 
 ## Summary
 
@@ -189,7 +190,8 @@ removed. Two effects will be visible:
   total, so an sbt or Mill project shows slightly more Scala than before.
   Mill builds of Java projects gain a small Scala share. This is the same
   effect `.gradle` had on Groovy.
-- New tags: `sbt`, `Mill`, `Scalafmt`, `Scalafix`, `Scalastyle`. New filetypes:
+- New tags: `Scala`, `sbt`, `Mill`, `Scalafmt`, `Scalafix`, `Scalastyle`.
+  `Scala` was a language before but never a tag. New filetypes:
   `HOCON`, `mill-version`, `mill-jvm-version`, `mill-opts`, `mill-jvm-opts`,
   `sbtopts`, `jvmopts`.
 
@@ -202,7 +204,9 @@ removed. Two effects will be visible:
   `.mill-jvm-version`, `.mill-opts`, `.mill-jvm-opts`, `.sbtopts`, `.jvmopts`,
   `.scalafmt.conf`, `.scalafix.conf`, `scalastyle-config.xml`, plus a `.sc`
   script.
-- `tests/test_panopticas.py`: filetype and tag assertions for each fixture,
+- `tests/test_scala_detection.py` (build tools) and
+  `tests/test_linter_detection.py` (Scalafmt, Scalafix, Scalastyle, and the
+  WartRemover and Scapegoat guards): filetype and tag assertions for each file,
   plus negative cases: `Project.scala` gets no build tag, and
   `project/build.properties` stays `Properties` with no tags.
 

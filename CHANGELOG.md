@@ -4,6 +4,18 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Added
+ - Scala build files are recognised. `.sbt`, `.sc` and `.mill` now report as `Scala`; only `.scala` was mapped before, so the rest reported `Unknown`. Repositories built with sbt or Mill will now show a small Scala count from their build files.
+ - Every `*.sbt` file is tagged `sbt`, `build`, `dependencies` and `Scala`. sbt treats any `.sbt` file as build definition, and `build.sbt` is only the conventional name, so `project/plugins.sbt` and `project/assembly.sbt` are tagged too. `.sbtopts` and `.jvmopts`, which the sbt launcher reads from the project directory, are tagged `sbt` and `build`.
+ - Mill build files are recognised. `build.mill`, `package.mill`, `build.mill.yaml`, `package.mill.yaml` and the pre-0.12 `build.sc` are tagged `Mill`, `build` and `dependencies`. `.mill-version`, `.config/mill-version`, `.mill-jvm-version`, `.mill-opts` and `.mill-jvm-opts` are tagged `Mill` and `build`. Mill builds Java and Kotlin as well as Scala, so like Gradle it carries no language tag.
+ - Scala linter and formatter configs: Scalafmt (`.scalafmt.conf`), Scalafix (`.scalafix.conf`) and Scalastyle (`scalastyle-config.xml`, `scalastyle-test-config.xml`). The two `.conf` files report as a new `HOCON` filetype. WartRemover and Scapegoat were investigated and rejected, since neither has a config file; see [`docs/linter-detection-rules.md`](https://panopticas.io/linter-detection-rules).
+ - The version and options dotfiles report as their own filetypes (`sbtopts`, `jvmopts`, `mill-version`, `mill-jvm-version`, `mill-opts`, `mill-jvm-opts`) instead of `Unknown`.
+
+ All of these are new tags on previously untagged files, so kospex is compatible either way; a re-sync is needed to pick them up.
+
+### Changed
+ - The tag vocabulary grew from 123 to 129 tags (`Scala`, `sbt`, `Mill`, `Scalafmt`, `Scalafix`, `Scalastyle`) and the filetype vocabulary from 89 to 96. The language vocabulary is unchanged at 34.
+
 ## 0.0.21 - 2026-10-11
 
 ### Added

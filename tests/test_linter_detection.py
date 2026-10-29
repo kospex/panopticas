@@ -330,6 +330,26 @@ class TestDotNet:
         assert {"C#", "linter", "StyleCop", "config"} <= tags_for(filename)
 
 
+class TestScala:
+
+    def test_scalafmt_is_a_formatter(self):
+        assert tags_for(".scalafmt.conf") == \
+            {"Scala", "formatter", "Scalafmt", "config"}
+
+    def test_scalafix_is_a_linter(self):
+        # Scalafix rewrites code, but as refactoring rather than canonical
+        # formatting.
+        assert tags_for(".scalafix.conf") == \
+            {"Scala", "linter", "Scalafix", "config"}
+
+    @pytest.mark.parametrize("filename", [
+        "scalastyle-config.xml", "scalastyle-test-config.xml",
+    ])
+    def test_scalastyle_config(self, filename):
+        assert tags_for(filename) == \
+            {"Scala", "linter", "Scalastyle", "config"}
+
+
 class TestSqlFluffNormalisation:
     """The pre-existing SQLFluff rules move into LINTER_RULES."""
 
@@ -380,6 +400,9 @@ class TestConfigFiletypeResolution:
         (".rufo", "Ruby"),
         ("Steepfile", "Ruby"),
         ("CodeAnalysis.ruleset", "XML"),
+        (".scalafmt.conf", "HOCON"),
+        (".scalafix.conf", "HOCON"),
+        ("scalastyle-config.xml", "XML"),
         # Several accepted formats -> its own name.
         (".eslintrc", "ESLintRC"),
         (".prettierrc", "Prettierrc"),
@@ -448,3 +471,11 @@ class TestRejectedConventions:
     def test_black_has_no_dedicated_config_file(self):
         # Black is configured only in pyproject.toml, so it is undetectable.
         assert "Black" not in get_tags()
+
+    def test_wartremover_has_no_dedicated_config_file(self):
+        # WartRemover is configured only through build settings and -P:
+        # scalac options.
+        assert "WartRemover" not in get_tags()
+
+    def test_scapegoat_has_no_dedicated_config_file(self):
+        assert "Scapegoat" not in get_tags()
