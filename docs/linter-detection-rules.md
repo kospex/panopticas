@@ -6,7 +6,7 @@ description: Every linter, formatter and type checker config file panopticas det
 
 # Linter, Formatter and Type Checker Detection — Rules Reference
 
-**Rules verified:** 2026-10-05 (panopticas 0.0.20)
+**Rules verified:** 2026-10-05 (panopticas 0.0.20); Scala tools 2026-10-29
 **Inventory below generated from:** `LINTER_RULES` in `src/panopticas/constants.py`
 
 Panopticas detects the configuration and exclusion files of code-quality
@@ -77,6 +77,8 @@ Each of these was investigated against the tool's current documentation and
 | **Black** | Configured only in `pyproject.toml`. No dedicated file exists to match. |
 | **StandardJS** | Configured only in `package.json`. |
 | **Spotless** | Configured only in `build.gradle` / `pom.xml`. |
+| **WartRemover** | Configured only through sbt settings (`wartremoverErrors`, `wartremoverWarnings`, `wartremoverExcluded`), `-P:wartremover:` scalac options, or the Gradle and Maven plugins. No config file. |
+| **Scapegoat** | Configured only through sbt-scapegoat settings or `-P:scapegoat:` scalac options. No config file; its reports go to `target/`. |
 | **gofmt**, **gofumpt**, **go vet** | No configuration file at all. |
 | **pycodestyle** | Project-level config lives in `setup.cfg` or `tox.ini`; the dedicated file is the user-level `~/.config/pycodestyle`. |
 | **Sonar**, **Bandit**, **Brakeman**, **GitLeaks** | Security scanners, out of scope. GitLeaks is already detected separately via `.gitleaksignore`. |
@@ -126,6 +128,7 @@ format; where several are accepted, the file gets its own name.**
 | `staticcheck.conf` → `TOML` | `.stylelintrc` → `StylelintRC` (JSON or YAML) |
 | `.rufo`, `Steepfile` → `Ruby` (both are evaluated as Ruby) | `.eslintignore`, `.prettierignore`, `.stylelintignore`, `.jshintignore`, `.yapfignore` — gitignore-style pattern files |
 | `*.ruleset` → `XML` | |
+| `.scalafmt.conf`, `.scalafix.conf` → `HOCON` | |
 
 `.cfg` and `.conf` are mapped by basename rather than by extension, because
 both are used for arbitrary formats elsewhere — the same reasoning that already
@@ -185,6 +188,11 @@ documentation:
 | npm-groovy-lint | [Documentation](https://nvuillam.github.io/npm-groovy-lint/) |
 | Roslyn | [Configuration files for code analysis rules](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-files) |
 | StyleCop | [Configuration](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/Configuration.md) |
+| Scalafmt | [Configuration](https://scalameta.org/scalafmt/docs/configuration.html), [Installation](https://scalameta.org/scalafmt/docs/installation.html) |
+| Scalafix | [Configuration](https://scalacenter.github.io/scalafix/docs/users/configuration.html) |
+| Scalastyle | [`Plugin.scala`](https://github.com/scalastyle/scalastyle-sbt-plugin/blob/master/src/main/scala/org/scalastyle/sbt/Plugin.scala) in scalastyle-sbt-plugin (the `scalastyleConfig` defaults) |
+| WartRemover | [Install and setup](https://www.wartremover.org/doc/install-setup.html) |
+| Scapegoat | [scapegoat README](https://github.com/scapegoat-scala/scapegoat), [sbt-scapegoat README](https://github.com/scapegoat-scala/sbt-scapegoat) |
 
 ## Re-verifying
 
@@ -265,10 +273,18 @@ re-read the rejected list before adding anything in it.
 | **Roslyn** | linter | `C#`, `.NET` | `.globalconfig`, `*.ruleset` | — |
 | **StyleCop** | linter | `C#`, `.NET` | `stylecop.json`, `.stylecop.json` | — |
 
+### Scala
+
+| Tool | Role | Language tags | Config | Ignore |
+|---|---|---|---|---|
+| **Scalafmt** | formatter | `Scala` | `.scalafmt.conf` | — |
+| **Scalafix** | linter | `Scala` | `.scalafix.conf` | — |
+| **Scalastyle** | linter | `Scala` | `scalastyle-config.xml`, `scalastyle-test-config.xml` | — |
+
 ### SQL
 
 | Tool | Role | Language tags | Config | Ignore |
 |---|---|---|---|---|
 | **SQLFluff** | linter, formatter | `SQL` | `.sqlfluff` | `.sqlfluffignore` |
 
-<!-- 31 tools, 100 exact filenames -->
+<!-- 34 tools, 104 exact filenames -->

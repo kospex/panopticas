@@ -72,6 +72,7 @@ EXT_FILETYPES = {
     ".m": "Objective-C",
     ".mailmap": "Mailmap",
     ".md": "Markdown",
+    ".mill": "Scala",       # Mill build files, 0.12 onwards
     ".mjs": "JavaScript",   # ES module, explicit
     ".mm": "Objective-C++",
     ".mts": "TypeScript",   # TypeScript emitting an ES module
@@ -91,6 +92,8 @@ EXT_FILETYPES = {
     ".rst": "ReStructuredText",
     ".sarif": "SARIF",  # Static Analysis Results Interchange Format
     # https://sarifweb.azurewebsites.net/
+    ".sbt": "Scala",        # sbt build definition, a Scala DSL
+    ".sc": "Scala",         # Scala CLI/Ammonite scripts, Mill builds before 0.12
     ".scala": "Scala",
     ".sh": "Shell",
     ".sln": "Visual Studio Solution",
@@ -131,6 +134,14 @@ EXT_FILETYPES = {
     ".stylelintrc": "StylelintRC",      # JSON or YAML
     ".yapf": "INI",                     # .style.yapf
     ".yapfignore": "YapfIgnore",
+    # Scala build tool version pins and launcher options. None documents a
+    # content format, so each gets its own name.
+    ".jvmopts": "jvmopts",
+    ".mill-jvm-opts": "mill-jvm-opts",
+    ".mill-jvm-version": "mill-jvm-version",
+    ".mill-opts": "mill-opts",
+    ".mill-version": "mill-version",
+    ".sbtopts": "sbtopts",
     # Special cases for files without extensions or .format files
     "codeowners": "CODEOWNERS",
     "dockerfile": "Dockerfile",
@@ -154,6 +165,10 @@ LANGUAGE_BY_BASENAME = {
     # are mapped by basename for the same reason setup.cfg is.
     ".isort.cfg": "INI",
     "staticcheck.conf": "TOML",
+    ".scalafmt.conf": "HOCON",
+    ".scalafix.conf": "HOCON",
+    # Mill also reads its version pin from .config/mill-version.
+    "mill-version": "mill-version",
     # Swift Package Manager's lock file is JSON. Mapped by basename because
     # ".resolved" is shared with Carthage's Cartfile.resolved, which is not.
     "package.resolved": "JSON",
@@ -233,6 +248,7 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "ZIP",
     # Data and config formats — carry data, not behaviour
     "CSV",
+    "HOCON",
     "INI",
     "JSON",
     "JSON5",
@@ -266,6 +282,12 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "Mailmap",
     "nvmrc",
     "python-version",
+    "jvmopts",
+    "mill-jvm-opts",
+    "mill-jvm-version",
+    "mill-opts",
+    "mill-version",
+    "sbtopts",
     "go.mod",
     "go.sum",
     "SQLFluff",
@@ -298,6 +320,9 @@ METADATA_RULES = {
         ".dll": ["binary", ".NET"],
         ".sln": [".NET", "Visual Studio", "build"],
         ".csproj": [".NET", "C#", "build", "dependencies"],
+        # sbt treats every *.sbt file as build definition; build.sbt is only
+        # the conventional name. Any of them can declare dependencies.
+        ".sbt": ["sbt", "build", "dependencies", "Scala"],
         ".ascx": [".NET", "ASP.NET"],
         ".aspx": [".NET", "ASP.NET"],
     },
@@ -355,6 +380,24 @@ METADATA_RULES = {
         "package.json": ["npm", "dependencies"],
         "package-lock.json": ["npm", "dependencies"],
         "pom.xml": ["maven", "build", "dependencies"],
+        # Read by the sbt launcher from the project directory. The machine-
+        # and user-level files are named sbtopts, without the dot.
+        ".sbtopts": ["sbt", "build"],
+        ".jvmopts": ["sbt", "build"],
+        # Mill builds Java and Kotlin as well as Scala, so like Gradle it
+        # carries no language tag. Only build.mill and package.mill define
+        # modules; other .mill files are imported helpers.
+        "build.mill": ["Mill", "build", "dependencies"],
+        "package.mill": ["Mill", "build", "dependencies"],
+        "build.mill.yaml": ["Mill", "build", "dependencies"],
+        "package.mill.yaml": ["Mill", "build", "dependencies"],
+        # The root build file before Mill 0.12 renamed it to build.mill.
+        "build.sc": ["Mill", "build", "dependencies"],
+        ".mill-version": ["Mill", "build"],
+        "mill-version": ["Mill", "build"],  # .config/mill-version
+        ".mill-jvm-version": ["Mill", "build"],
+        ".mill-opts": ["Mill", "build"],
+        ".mill-jvm-opts": ["Mill", "build"],
     },
     "path_contains_rules": {
         # Order of precendence is important, as the search will return most likely the first
@@ -598,6 +641,25 @@ LINTER_RULES = {
         "languages": ["C#", ".NET"],
         "roles": ["linter"],
         "config": ["stylecop.json", ".stylecop.json"],
+    },
+    # --- Scala ----------------------------------------------------------
+    "Scalafmt": {
+        "languages": ["Scala"],
+        "roles": ["formatter"],
+        "config": [".scalafmt.conf"],
+    },
+    "Scalafix": {
+        # Scalafix rewrites code, but as refactoring rather than canonical
+        # formatting, so it is a linter only.
+        "languages": ["Scala"],
+        "roles": ["linter"],
+        "config": [".scalafix.conf"],
+    },
+    "Scalastyle": {
+        # The sbt plugin's defaults. Unmaintained, but still in repositories.
+        "languages": ["Scala"],
+        "roles": ["linter"],
+        "config": ["scalastyle-config.xml", "scalastyle-test-config.xml"],
     },
     # --- SQL ------------------------------------------------------------
     "SQLFluff": {
