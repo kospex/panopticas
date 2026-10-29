@@ -118,7 +118,11 @@ def get_filename_metatypes(file_path):
     if ai_metadata:
         tags.extend([AI_TAG, ai_metadata["product"], ai_metadata["kind"]])
 
-    return tags
+    # Two rules can contribute the same tag — tsconfig.json is TypeScript by
+    # both its languages and its tool name, and dependabot.yml is GitHub on
+    # its own and again from the .github path rule. Keep the first occurrence
+    # so tag order is otherwise unchanged.
+    return list(dict.fromkeys(tags))
 
 def get_tags():
     """

@@ -1,0 +1,2 @@
+# Fixture only: GitHub reads CODEOWNERS from the repository root, not here.
+* @example-org/maintainers
