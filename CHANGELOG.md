@@ -16,6 +16,11 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 ### Changed
  - The tag vocabulary grew from 123 to 129 tags (`Scala`, `sbt`, `Mill`, `Scalafmt`, `Scalafix`, `Scalastyle`) and the filetype vocabulary from 89 to 96. The language vocabulary is unchanged at 34.
 
+### Fixed
+ - `get_filename_metatypes()` returned a tag twice when two rules both contributed it ([#55](https://github.com/kospex/panopticas/issues/55)). `tsconfig.json` and `jsconfig.json` returned `TypeScript` twice, `.github/dependabot.yml` returned `GitHub` twice, and `config/checkstyle/checkstyle.xml`, the file's documented location, returned its whole tag list twice. Tags are now de-duplicated, keeping the first occurrence, so the order is otherwise unchanged. The tag vocabulary is unaffected.
+
+ kospex stores the list verbatim, so rows synced before this release keep their duplicates until the repository is re-synced. The version bump triggers that re-sync. Tag queries (`LIKE '%|tag|%'`) match either way; only something that counts tags per row would see a difference.
+
 ## 0.0.21 - 2026-10-11
 
 ### Added

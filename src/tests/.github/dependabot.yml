@@ -1,0 +1,7 @@
+# Fixture only: Dependabot reads .github/dependabot.yml at the repository root.
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
