@@ -10,11 +10,15 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
  - Mill build files are recognised. `build.mill`, `package.mill`, `build.mill.yaml`, `package.mill.yaml` and the pre-0.12 `build.sc` are tagged `Mill`, `build` and `dependencies`. `.mill-version`, `.config/mill-version`, `.mill-jvm-version`, `.mill-opts` and `.mill-jvm-opts` are tagged `Mill` and `build`. Mill builds Java and Kotlin as well as Scala, so like Gradle it carries no language tag.
  - Scala linter and formatter configs: Scalafmt (`.scalafmt.conf`), Scalafix (`.scalafix.conf`) and Scalastyle (`scalastyle-config.xml`, `scalastyle-test-config.xml`). The two `.conf` files report as a new `HOCON` filetype. WartRemover and Scapegoat were investigated and rejected, since neither has a config file; see [`docs/linter-detection-rules.md`](https://panopticas.io/linter-detection-rules).
  - The version and options dotfiles report as their own filetypes (`sbtopts`, `jvmopts`, `mill-version`, `mill-jvm-version`, `mill-opts`, `mill-jvm-opts`) instead of `Unknown`.
+ - `get_deprecated_tags()` returns the tags earlier releases assigned and this one does not, each mapped to its replacement ([#54](https://github.com/kospex/panopticas/issues/54)): `Github` → `GitHub`, `eslint` → `ESLint`, `Claude Code` → `Claude` and `Gemini CLI` → `Gemini`. Data stored by an older version can still hold these, and a consumer validating a tag against `get_tags()` alone would reject them. Changes of case are included, because a case-sensitive database treats `eslint` and `ESLint` as different tags even though SQLite's `LIKE` does not. See [Retired Tags](https://panopticas.io/retired-tags).
+ - `is_known_tag(value, *, check_deprecated=False)` checks a value against the current tags, or also the retired ones when `check_deprecated=True`. The match is exact, including case.
+ - `panopticas tags --retired` lists the retired tags and their replacements, with `--json` support. Plain `panopticas tags` is unchanged.
 
  All of these are new tags on previously untagged files, so kospex is compatible either way; a re-sync is needed to pick them up.
 
 ### Changed
  - The tag vocabulary grew from 123 to 129 tags (`Scala`, `sbt`, `Mill`, `Scalafmt`, `Scalafix`, `Scalastyle`) and the filetype vocabulary from 89 to 96. The language vocabulary is unchanged at 34.
+ - The 0.0.11 recase of `Github` to `GitHub` was never recorded in this changelog. It is now listed in `get_deprecated_tags()` and on the Retired Tags page, and a test fails if a future tag leaves the vocabulary without being added there.
 
 ### Fixed
  - `get_filename_metatypes()` returned a tag twice when two rules both contributed it ([#55](https://github.com/kospex/panopticas/issues/55)). `tsconfig.json` and `jsconfig.json` returned `TypeScript` twice, `.github/dependabot.yml` returned `GitHub` twice, and `config/checkstyle/checkstyle.xml`, the file's documented location, returned its whole tag list twice. Tags are now de-duplicated, keeping the first occurrence, so the order is otherwise unchanged. The tag vocabulary is unaffected.

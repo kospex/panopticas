@@ -23,6 +23,8 @@ from .core import (
     extract_urls_from_file,
     is_pip_requirements,
     get_tags,
+    get_deprecated_tags,
+    is_known_tag,
     get_filetypes,
     get_languages,
 )
@@ -49,6 +51,8 @@ __all__ = [
     'extract_urls_from_file',
     'is_pip_requirements',
     'get_tags',
+    'get_deprecated_tags',
+    'is_known_tag',
     'get_filetypes',
     'get_languages',
 ]

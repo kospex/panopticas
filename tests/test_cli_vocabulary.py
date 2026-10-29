@@ -77,3 +77,35 @@ class TestVocabularyJson:
         # existing parsers.
         payload = json.loads(CliRunner().invoke(cli, ["tags", "--json"]).output)
         assert isinstance(payload, dict)
+
+
+class TestRetiredTagsCommand:
+    """panopticas tags --retired lists retired tags with replacements."""
+
+    def test_lists_each_retired_tag_and_replacement(self):
+        from panopticas import get_deprecated_tags
+
+        result = CliRunner().invoke(cli, ["tags", "--retired"])
+        assert result.exit_code == 0
+        for retired, replacement in get_deprecated_tags().items():
+            assert retired in result.output
+            assert replacement in result.output
+
+    def test_reports_the_count(self):
+        from panopticas import get_deprecated_tags
+
+        result = CliRunner().invoke(cli, ["tags", "--retired"])
+        assert f"{len(get_deprecated_tags())} retired tags" in result.output
+
+    def test_json_shape(self):
+        from panopticas import get_deprecated_tags
+
+        result = CliRunner().invoke(cli, ["tags", "--retired", "--json"])
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["retired"] == get_deprecated_tags()
+        assert payload["count"] == len(get_deprecated_tags())
+
+    def test_default_tags_output_is_unchanged(self):
+        result = CliRunner().invoke(cli, ["tags", "--json"])
+        assert set(json.loads(result.output)) == {"tags", "count"}

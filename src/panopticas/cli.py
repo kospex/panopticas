@@ -164,14 +164,34 @@ def banner(message, as_json):
 
 
 @cli.command("tags")
+@click.option('--retired', '-retired', is_flag=True, default=False,
+              help="Show tags earlier releases emitted, with replacements.")
 @json_option
-def tags(as_json):
+def tags(retired, as_json):
     """Show every tag panopticas can assign to a file."""
+    if retired:
+        print_retired_tags(core.get_deprecated_tags(), as_json)
+        return
     values = core.get_tags()
     if as_json:
         emit_json({"tags": values, "count": len(values)})
     else:
         print_vocabulary(values, "tags")
+
+
+def print_retired_tags(retired, as_json):
+    """Print retired tags and what replaced each."""
+    if as_json:
+        emit_json({"retired": retired, "count": len(retired)})
+        return
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Retired tag")
+    table.add_column("Replaced by")
+    for tag, replacement in retired.items():
+        table.add_row(tag, replacement or "(dropped)")
+    console.print()
+    console.print(table)
+    console.print(f"\n{len(retired)} retired tags\n")
 
 
 @cli.command("languages")

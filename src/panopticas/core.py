@@ -8,6 +8,7 @@ from pathspec.patterns.gitignore.spec import GitIgnoreSpecPattern
 from .constants import (
     AI_RULES,
     AI_TAG,
+    DEPRECATED_TAGS,
     EXT_FILETYPES,
     IMPLICIT_TAGS,
     LANGUAGE_BY_BASENAME,
@@ -152,6 +153,29 @@ def get_tags():
             tags.update((product, kind))
 
     return sorted(tags, key=str.lower)
+
+def get_deprecated_tags():
+    """
+    Return the tags earlier releases emitted and this one does not, mapped to
+    the tag that replaced each, or None for a tag dropped outright.
+
+    Oldest first. Includes changes of case (Github -> GitHub): a
+    case-sensitive database treats the old spelling as a different tag.
+    Returns a copy, so callers cannot alter the table.
+    """
+    return dict(DEPRECATED_TAGS)
+
+def is_known_tag(value, *, check_deprecated=False):
+    """
+    Return True if value is a tag this version emits — or, with
+    check_deprecated=True, one an earlier version emitted.
+
+    The match is exact, including case. A recased tag is known through
+    get_deprecated_tags(), not by ignoring case.
+    """
+    if value in get_tags():
+        return True
+    return check_deprecated and value in DEPRECATED_TAGS
 
 def get_filetypes():
     """

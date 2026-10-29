@@ -262,3 +262,5 @@ Panopticas is used by kospex for file type detection and metadata extraction. Ke
   was on `0.0.17`
 
 When making breaking changes to panopticas, check kospex integration points first. Adding a tag is safe; renaming or removing one is not, since kospex stores tags in a database that is only refreshed on re-sync.
+
+When a tag is renamed, recased or removed, add the old spelling to `DEPRECATED_TAGS` in `constants.py`, mapped to its replacement or `None`, and add a row to `docs/retired-tags.md`. A change of case counts: SQLite's `LIKE` ignores it, but a case-sensitive database does not. `tests/data/tag_snapshot.txt` lists every shipped tag, and `tests/test_retired_tags.py` fails if a tag leaves `get_tags()` unrecorded. A new tag needs a line added to that snapshot.

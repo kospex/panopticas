@@ -53,7 +53,7 @@ EXT_FILETYPES["dockerfile"]  # "Dockerfile" (special case)
 `EXT_FILETYPES` mixes two kinds of value: things that are programming languages
 (`Python`, `Go`) and things that are file types but not languages (`PNG`,
 `Gitignore`, `Lock`). These two collections classify every value in the table —
-34 languages and 55 non-languages. `get_languages()` and `get_filetypes()` read
+34 languages and 62 non-languages. `get_languages()` and `get_filetypes()` read
 from them.
 
 ```python
@@ -140,6 +140,11 @@ The closed set of 14 artifact kinds an `AI_RULES` entry may use:
 
 `agent`, `chatmode`, `command`, `config`, `directory`, `docs`, `history`,
 `hook`, `ignore`, `instructions`, `plugin`, `prompt`, `rules`, `skill`
+
+### DEPRECATED_TAGS
+
+Retired tags mapped to their replacements, returned by
+`get_deprecated_tags()`. See [Retired Tags](/retired-tags).
 
 ### IMPLICIT_TAGS
 
@@ -369,7 +374,7 @@ Return every tag panopticas can assign to a file.
 from panopticas.core import get_tags
 
 get_tags()
-# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (123 tags)
+# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (129 tags)
 ```
 
 **Returns:** Sorted list of tag strings, case-insensitively ordered
@@ -377,6 +382,47 @@ get_tags()
 The vocabulary is derived from the detection rules themselves — `METADATA_RULES`,
 `AI_RULES` and `IMPLICIT_TAGS` — rather than maintained as a separate list, so it
 cannot drift from what the tool actually assigns.
+
+It holds only the tags this version assigns. Tags an earlier version assigned
+are listed by `get_deprecated_tags()`; see [Retired Tags](/retired-tags).
+
+### get_deprecated_tags
+
+Return the tags earlier releases assigned and this one does not, mapped to
+the tag that replaced each.
+
+```python
+from panopticas import get_deprecated_tags
+
+get_deprecated_tags()
+# Returns: {'Github': 'GitHub', 'eslint': 'ESLint',
+#           'Claude Code': 'Claude', 'Gemini CLI': 'Gemini'}
+```
+
+**Returns:** `dict` of retired tag to replacement, oldest first. A tag
+dropped outright maps to `None`. The dict is a copy.
+
+Changes of case are included: SQLite's `LIKE` ignores case, but a
+case-sensitive database treats `eslint` and `ESLint` as different tags.
+
+### is_known_tag
+
+Return whether a value is a tag panopticas assigns.
+
+```python
+from panopticas import is_known_tag
+
+is_known_tag("ESLint")                          # True
+is_known_tag("eslint")                          # False
+is_known_tag("eslint", check_deprecated=True)   # True
+```
+
+**Arguments:**
+- `value` — the tag to check
+- `check_deprecated` — keyword-only, default `False`; when `True`, a tag in
+  `get_deprecated_tags()` also counts as known
+
+**Returns:** `bool`. The match is exact, including case.
 
 ### get_filetypes
 
@@ -386,7 +432,7 @@ Return every file type panopticas recognises, languages or not.
 from panopticas.core import get_filetypes
 
 get_filetypes()
-# Returns: ['Apache JMeter', 'ASP.NET', ..., 'ZIP']  (89 file types)
+# Returns: ['Apache JMeter', 'ASP.NET', ..., 'ZIP']  (96 file types)
 ```
 
 **Returns:** Sorted list of file type strings
