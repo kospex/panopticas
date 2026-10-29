@@ -382,11 +382,30 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-123 tags
+129 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
 rather than after `ZIP`.
+
+### Retired tags
+
+`panopticas tags --retired` lists the tags earlier releases assigned and this
+one does not, with the tag that replaced each. Data stored by an older version
+can still hold them. See [Retired Tags](/retired-tags).
+
+```console
+$ panopticas tags --retired --json
+{
+  "retired": {
+    "Github": "GitHub",
+    "eslint": "ESLint",
+    "Claude Code": "Claude",
+    "Gemini CLI": "Gemini"
+  },
+  "count": 4
+}
+```
 
 ### JSON
 
@@ -395,13 +414,13 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 123}` |
+| `tags` | `{"tags": [...], "count": 129}` |
 | `languages` | `{"languages": [...], "count": 34}` |
-| `filetypes` | `{"filetypes": [...], "count": 89}` |
+| `filetypes` | `{"filetypes": [...], "count": 96}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'
-32
+34
 ```
 
 These are useful for building a filter UI, or for diffing two releases to see
