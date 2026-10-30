@@ -821,6 +821,7 @@ AI_RULES = {
         # new ones belong in the cross-vendor .agents/skills/, but these
         # directories remain supported.
         ".openhands/microagents/": ("OpenHands", "skill"),
+        ".openhands/skills/": ("OpenHands", "skill"),
         ".openhands/": ("OpenHands", "config"),
         # Kilo Code, since rebranded to Kilo. Superseded by .kilo/rules/
         # plus kilo.jsonc, but kept working for backward compatibility.
@@ -839,6 +840,11 @@ AI_RULES = {
         ".warp/": ("Warp", "config"),
         # Vendor-neutral
         ".vscode/mcp.json": ("MCP", "config"),
+        # Agent Skills (agentskills.io). The cross-vendor project skills
+        # directory read by Codex, OpenHands and Warp. ~/.agents/skills/ is
+        # its user-level twin. No bare .agents/ fallback: nothing else
+        # there is documented as a repository file.
+        ".agents/skills/": ("Agents", "skill"),
     },
     # Matched against the end of the lowercased basename. Longest wins.
     "filename_suffix": {

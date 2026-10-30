@@ -540,3 +540,34 @@ class TestWarp:
     def test_tags(self):
         assert get_filename_metatypes("WARP.md") == [
             "AI", "Warp", "instructions"]
+
+
+class TestAgentSkills:
+    """Vendor-neutral skill directories (#62).
+
+    Sources in changes/2026-10-agents-skills-detection.md.
+    """
+
+    @pytest.mark.parametrize("path", [
+        ".agents/skills/release/SKILL.md",
+        ".agents/skills/release/scripts/bump.py",
+        "services/api/.agents/skills/deploy/SKILL.md",
+    ])
+    def test_agents_skills(self, path):
+        assert get_ai_metadata(path) == {"product": "Agents", "kind": "skill"}
+
+    def test_openhands_legacy_skills_directory(self):
+        assert get_ai_metadata(".openhands/skills/repo/SKILL.md") == {
+            "product": "OpenHands", "kind": "skill"}
+
+    def test_bare_agents_directory_is_not_detected(self):
+        # Nothing else under .agents/ is documented as a repository file.
+        assert get_ai_metadata(".agents/notes.md") is None
+
+    def test_agents_mcp_json_stays_mcp(self):
+        assert get_ai_metadata(".agents/.mcp.json") == {
+            "product": "MCP", "kind": "config"}
+
+    def test_tags(self):
+        assert get_filename_metatypes(".agents/skills/release/SKILL.md") == [
+            "AI", "Agents", "skill"]
