@@ -571,3 +571,46 @@ class TestAgentSkills:
     def test_tags(self):
         assert get_filename_metatypes(".agents/skills/release/SKILL.md") == [
             "AI", "Agents", "skill"]
+
+
+class TestCopilotCurrentConventions:
+    """Copilot conventions added after 0.0.17 (#65).
+
+    Sources in changes/2026-10-copilot-agents-and-hooks.md.
+    """
+
+    @pytest.mark.parametrize("path,kind", [
+        (".github/agents/reviewer.agent.md", "agent"),
+        (".github/agents/reviewer.md", "agent"),
+        ("agents/reviewer.agent.md", "agent"),
+        (".github/skills/review/SKILL.md", "skill"),
+        (".github/hooks/policy.json", "hook"),
+        (".github/copilot/settings.json", "config"),
+        (".github/copilot/settings.local.json", "config"),
+        (".github/workflows/copilot-setup-steps.yml", "config"),
+    ])
+    def test_detection(self, path, kind):
+        assert get_ai_metadata(path) == {"product": "Copilot", "kind": kind}
+
+    @pytest.mark.parametrize("path", [
+        # Chat modes were renamed to custom agents, but older repositories
+        # still hold them, so they keep their own kind.
+        ".github/chatmodes/planner.chatmode.md",
+        "planner.chatmode.md",
+    ])
+    def test_chat_modes_still_detected(self, path):
+        assert get_ai_metadata(path) == {
+            "product": "Copilot", "kind": "chatmode"}
+
+    def test_claude_agent_directory_beats_agent_suffix(self):
+        assert get_ai_metadata(".claude/agents/reviewer.agent.md") == {
+            "product": "Claude", "kind": "agent"}
+
+    def test_setup_steps_keeps_workflow_tags(self):
+        tags = get_filename_metatypes(
+            ".github/workflows/copilot-setup-steps.yml")
+        assert {"GitHub", "workflow", "AI", "Copilot", "config"} <= set(tags)
+
+    def test_agent_tags(self):
+        assert get_filename_metatypes(".github/agents/reviewer.agent.md") == [
+            "GitHub", "Git", "AI", "Copilot", "agent"]
