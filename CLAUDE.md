@@ -31,7 +31,7 @@ src/panopticas/
 
 ### AI Agent Detection
 
-> **Before adding or changing a rule, read [`docs/ai-detection-rules.md`](docs/ai-detection-rules.md)** — the full inventory, the source that confirms each convention, and the list of candidates already investigated and **rejected**. Four proposed rules were rejected as wrong; re-adding one would mislabel repositories.
+> **Before adding or changing a rule, read [`docs/ai-detection-rules.md`](docs/ai-detection-rules.md)** — the full inventory, the source that confirms each convention, and the list of candidates already investigated and **rejected**. Five proposed rules were rejected as wrong; re-adding one would mislabel repositories.
 
 `AI_RULES` in `constants.py` maps an indicator to `(product, kind)` across three match modes — `exact_filename`, `path_contains` and `filename_suffix`. Precedence is exact filename, then the longest matching path fragment, then the longest matching suffix; first hit wins.
 
