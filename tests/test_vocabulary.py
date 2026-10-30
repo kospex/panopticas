@@ -68,7 +68,14 @@ class TestGetTags:
 
 
 class TestTagDrift:
-    """Every tag any rule can produce must be in get_tags()."""
+    """
+    Every tag any rule can produce must be in get_tags().
+
+    The guarantee is "no tag escapes the vocabulary", not "every branch of
+    get_tags() is exercised". Every tag the filename_suffix rules produce is
+    also produced by another rule, so deleting that branch from get_tags()
+    would not fail these tests. TestEveryTraversalBranch covers that.
+    """
 
     @pytest.mark.parametrize("path", list(sample_paths()))
     def test_produced_tags_are_in_vocabulary(self, path):
@@ -82,6 +89,38 @@ class TestTagDrift:
         # Guards the guard: if the synthesis above stopped matching rules,
         # the drift test would pass vacuously.
         assert all(get_filename_metatypes(p) for p in sample_paths())
+
+
+class TestEveryTraversalBranch:
+    """
+    get_tags() reads each rule table. A tag only one table can produce must
+    reach the vocabulary, so a branch dropped from the traversal fails here
+    even when today's rule data happens to repeat its tags elsewhere (#32).
+    """
+
+    @pytest.mark.parametrize("table,key", [
+        ("extension_rules", ".sentinel-ext"),
+        ("exact_filename_rules", "sentinel-exact"),
+        ("path_contains_rules", "sentinel-path/"),
+    ])
+    def test_metadata_rule_table(self, monkeypatch, table, key):
+        monkeypatch.setitem(METADATA_RULES[table], key, ["SentinelTag"])
+        assert "SentinelTag" in get_tags()
+
+    def test_function_rules(self, monkeypatch):
+        monkeypatch.setitem(
+            METADATA_RULES, "function_rules",
+            METADATA_RULES["function_rules"] + [("sentinel", ["SentinelTag"])])
+        assert "SentinelTag" in get_tags()
+
+    @pytest.mark.parametrize("mode,key", [
+        ("exact_filename", "sentinel.md"),
+        ("path_contains", ".sentinel/"),
+        ("filename_suffix", ".sentinel.md"),
+    ])
+    def test_ai_match_mode(self, monkeypatch, mode, key):
+        monkeypatch.setitem(AI_RULES[mode], key, ("SentinelProduct", "prompt"))
+        assert "SentinelProduct" in get_tags()
 
 
 class TestGetFiletypes:
@@ -105,6 +144,10 @@ class TestGetFiletypes:
         assert "Unknown" not in get_filetypes()
 
     def test_covers_every_table_value(self):
+        # A change-detector, not a correctness proof: `expected` is the same
+        # expression core.get_filetypes() uses, so a wrong formula (& for |,
+        # .keys() for .values()) would appear on both sides and pass. The
+        # tests above exercise the real behaviour.
         from panopticas.constants import EXT_FILETYPES, LANGUAGE_BY_BASENAME
 
         expected = set(EXT_FILETYPES.values()) | set(LANGUAGE_BY_BASENAME.values())
