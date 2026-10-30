@@ -197,3 +197,10 @@ re-tag repositories it has already synced.
 | <https://docs.warp.dev/knowledge-and-collaboration/warp-drive/ai-objects> | Project and global skills, `SKILL.md` | 2026-10-30 (page updated 2026-10-26) |
 | <https://docs.warp.dev/agents/capabilities/mcp.md> | `{repo_root}/.warp/.mcp.json`, other agents' MCP files that Warp reads | 2026-10-30 |
 | <https://docs.warp.dev/terminal/settings/file-locations.md> | Every `~/.warp/` path is user-level | 2026-10-30 |
+
+### Leads, not used as confirmation
+
+| Page | What it said | Outcome |
+|---|---|---|
+| <https://cdn.jsdelivr.net/npm/aiwg@2026.7.12/docs/integrations/warp-terminal-quickstart.md>, <https://cdn.jsdelivr.net/npm/aiwg@2026.7.12/docs/integrations/warp-mcp-sidecar.md> | Third-party: Warp's MCP servers are configured in the UI, not in a file | Contradicted by Warp's MCP page, which documents `.warp/.mcp.json`. Irrelevant either way, because `.mcp.json` is already a rule. |
+| <https://github.com/warpdotdev/docs> | Warp's docs repository keeps Oz agent skills in `.warp/skills/` | A real repository using the convention; consistent with the Skills page |
