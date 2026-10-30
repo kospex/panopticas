@@ -10,7 +10,8 @@ description: Every AI coding agent artifact panopticas detects, the source confi
 0.0.19 added no AI rules, and the inventory below matches `AI_RULES` as shipped in
 0.0.19. Warp was added on 2026-10-30 and verified against its docs that day; the
 other products were not re-checked then. `.agents/skills/` and
-`.openhands/skills/` were added on 2026-10-30 and verified the same way.
+`.openhands/skills/`, and Copilot's custom agents, skills, hooks, settings and
+setup steps, were added on 2026-10-30 and verified the same way.
 **Inventory below generated from:** `AI_RULES` in `src/panopticas/constants.py`
 
 Panopticas detects the file and directory artifacts of AI coding agents and tags
@@ -74,7 +75,7 @@ match would mean something different from what the tag claims.
 
 Several *detected* products have a user-level twin (`~/.junie/AGENTS.md`,
 `~/.augment/rules/`, `~/.codeium/.codeiumignore`, `~/.config/goose/.goosehints`,
-`~/.warp/workflows/`, `~/.warp/skills/`, `~/.agents/skills/`).
+`~/.warp/workflows/`, `~/.warp/skills/`, `~/.agents/skills/`, `~/.copilot/`).
 Those rules are sound because the repository-level form is **separately and
 explicitly documented**. Check for that before adding.
 
@@ -86,24 +87,26 @@ to confirm elsewhere, never as confirmation.
 
 | Product | Source |
 |---|---|
+| Agents (`.agents/skills/`) | https://learn.chatgpt.com/docs/build-skills (Codex), https://docs.openhands.dev/usage/prompting/microagents-overview, https://docs.warp.dev/agents/capabilities/skills/. Format: https://agentskills.io/specification.md, which names no discovery path itself |
 | Aider | https://aider.chat/docs/config/aider_conf.html |
 | Amazon Q | https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/context-project-rules.html |
 | Augment | https://docs.augmentcode.com/setup-augment/guidelines |
 | Cline | https://docs.cline.bot/customization/cline-rules |
 | Continue | https://docs.continue.dev/customize/deep-dives/rules |
+| Copilot (agents, skills, hooks, settings, setup steps) | https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli, https://code.visualstudio.com/docs/copilot/customization/custom-chat-modes, https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/create-skills, https://docs.github.com/en/copilot/reference/hooks-reference, https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/customize-the-agent-environment |
 | Gemini | https://github.com/google-gemini/gemini-cli — `docs/gemini-ignore.md` |
 | Goose | https://goose-docs.ai/docs/guides/context-engineering/using-goosehints/ |
 | Junie | https://junie.jetbrains.com/docs/guidelines-and-memory.html |
 | Kilo Code | https://github.com/Kilo-Org/kilocode — `custom-rules.md` |
 | OpenHands | https://docs.openhands.dev/usage/prompting/microagents-overview |
 | Roo Code | https://roocodeinc.github.io/Roo-Code/features/custom-instructions |
-| Agents (`.agents/skills/`) | https://learn.chatgpt.com/docs/build-skills (Codex), https://docs.openhands.dev/usage/prompting/microagents-overview, https://docs.warp.dev/agents/capabilities/skills/. Format: https://agentskills.io/specification.md, which names no discovery path itself |
 | Trae | https://docs.trae.cn/ide/rules |
 | Warp | https://docs.warp.dev/agent-platform/capabilities/rules/ (`WARP.md`), https://docs.warp.dev/terminal/entry/yaml-workflows/ (`.warp/workflows/`), https://docs.warp.dev/agents/capabilities/skills/ (`.warp/skills/`) |
 | Windsurf | https://docs.devin.ai/desktop/cascade/memories |
 
-Claude, Copilot, Cursor, Codex and the vendor-neutral pseudo-products were treated
-as well-established and not individually cited.
+Claude, Cursor, Codex and the vendor-neutral pseudo-products were treated
+as well-established and not individually cited. Copilot's original instructions,
+prompt and chat mode rules were too; its later conventions are cited above.
 
 ### Vendors that have moved or rebranded
 
@@ -144,7 +147,7 @@ where someone will act on it. Drop what cannot be confirmed.
 
 ## Inventory
 
-66 rules across 21 products. Generated from `AI_RULES`; regenerate rather than
+72 rules across 21 products. Generated from `AI_RULES`; regenerate rather than
 hand-edit.
 
 ### Agents
@@ -217,12 +220,22 @@ hand-edit.
 | Match | Indicator | Kind |
 |---|---|---|
 | filename | `copilot-instructions.md` | `instructions` |
+| filename | `copilot-setup-steps.yml` | `config` |
+| path | `.github/agents/` | `agent` |
 | path | `.github/chatmodes/` | `chatmode` |
+| path | `.github/copilot/` | `config` |
+| path | `.github/hooks/` | `hook` |
 | path | `.github/instructions/` | `instructions` |
 | path | `.github/prompts/` | `prompt` |
+| path | `.github/skills/` | `skill` |
+| suffix | `.agent.md` | `agent` |
 | suffix | `.chatmode.md` | `chatmode` |
 | suffix | `.instructions.md` | `instructions` |
 | suffix | `.prompt.md` | `prompt` |
+
+Chat modes were renamed to custom agents. VS Code: "Custom agents were
+previously known as custom chat modes". Both are detected, because older
+repositories still hold `.github/chatmodes/` and `*.chatmode.md`.
 
 ### Cursor
 

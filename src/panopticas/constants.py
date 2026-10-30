@@ -739,6 +739,9 @@ AI_RULES = {
         "claude_desktop_config.json": ("Claude", "config"),
         # Copilot — GitHub
         "copilot-instructions.md": ("Copilot", "instructions"),
+        # Cloud agent environment, at .github/workflows/; the workflow tags
+        # from METADATA_RULES still apply.
+        "copilot-setup-steps.yml": ("Copilot", "config"),
         # Cursor — Anysphere
         ".cursorrules": ("Cursor", "rules"),
         ".cursorignore": ("Cursor", "ignore"),
@@ -788,7 +791,15 @@ AI_RULES = {
         # Copilot
         ".github/instructions/": ("Copilot", "instructions"),
         ".github/prompts/": ("Copilot", "prompt"),
+        # Chat modes were renamed to custom agents (.github/agents/). Both
+        # are kept: older repositories still hold chat modes.
         ".github/chatmodes/": ("Copilot", "chatmode"),
+        ".github/agents/": ("Copilot", "agent"),
+        ".github/skills/": ("Copilot", "skill"),
+        ".github/hooks/": ("Copilot", "hook"),
+        # settings.json (committed) and settings.local.json (personal).
+        # ~/.copilot/ is the user-level twin of all of these.
+        ".github/copilot/": ("Copilot", "config"),
         # Cursor
         ".cursor/rules/": ("Cursor", "rules"),
         ".cursor/": ("Cursor", "config"),
@@ -851,6 +862,7 @@ AI_RULES = {
         ".instructions.md": ("Copilot", "instructions"),
         ".prompt.md": ("Copilot", "prompt"),
         ".chatmode.md": ("Copilot", "chatmode"),
+        ".agent.md": ("Copilot", "agent"),
         ".mdc": ("Cursor", "rules"),
     },
 }

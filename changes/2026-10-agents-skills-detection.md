@@ -93,3 +93,11 @@ matching them.
 | <https://docs.warp.dev/agents/capabilities/skills/> | Warp's project and global skill directories | 2026-10-30 (page updated 2026-10-26) |
 | <https://agentskills.io/specification.md> | Skill directory and `SKILL.md` format; no discovery path | 2026-10-30 |
 | <https://agentskills.io/> | Origin and status of the format | 2026-10-30 |
+
+### Leads, not used as confirmation
+
+| Page | What it said | Outcome |
+|---|---|---|
+| <https://github.com/devskale/skale-skills/blob/main/docs/agent-skills-best-practices.md>, <https://aisa.one/docs/agent-skills/standards> | Community: `<project>/.agents/skills/` for cross-client interoperability, next to `<project>/.<client>/skills/` | Confirmed by the Codex, OpenHands and Warp docs |
+| <https://developer.android.com/studio/gemini/skills> | Android Studio's Gemini agent reads `.skills/` or `.agent/skills/` (singular) at the project root | Different directories, not `.agents/skills/`. Not added; a candidate for [#64](https://github.com/kospex/panopticas/issues/64). |
+| <https://parallel.ai/articles/what-are-agent-skills> | The format was released as an open standard by Anthropic | Consistent with agentskills.io |
