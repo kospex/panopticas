@@ -8,10 +8,11 @@ description: Every AI coding agent artifact panopticas detects, the source confi
 
 **Rules verified:** 2026-08-01 (panopticas 0.0.17). Unchanged since — 0.0.18 and
 0.0.19 added no AI rules, and the inventory below matches `AI_RULES` as shipped in
-0.0.19. Warp was added on 2026-10-30 and verified against its docs that day; the
-other products were not re-checked then. `.agents/skills/` and
-`.openhands/skills/`, and Copilot's custom agents, skills, hooks, settings and
-setup steps, were added on 2026-10-30 and verified the same way.
+0.0.19. Rules added on 2026-10-30 were each verified against the vendor's docs
+that day: Warp; `.agents/skills/` and `.openhands/skills/`; Copilot's custom
+agents, skills, hooks, settings and setup steps; the Codex, Cursor and Gemini
+skill directories; and Factory and OpenCode. Rules that existed before were not
+re-checked then.
 **Inventory below generated from:** `AI_RULES` in `src/panopticas/constants.py`
 
 Panopticas detects the file and directory artifacts of AI coding agents and tags
@@ -62,20 +63,21 @@ repositories.
 | `.qodo/` | Qodo config directory | **User-level, not a repository artifact** — a home-directory cache. Qodo is the only candidate product rejected entirely; it contributes no rules. | Qodo docs |
 | `.clinerules` (single file) | Cline rules file | Current Cline docs describe **only** the `.clinerules/` *directory* form at the project root. The single-file variant could not be confirmed as still read. The directory form is detected. | https://docs.cline.bot/customization/cline-rules |
 | `amazonq.md` | Amazon Q instructions file | Could not be confirmed against current AWS documentation. `.amazonq/rules/` is documented and is detected. | https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/context-project-rules.html |
+| `.copilot/skills/` | Copilot project skills directory (Warp scans it) | **User-level, not a repository artifact.** GitHub lists `~/.copilot/skills` as personal skills; repository skills are `.github/skills`, `.claude/skills` or `.agents/skills`, and those are detected. Another tool reading a directory is not the vendor documenting it. | https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/create-skills |
 
 `tests/test_ai_detection.py` contains negative tests asserting these return `None`,
 so re-adding one fails the suite rather than shipping silently.
 
 ### The user-level trap
 
-Two of the four rejections share a cause worth naming. A path like
+Three of the five rejections share a cause worth naming. A path like
 `~/.config/<tool>/` or `~/.<tool>/` is **not** a repository artifact — panopticas
 scans repositories, so such a rule would essentially never fire, and if it did the
 match would mean something different from what the tag claims.
 
 Several *detected* products have a user-level twin (`~/.junie/AGENTS.md`,
 `~/.augment/rules/`, `~/.codeium/.codeiumignore`, `~/.config/goose/.goosehints`,
-`~/.warp/workflows/`, `~/.warp/skills/`, `~/.agents/skills/`, `~/.copilot/`).
+`~/.warp/workflows/`, `~/.warp/skills/`, `~/.agents/skills/`, `~/.copilot/`, `~/.factory/`).
 Those rules are sound because the repository-level form is **separately and
 explicitly documented**. Check for that before adding.
 
@@ -92,12 +94,16 @@ to confirm elsewhere, never as confirmation.
 | Amazon Q | https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/context-project-rules.html |
 | Augment | https://docs.augmentcode.com/setup-augment/guidelines |
 | Cline | https://docs.cline.bot/customization/cline-rules |
+| Codex (`.codex/skills/`) | https://github.com/openai/codex/pull/10317 (legacy, still loaded: `codex-rs/ext/skills/src/host_roots.rs`) |
 | Continue | https://docs.continue.dev/customize/deep-dives/rules |
 | Copilot (agents, skills, hooks, settings, setup steps) | https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli, https://code.visualstudio.com/docs/copilot/customization/custom-chat-modes, https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/create-skills, https://docs.github.com/en/copilot/reference/hooks-reference, https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/customize-the-agent-environment |
-| Gemini | https://github.com/google-gemini/gemini-cli — `docs/gemini-ignore.md` |
+| Cursor (`.cursor/skills/`) | https://cursor.com/docs/skills |
+| Factory | https://docs.factory.com/cli/configuration/skills |
+| Gemini | https://github.com/google-gemini/gemini-cli — `docs/gemini-ignore.md`; skills: https://geminicli.com/docs/cli/creating-skills/ |
 | Goose | https://goose-docs.ai/docs/guides/context-engineering/using-goosehints/ |
 | Junie | https://junie.jetbrains.com/docs/guidelines-and-memory.html |
 | Kilo Code | https://github.com/Kilo-Org/kilocode — `custom-rules.md` |
+| OpenCode | https://opencode.ai/docs/skills, https://opencode.ai/docs/config/ |
 | OpenHands | https://docs.openhands.dev/usage/prompting/microagents-overview |
 | Roo Code | https://roocodeinc.github.io/Roo-Code/features/custom-instructions |
 | Trae | https://docs.trae.cn/ide/rules |
@@ -119,6 +125,8 @@ the 0.0.17 verification pass:
 | Kilo Code | `kilocode.ai` → `kilo.ai` | `.kilocode/rules/` retained for backward compatibility; `.kilo/rules/` is current. Only the former is detected. |
 | OpenHands | `docs.all-hands.dev` → `docs.openhands.dev` | `.openhands/microagents/` and `.openhands/skills/` are legacy but supported; `.agents/skills/` is preferred and takes precedence. All three are detected. |
 | Roo Code | `docs.roocode.com` → GitHub Pages | — |
+| Codex | `developers.openai.com/codex/skills` → `learn.chatgpt.com/docs/build-skills` | Redirect seen 2026-10-30. The current page lists only `.agents/skills` for repositories; `.codex/skills/` is legacy but still loaded. |
+| Factory | `docs.factory.ai` → `docs.factory.com` | Redirect seen 2026-10-30. |
 
 A rebrand is **not** a reason to rename the product tag. The tag names the
 convention's origin, and repositories still contain the old files.
@@ -133,8 +141,8 @@ here so it is not rediscovered as a bug.
 
 ## Re-verifying
 
-`AI_RULES` encodes 21 vendors' conventions, which change without notice. Two of the
-four rejections above were candidates that had already gone stale when proposed.
+`AI_RULES` encodes 23 vendors' conventions, which change without notice. Two of the
+five rejections above were candidates that had already gone stale when proposed.
 
 To re-verify: work down *Sources by product*, confirm each indicator still appears
 in current documentation, and check the *rejected list* in case a rejection has
@@ -147,7 +155,7 @@ where someone will act on it. Drop what cannot be confirmed.
 
 ## Inventory
 
-72 rules across 21 products. Generated from `AI_RULES`; regenerate rather than
+79 rules across 23 products. Generated from `AI_RULES`; regenerate rather than
 hand-edit.
 
 ### Agents
@@ -207,6 +215,7 @@ hand-edit.
 | Match | Indicator | Kind |
 |---|---|---|
 | path | `.codex/` | `config` |
+| path | `.codex/skills/` | `skill` |
 
 ### Continue
 
@@ -246,7 +255,15 @@ repositories still hold `.github/chatmodes/` and `*.chatmode.md`.
 | filename | `.cursorrules` | `rules` |
 | path | `.cursor/` | `config` |
 | path | `.cursor/rules/` | `rules` |
+| path | `.cursor/skills/` | `skill` |
 | suffix | `.mdc` | `rules` |
+
+### Factory
+
+| Match | Indicator | Kind |
+|---|---|---|
+| path | `.factory/` | `config` |
+| path | `.factory/skills/` | `skill` |
 
 ### Gemini
 
@@ -256,6 +273,7 @@ repositories still hold `.github/chatmodes/` and `*.chatmode.md`.
 | filename | `.geminiignore` | `ignore` |
 | filename | `gemini.md` | `instructions` |
 | path | `.gemini/` | `config` |
+| path | `.gemini/skills/` | `skill` |
 
 ### Goose
 
@@ -297,6 +315,13 @@ repositories still hold `.github/chatmodes/` and `*.chatmode.md`.
 | path | `.openhands/` | `config` |
 | path | `.openhands/microagents/` | `skill` |
 | path | `.openhands/skills/` | `skill` |
+
+### OpenCode
+
+| Match | Indicator | Kind |
+|---|---|---|
+| path | `.opencode/` | `config` |
+| path | `.opencode/skills/` | `skill` |
 
 ### Roo Code
 

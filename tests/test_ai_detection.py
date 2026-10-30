@@ -614,3 +614,36 @@ class TestCopilotCurrentConventions:
     def test_agent_tags(self):
         assert get_filename_metatypes(".github/agents/reviewer.agent.md") == [
             "GitHub", "Git", "AI", "Copilot", "agent"]
+
+
+class TestVendorSkillDirectories:
+    """Per-vendor project skill directories (#64).
+
+    Sources in changes/2026-10-vendor-skill-directories.md.
+    """
+
+    @pytest.mark.parametrize("path,product", [
+        # Legacy since Codex moved to .agents/skills/, still loaded.
+        (".codex/skills/review/SKILL.md", "Codex"),
+        (".cursor/skills/review/SKILL.md", "Cursor"),
+        (".gemini/skills/review/SKILL.md", "Gemini"),
+        (".factory/skills/review/SKILL.md", "Factory"),
+        ("services/payments/.factory/skills/review/SKILL.md", "Factory"),
+        (".opencode/skills/review/SKILL.md", "OpenCode"),
+    ])
+    def test_skill_directory(self, path, product):
+        assert get_ai_metadata(path) == {"product": product, "kind": "skill"}
+
+    @pytest.mark.parametrize("path,product", [
+        (".factory/settings.json", "Factory"),
+        (".opencode/plugins/notify.ts", "OpenCode"),
+        (".codex/config.toml", "Codex"),
+        (".cursor/mcp.json", "Cursor"),
+    ])
+    def test_product_directory_is_config(self, path, product):
+        assert get_ai_metadata(path) == {"product": product, "kind": "config"}
+
+    def test_copilot_home_directory_is_not_a_repository_artifact(self):
+        # ~/.copilot/skills is personal; GitHub documents no repository
+        # .copilot/ directory. Repository skills are .github/skills/.
+        assert get_ai_metadata(".copilot/skills/review/SKILL.md") is None

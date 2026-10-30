@@ -802,10 +802,15 @@ AI_RULES = {
         ".github/copilot/": ("Copilot", "config"),
         # Cursor
         ".cursor/rules/": ("Cursor", "rules"),
+        ".cursor/skills/": ("Cursor", "skill"),
         ".cursor/": ("Cursor", "config"),
         # Gemini
+        ".gemini/skills/": ("Gemini", "skill"),
         ".gemini/": ("Gemini", "config"),
         # Codex — OpenAI
+        # .codex/skills/ is legacy since .agents/skills/ (openai/codex#10317)
+        # but still loaded as repository scope.
+        ".codex/skills/": ("Codex", "skill"),
         ".codex/": ("Codex", "config"),
         # Windsurf. .devin/rules/ is now the preferred location upstream,
         # but is left out here: it would mean a new "Devin" product.
@@ -849,6 +854,13 @@ AI_RULES = {
         ".warp/workflows/": ("Warp", "command"),
         ".warp/skills/": ("Warp", "skill"),
         ".warp/": ("Warp", "config"),
+        # Factory (Droid). Skills may sit in a subproject's .factory/ too.
+        # ~/.factory/ is the user-level twin.
+        ".factory/skills/": ("Factory", "skill"),
+        ".factory/": ("Factory", "config"),
+        # OpenCode. ~/.config/opencode/ is the user-level equivalent.
+        ".opencode/skills/": ("OpenCode", "skill"),
+        ".opencode/": ("OpenCode", "config"),
         # Vendor-neutral
         ".vscode/mcp.json": ("MCP", "config"),
         # Agent Skills (agentskills.io). The cross-vendor project skills

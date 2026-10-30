@@ -38,6 +38,7 @@ dprint
 EditorConfig
 erb_lint
 ESLint
+Factory
 Flake8
 formatter
 Gemini
@@ -77,6 +78,7 @@ Node
 npm
 npm-groovy-lint
 NuGet
+OpenCode
 OpenHands
 oxlint
 pip
