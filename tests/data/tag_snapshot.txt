@@ -35,6 +35,7 @@ dependencies
 Docker
 docs
 dprint
+editor
 EditorConfig
 erb_lint
 ESLint
@@ -61,6 +62,7 @@ isort
 Java
 JavaScript
 Jenkins
+JetBrains
 JMeter
 JSHint
 Junie
@@ -116,6 +118,7 @@ staticcheck
 Steep
 StyleCop
 Stylelint
+Sublime Text
 Swift
 SwiftPM
 Trae
@@ -124,9 +127,11 @@ typechecker
 TypeScript
 uv
 Visual Studio
+VS Code
 Warp
 Windsurf
 workflow
 XML
 yapf
 yarn
+Zed

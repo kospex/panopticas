@@ -374,7 +374,7 @@ Return every tag panopticas can assign to a file.
 from panopticas.core import get_tags
 
 get_tags()
-# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (132 tags)
+# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (137 tags)
 ```
 
 **Returns:** Sorted list of tag strings, case-insensitively ordered
