@@ -8,7 +8,8 @@ description: Every AI coding agent artifact panopticas detects, the source confi
 
 **Rules verified:** 2026-08-01 (panopticas 0.0.17). Unchanged since — 0.0.18 and
 0.0.19 added no AI rules, and the inventory below matches `AI_RULES` as shipped in
-0.0.19.
+0.0.19. Warp was added on 2026-10-30 and verified against its docs that day; the
+other products were not re-checked then.
 **Inventory below generated from:** `AI_RULES` in `src/panopticas/constants.py`
 
 Panopticas detects the file and directory artifacts of AI coding agents and tags
@@ -71,7 +72,8 @@ scans repositories, so such a rule would essentially never fire, and if it did t
 match would mean something different from what the tag claims.
 
 Several *detected* products have a user-level twin (`~/.junie/AGENTS.md`,
-`~/.augment/rules/`, `~/.codeium/.codeiumignore`, `~/.config/goose/.goosehints`).
+`~/.augment/rules/`, `~/.codeium/.codeiumignore`, `~/.config/goose/.goosehints`,
+`~/.warp/workflows/`, `~/.warp/skills/`).
 Those rules are sound because the repository-level form is **separately and
 explicitly documented**. Check for that before adding.
 
@@ -95,6 +97,7 @@ to confirm elsewhere, never as confirmation.
 | OpenHands | https://docs.openhands.dev/usage/prompting/microagents-overview |
 | Roo Code | https://roocodeinc.github.io/Roo-Code/features/custom-instructions |
 | Trae | https://docs.trae.cn/ide/rules |
+| Warp | https://docs.warp.dev/agent-platform/capabilities/rules/ (`WARP.md`), https://docs.warp.dev/terminal/entry/yaml-workflows/ (`.warp/workflows/`), https://docs.warp.dev/agents/capabilities/skills/ (`.warp/skills/`) |
 | Windsurf | https://docs.devin.ai/desktop/cascade/memories |
 
 Claude, Copilot, Cursor, Codex and the vendor-neutral pseudo-products were treated
@@ -125,7 +128,7 @@ here so it is not rediscovered as a bug.
 
 ## Re-verifying
 
-`AI_RULES` encodes 20 vendors' conventions, which change without notice. Two of the
+`AI_RULES` encodes 21 vendors' conventions, which change without notice. Two of the
 four rejections above were candidates that had already gone stale when proposed.
 
 To re-verify: work down *Sources by product*, confirm each indicator still appears
@@ -139,7 +142,7 @@ where someone will act on it. Drop what cannot be confirmed.
 
 ## Inventory
 
-60 rules across 20 products. Generated from `AI_RULES`; regenerate rather than
+64 rules across 21 products. Generated from `AI_RULES`; regenerate rather than
 hand-edit.
 
 ### Agents
@@ -292,6 +295,15 @@ hand-edit.
 |---|---|---|
 | path | `.trae/` | `config` |
 | path | `.trae/rules/` | `rules` |
+
+### Warp
+
+| Match | Indicator | Kind |
+|---|---|---|
+| filename | `warp.md` | `instructions` |
+| path | `.warp/` | `config` |
+| path | `.warp/skills/` | `skill` |
+| path | `.warp/workflows/` | `command` |
 
 ### Windsurf
 

@@ -765,6 +765,9 @@ AI_RULES = {
         ".goosehints": ("Goose", "instructions"),
         # Augment
         ".augment-guidelines": ("Augment", "instructions"),
+        # Warp. Kept for backward compatibility now that AGENTS.md is the
+        # default, and still read first when both exist.
+        "warp.md": ("Warp", "instructions"),
         # Vendor-neutral
         "agents.md": ("Agents", "instructions"),
         ".aiignore": ("Agents", "ignore"),
@@ -826,6 +829,14 @@ AI_RULES = {
         # Trae — ByteDance
         ".trae/rules/": ("Trae", "rules"),
         ".trae/": ("Trae", "config"),
+        # Warp. ~/.warp/ is also Warp's user-level directory (workflows,
+        # skills, themes, settings), but workflows and skills have a
+        # documented repo-local form, as ~/.junie/ does. A workflow is a
+        # named, parameterised command. .warp/.mcp.json is claimed by the
+        # exact-filename .mcp.json rule.
+        ".warp/workflows/": ("Warp", "command"),
+        ".warp/skills/": ("Warp", "skill"),
+        ".warp/": ("Warp", "config"),
         # Vendor-neutral
         ".vscode/mcp.json": ("MCP", "config"),
     },

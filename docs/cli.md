@@ -382,7 +382,7 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-129 tags
+130 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
@@ -414,7 +414,7 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 129}` |
+| `tags` | `{"tags": [...], "count": 130}` |
 | `languages` | `{"languages": [...], "count": 34}` |
 | `filetypes` | `{"filetypes": [...], "count": 96}` |
 

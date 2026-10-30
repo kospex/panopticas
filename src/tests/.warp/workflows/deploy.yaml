@@ -1,0 +1,6 @@
+name: Deploy
+command: ./deploy.sh {{environment}}
+description: Deploy to an environment
+arguments:
+  - name: environment
+    default_value: staging

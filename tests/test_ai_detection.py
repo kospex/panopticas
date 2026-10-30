@@ -511,3 +511,32 @@ class TestTier2Products:
     def test_rules_directory_beats_bare_product_directory(self):
         # Both ".trae/" and ".trae/rules/" match; the longer fragment wins.
         assert get_ai_metadata(".trae/rules/a.md")["kind"] == "rules"
+
+
+class TestWarp:
+    """Warp (#33). Sources in changes/2026-10-warp-ai-detection.md."""
+
+    @pytest.mark.parametrize("path,kind", [
+        ("WARP.md", "instructions"),
+        ("services/api/WARP.md", "instructions"),
+        (".warp/workflows/deploy.yaml", "command"),
+        (".warp/workflows/build.yml", "command"),
+        (".warp/skills/release/SKILL.md", "skill"),
+        (".warp/themes/dark.yaml", "config"),
+    ])
+    def test_detection(self, path, kind):
+        assert get_ai_metadata(path) == {"product": "Warp", "kind": kind}
+
+    def test_project_mcp_config_stays_mcp(self):
+        # .mcp.json is an exact-filename rule, which beats the .warp/
+        # fragment, the same as .vscode/mcp.json.
+        assert get_ai_metadata(".warp/.mcp.json") == {
+            "product": "MCP", "kind": "config"}
+
+    def test_agents_md_stays_vendor_neutral(self):
+        # Warp's default rules file is AGENTS.md, but it belongs to no brand.
+        assert get_ai_metadata("AGENTS.md")["product"] == "Agents"
+
+    def test_tags(self):
+        assert get_filename_metatypes("WARP.md") == [
+            "AI", "Warp", "instructions"]

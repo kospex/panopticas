@@ -122,6 +122,7 @@ typechecker
 TypeScript
 uv
 Visual Studio
+Warp
 Windsurf
 workflow
 XML
