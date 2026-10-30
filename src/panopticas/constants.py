@@ -125,6 +125,11 @@ EXT_FILETYPES = {
     ".txt": "Text",
     ".vue": "Vue",
     ".xml": "XML",
+    # Editor project files
+    ".code-workspace": "JSONC",     # VS Code multi-root workspace
+    ".iml": "XML",                  # JetBrains module
+    ".sublime-project": "JSON",
+    ".sublime-workspace": "JSON",
     ".xls": "Excel",
     ".xlsx": "Excel",
     ".yaml": "YAML",
@@ -334,6 +339,13 @@ METADATA_RULES = {
         ".jmx": ["Apache", "JMeter", "XML"],
         ".dll": ["binary", ".NET"],
         ".sln": [".NET", "Visual Studio", "build"],
+        # Editor and IDE project files. Not AI_RULES: an editor is not an
+        # AI agent.
+        ".code-workspace": ["VS Code", "editor", "config"],
+        ".iml": ["JetBrains", "editor", "config"],
+        ".sublime-project": ["Sublime Text", "editor", "config"],
+        # Per-user state, meant to stay out of version control.
+        ".sublime-workspace": ["Sublime Text", "editor", "config"],
         ".csproj": [".NET", "C#", "build", "dependencies"],
         # sbt treats every *.sbt file as build definition; build.sbt is only
         # the conventional name. Any of them can declare dependencies.
@@ -426,6 +438,11 @@ METADATA_RULES = {
         ".buildkite/": ["pipeline", "Buildkite"],
         ".circleci/": ["pipeline", "CircleCI"],
         ".github": ["GitHub", "Git"],
+        # Editor and IDE project directories. .vscode/mcp.json also gets
+        # its AI tags from AI_RULES, a separate pass.
+        ".vscode/": ["VS Code", "editor", "config"],
+        ".idea/": ["JetBrains", "editor", "config"],
+        ".zed/": ["Zed", "editor", "config"],
     },
     "function_rules": [
         ("is_pip_requirements", ["pip", "Python", "PyPi", "dependencies"]),
