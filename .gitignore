@@ -167,6 +167,8 @@ cython_debug/
 
 # Warp terminal configuration (user-specific)
 .warp/
+# ...except the detection fixtures
+!src/tests/.warp/
 
 # Jekyll (docs/)
 docs/_site/
