@@ -24,10 +24,17 @@ class TestCell:
     def test_null_byte_stripped(self):
         assert "\x00" not in cell("evil\x00.py")
 
+    def test_del_stripped(self):
+        # \x7f is the lower edge of the DEL-and-C1 range.
+        assert cell("evil\x7f.py") == "evil.py"
+
     def test_combined_attack_neutralised(self):
         result = cell("\x1b[31m[bold]evil.py")
         assert "\x1b" not in result
-        assert not result.startswith("[bold]")
+        # Assert on the escaped form, not on startswith("[bold]"), which
+        # the leftover "[31m" satisfies even with no escaping at all (#32).
+        # "[31m" is left alone: with no closing bracket it is not markup.
+        assert "\\[bold]" in result
 
     def test_matches_sanitise_for_display_on_control_characters(self):
         # cell() must not weaken the existing protection.
