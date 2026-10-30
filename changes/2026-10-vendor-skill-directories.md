@@ -163,4 +163,5 @@ them, and one for `skill` starts to.
 |---|---|---|
 | <https://forge.lthn.ai/core/core-agent-ide/src/commit/0a32acaa2deb8883e9dcbfb80e84957837d39b74/docs/skills.md> | A Codex fork mirroring PR #10317's deprecation note | Confirmed upstream, in the PR itself |
 | <https://github.com/openai/codex/discussions/9682> | A maintainer: "you need to place your skills in a `.codex` path for Codex to see them" (before #10317) | Consistent: `.codex/skills/` was the original location |
+| <https://smithery.ai/skills/justinlevinedotme/opencode-skills> | Third-party listing: OpenCode project skills at `.opencode/skill/<name>/SKILL.md` (singular) | Contradicted by [opencode.ai/docs/skills](https://opencode.ai/docs/skills), which uses `skills`. OpenCode's config docs say singular subdirectory names are "still supported for backwards compatibility", so this may describe an older form. Kept in case OpenCode's docs change. |
 | <https://docs.rs/crate/agentlink-domain/latest/source/providers/codex.toml> | Third-party: Codex walks `.agents/skills/` in addition to `.codex/skills/` | Confirmed by the Codex source |
