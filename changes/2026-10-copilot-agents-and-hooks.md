@@ -87,10 +87,14 @@ inline hooks:
 
 > `.github/copilot/settings.local.json` (typically gitignored and user specific)
 
-The user-level file is `~/.copilot/settings.json`. Both repository files are
-tagged `config`, not `hook`, because the settings file holds more than hooks.
+The user-level file is `~/.copilot/settings.json`. GitHub's CLI settings
+page confirms it: changes made with `/settings` or `/config` "are written to
+your personal settings file (by default, `~/.copilot/settings.json`)". It does
+not name the repository files. Both repository files are tagged `config`, not
+`hook`, because the settings file holds more than hooks.
 
-Source: <https://docs.github.com/en/copilot/reference/hooks-reference>
+Sources: <https://docs.github.com/en/copilot/reference/hooks-reference>,
+<https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/change-settings>
 
 ### Cloud agent setup steps: `copilot-setup-steps.yml`
 
@@ -144,6 +148,7 @@ the next re-sync, which the version bump triggers.
 | <https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/create-skills> | `.github/skills/`, personal skill locations, supported surfaces | 2026-10-30 |
 | <https://docs.github.com/en/copilot/reference/hooks-reference> | `.github/hooks/*.json`, `.github/copilot/settings.json` and `settings.local.json`, user-level hooks | 2026-10-30 |
 | <https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/customize-the-agent-environment> | `.github/workflows/copilot-setup-steps.yml` | 2026-10-30 |
+| <https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/change-settings> | `~/.copilot/settings.json` is the personal, user-level settings file | 2026-10-30 |
 
 ### Leads, not used as confirmation
 
