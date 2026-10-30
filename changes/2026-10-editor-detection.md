@@ -157,5 +157,6 @@ three tags.
 | Page | What it said | Outcome |
 |---|---|---|
 | <https://forum.cursor.com/t/cursor-specific-overrides-to-vscode-settings-json/118861> | A feature request for Cursor-specific overrides of `.vscode/settings.json`, which implies Cursor reads it | The basis for "Cursor reads `.vscode/`" above; not documented by Cursor |
+| <https://github.com/zed-industries/zed/pull/29160> | "Implement basic support for VS Code debug configurations", merged 2025-04-22: Zed reads `.vscode/launch.json` when there is no `.zed/debug.json` | `.vscode/` files are tagged `VS Code`, the format's owner, even when another editor reads them. Worth revisiting if `.vscode/` tagging changes. |
 | <https://docs.cursor.sh/settings/vsc-import> | Cursor imports VS Code settings and extensions | User-level import; no repository file |
 | <https://intellij-support.jetbrains.com/hc/articles/206544839> | A community-edited JetBrains support article on `.idea/` under version control | Consistent with the 2017.2 help page |
