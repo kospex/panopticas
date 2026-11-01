@@ -13,6 +13,7 @@ Biome
 Bitbucket
 build
 Buildkite
+Bun
 C#
 Carthage
 chatmode
@@ -30,6 +31,7 @@ Continue
 Copilot
 CSS
 Cursor
+Deno
 Dependabot
 dependencies
 Docker

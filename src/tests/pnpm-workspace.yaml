@@ -1,0 +1,5 @@
+# Fixture for panopticas tests
+packages:
+  - "packages/*"
+catalog:
+  react: ^18.3.1

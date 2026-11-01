@@ -382,11 +382,18 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-137 tags
+139 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
 rather than after `ZIP`.
+
+`npm` names the npm ecosystem and registry, not only the npm command. yarn,
+pnpm and Bun install from the npm registry, so their lock and config files
+carry `npm` as well as the tool's own tag (`yarn`, `pnpm`, `Bun`). A path
+cannot show whether a project uses a private registry or mirror, so `npm`
+means "this ecosystem", not "fetched from registry.npmjs.org". Deno files
+carry `Deno` only, because Deno also resolves packages from JSR.
 
 ### Retired tags
 
@@ -414,9 +421,9 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 137}` |
+| `tags` | `{"tags": [...], "count": 139}` |
 | `languages` | `{"languages": [...], "count": 34}` |
-| `filetypes` | `{"filetypes": [...], "count": 96}` |
+| `filetypes` | `{"filetypes": [...], "count": 100}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'
