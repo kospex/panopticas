@@ -110,6 +110,9 @@ EXT_FILETYPES = {
     "rust-toolchain": "rust-toolchain",
     ".r": "R",
     ".rb": "Ruby",
+    ".gemspec": "Ruby",     # Ruby code that builds a Gem::Specification
+    ".rake": "Ruby",
+    ".ruby-version": "ruby-version",
     ".rs": "Rust",
     ".rst": "ReStructuredText",
     ".sarif": "SARIF",  # Static Analysis Results Interchange Format
@@ -183,6 +186,8 @@ EXT_FILETYPES = {
     "steepfile": "Ruby",
     "podfile": "Ruby",      # CocoaPods loads an extensionless Podfile as Ruby
     "pipfile": "TOML",      # Pipenv documents the Pipfile as TOML
+    "gemfile": "Ruby",      # Bundler evaluates the Gemfile as Ruby
+    "rakefile": "Ruby",
     "cartfile": "Cartfile", # Carthage's own syntax, a restricted subset of OGDL
     "cname": "CNAME",  # Often GitHub et al will use a CNAME file for a URL to host from
 }
@@ -193,6 +198,8 @@ LANGUAGE_BY_BASENAME = {
     # by basename.
     "manifest.in": "MANIFEST.in",
     "py.typed": "py.typed",
+    # Bundler's lock for gems.rb; the same format as Gemfile.lock.
+    "gems.locked": "Lock",
     "go.sum": "go.sum",
     # setup.cfg is INI (it is read by configparser). Mapped by basename rather
     # than adding ".cfg" to EXT_FILETYPES — that extension is used for arbitrary
@@ -327,6 +334,7 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "python-version",
     "pdm-python",
     "rust-toolchain",
+    "ruby-version",
     "MANIFEST.in",
     "py.typed",
     "jvmopts",
@@ -354,6 +362,10 @@ METADATA_RULES = {
     "extension_rules": {
         ".pm": ["module"],
         ".pyi": ["Python", "typing"],   # type stubs
+        ".gemspec": ["Ruby", "RubyGems", "dependencies"],
+        # Imported from rakelib/, or lib/tasks/ in Rails. Global rakefiles
+        # live in ~/.rake/, a user-level path, so no path rule is added.
+        ".rake": ["Ruby", "Rake", "build"],
         ".exe": ["binary"],
         ".gif": ["binary", "image"],
         ".jar": ["binary"],
@@ -431,6 +443,17 @@ METADATA_RULES = {
         "build.rs": ["Rust", "Cargo", "build"],
         "rust-toolchain.toml": ["Rust", "rustup", "config"],
         "rust-toolchain": ["Rust", "rustup", "config"],
+        # Ruby. RubyGems is the ecosystem; Bundler the tool. gems.rb and
+        # gems.locked are Bundler's opt-in alternative names.
+        "gemfile": ["Ruby", "Bundler", "RubyGems", "dependencies"],
+        "gemfile.lock": ["Ruby", "Bundler", "RubyGems", "dependencies"],
+        "gems.rb": ["Ruby", "Bundler", "RubyGems", "dependencies"],
+        "gems.locked": ["Ruby", "Bundler", "RubyGems", "dependencies"],
+        # Rake accepts exactly these names, and calls itself Make-like.
+        "rakefile": ["Ruby", "Rake", "build"],
+        "rakefile.rb": ["Ruby", "Rake", "build"],
+        # Cross-tool version pin (rbenv, chruby, Bundler's `ruby file:`).
+        ".ruby-version": ["Ruby", "dependencies"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],
         # JavaScript package managers. `npm` is the npm ecosystem/registry,
@@ -532,6 +555,9 @@ METADATA_RULES = {
         # user-level only, so it is not matched.
         ".cargo/config.toml": ["Rust", "Cargo", "config"],
         ".cargo/config": ["Rust", "Cargo", "config"],
+        # Machine-local Bundler settings; ~/.bundle/config is the user-level
+        # copy, outside any repository.
+        ".bundle/config": ["Ruby", "Bundler", "config"],
     },
     "function_rules": [
         ("is_pip_requirements", ["pip", "Python", "PyPI", "dependencies"]),

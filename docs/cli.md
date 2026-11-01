@@ -383,7 +383,7 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-147 tags
+150 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
@@ -406,9 +406,10 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | `NuGet` | `packages.config`, `nuget.config` |
 | `Go` | `go.mod`, `go.sum` |
 | `crates.io` | `Cargo.toml`, `Cargo.lock` |
+| `RubyGems` | `Gemfile`, `Gemfile.lock`, `gems.rb`, `gems.locked`, `*.gemspec` |
 
 Coverage is not complete yet. The Gradle build files carry their tool's tag
-but not an ecosystem tag, and RubyGems, Packagist, Pub and Hex have no tags
+but not an ecosystem tag, and Packagist, Pub and Hex have no tags
 at all ([#74](https://github.com/kospex/panopticas/issues/74)). `Go` is also
 the language tag, so on `go.mod` and `go.sum` it means both. `crates.io` is
 lower-case because that is how OSV spells it.
@@ -455,9 +456,9 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 147}` |
+| `tags` | `{"tags": [...], "count": 150}` |
 | `languages` | `{"languages": [...], "count": 34}` |
-| `filetypes` | `{"filetypes": [...], "count": 104}` |
+| `filetypes` | `{"filetypes": [...], "count": 105}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'
