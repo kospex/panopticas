@@ -84,7 +84,8 @@ def get_filename_metatypes(file_path):
         .github/workflows/python-app.yml will return Github, workflow
     """
     filename = os.path.basename(file_path).lower()
-    ext = get_fileext(file_path)
+    # Lowercased to match get_extension_filetype(); rule keys are lowercase.
+    ext = get_fileext(file_path).lower()
     file_no_ext = os.path.splitext(filename)[0]
 
     tags = []
