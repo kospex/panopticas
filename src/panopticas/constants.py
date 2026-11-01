@@ -103,7 +103,9 @@ EXT_FILETYPES = {
     ".properties": "Properties",
     ".ps1": "PowerShell",
     ".py": "Python",
+    ".pyi": "Python",   # type stubs: Python syntax, declarations only
     ".python-version": "python-version",
+    ".pdm-python": "pdm-python",
     ".r": "R",
     ".rb": "Ruby",
     ".rs": "Rust",
@@ -178,12 +180,17 @@ EXT_FILETYPES = {
     "pylintrc": "INI",
     "steepfile": "Ruby",
     "podfile": "Ruby",      # CocoaPods loads an extensionless Podfile as Ruby
+    "pipfile": "TOML",      # Pipenv documents the Pipfile as TOML
     "cartfile": "Cartfile", # Carthage's own syntax, a restricted subset of OGDL
     "cname": "CNAME",  # Often GitHub et al will use a CNAME file for a URL to host from
 }
 
 LANGUAGE_BY_BASENAME = {
     "go.mod": "go.mod",
+    # ".in" and ".typed" are not formats of their own, so these are mapped
+    # by basename.
+    "manifest.in": "MANIFEST.in",
+    "py.typed": "py.typed",
     "go.sum": "go.sum",
     # setup.cfg is INI (it is read by configparser). Mapped by basename rather
     # than adding ".cfg" to EXT_FILETYPES — that extension is used for arbitrary
@@ -316,6 +323,9 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "yarnrc",
     "Bun Lockfile",
     "python-version",
+    "pdm-python",
+    "MANIFEST.in",
+    "py.typed",
     "jvmopts",
     "mill-jvm-opts",
     "mill-jvm-version",
@@ -340,6 +350,7 @@ NON_LANGUAGE_FILETYPES = frozenset({
 METADATA_RULES = {
     "extension_rules": {
         ".pm": ["module"],
+        ".pyi": ["Python", "typing"],   # type stubs
         ".exe": ["binary"],
         ".gif": ["binary", "image"],
         ".jar": ["binary"],
@@ -384,13 +395,30 @@ METADATA_RULES = {
         "web.config": [".NET", "ASP.NET", "config"],
         "app.config": [".NET", "config"],
         "codeowners": ["Git"],
-        "pyproject.toml": ["build", "dependencies", "Python"],
+        # PyPI is the ecosystem, whichever tool reads the file.
+        "pyproject.toml": ["build", "dependencies", "Python", "PyPI"],
         # setup.py / setup.cfg are setuptools-specific, so they carry the
         # backend tag. pyproject.toml does not: its build-backend is declared
         # inside the file and cannot be known from the path.
-        "setup.py": ["build", "dependencies", "Python", "setuptools"],
-        "setup.cfg": ["build", "dependencies", "Python", "setuptools"],
-        "uv.lock": ["dependencies", "Python", "uv"],
+        "setup.py": ["build", "dependencies", "Python", "setuptools", "PyPI"],
+        "setup.cfg": ["build", "dependencies", "Python", "setuptools", "PyPI"],
+        "manifest.in": ["Python", "setuptools", "build"],   # sdist contents
+        "uv.lock": ["dependencies", "Python", "uv", "PyPI"],
+        # uv.toml is also a user-level name (~/.config/uv/uv.toml); a copy
+        # inside a repository is project config.
+        "uv.toml": ["Python", "uv", "config"],
+        "pipfile": ["Python", "Pipenv", "PyPI", "dependencies"],
+        "pipfile.lock": ["Python", "Pipenv", "PyPI", "dependencies"],
+        "poetry.lock": ["Python", "Poetry", "PyPI", "dependencies"],
+        # Project-local settings from `poetry config --local`.
+        "poetry.toml": ["Python", "Poetry", "config"],
+        "pdm.lock": ["Python", "PDM", "PyPI", "dependencies"],
+        "pdm.toml": ["Python", "PDM", "config"],
+        # The local interpreter path. PDM says not to commit it; whether it
+        # belongs in the repository is the consumer's call.
+        ".pdm-python": ["Python", "PDM", "config"],
+        # PEP 561 marker: the package ships inline types.
+        "py.typed": ["Python", "typing"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],
         # JavaScript package managers. `npm` is the npm ecosystem/registry,
@@ -489,6 +517,8 @@ METADATA_RULES = {
     },
     "function_rules": [
         ("is_pip_requirements", ["pip", "Python", "PyPI", "dependencies"]),
+        # PEP 751. pip, uv and PDM all write it, so no tool tag.
+        ("is_pylock", ["Python", "PyPI", "dependencies"]),
     ],
 }
 

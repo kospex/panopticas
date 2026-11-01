@@ -2,9 +2,11 @@
 
 For [#74](https://github.com/kospex/panopticas/issues/74).
 
-**Status:** research done 2026-11-02; decisions pending. Each convention below
-was checked against the tool's current official docs, or its source code
-where the docs don't settle the point (marked **[source]**).
+**Status:** research done 2026-11-02. All ten decisions below were taken as
+recommended. Python is implemented; Rust, Ruby, and PHP/Elixir/Dart follow
+in their own PRs. Each convention below was checked against the tool's
+current official docs, or its source code where the docs don't settle the
+point (marked **[source]**).
 
 ## Current state
 

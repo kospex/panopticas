@@ -99,7 +99,8 @@ $ panopticas assess
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
 │ requirements.txt          │ Text      │ pip, Python, PyPI,             │
 │                           │           │ dependencies                   │
-│ pyproject.toml            │ TOML      │ build, dependencies, Python    │
+│ pyproject.toml            │ TOML      │ build, dependencies, Python,   │
+│                           │           │ PyPI                           │
 │ .gitignore                │ Gitignore │ Git, ignore                    │
 │ CLAUDE.md                 │ Markdown  │ AI, Claude, instructions       │
 │ .claude/commands/build.md │ Markdown  │ AI, Claude, command            │
@@ -382,7 +383,7 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-139 tags
+143 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
@@ -400,15 +401,14 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | Tag | Files that carry it |
 |---|---|
 | `npm` | `package.json`, `package-lock.json`, `npm-shrinkwrap.json`, `.npmrc`, `.npmignore`, and the yarn, pnpm and Bun lock and config files |
-| `PyPI` | pip requirements files (`requirements.txt`, `requirements-dev.txt`, `requirements.in` and similar) |
+| `PyPI` | `pyproject.toml`, `setup.py`, `setup.cfg`, pip requirements files (`requirements.txt`, `requirements-dev.txt`, `requirements.in` and similar), PEP 751 `pylock.toml` and `pylock.<name>.toml`, and the uv, Pipenv, Poetry and PDM lock files |
 | `Maven` | `pom.xml` |
 | `NuGet` | `packages.config`, `nuget.config` |
 | `Go` | `go.mod`, `go.sum` |
 
-Coverage is not complete yet. `uv.lock`, `pyproject.toml` and the Gradle
-build files carry their tool's tag but not an ecosystem tag, and crates.io,
-RubyGems, Packagist, Pub and Hex have no tags at all
-([#74](https://github.com/kospex/panopticas/issues/74)). `Go` is also the
+Coverage is not complete yet. The Gradle build files carry their tool's tag
+but not an ecosystem tag, and crates.io, RubyGems, Packagist, Pub and Hex
+have no tags at all ([#74](https://github.com/kospex/panopticas/issues/74)). `Go` is also the
 language tag, so on `go.mod` and `go.sum` it means both.
 
 `npm` names the npm ecosystem and registry, not only the npm command. yarn,
@@ -453,9 +453,9 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 139}` |
+| `tags` | `{"tags": [...], "count": 143}` |
 | `languages` | `{"languages": [...], "count": 34}` |
-| `filetypes` | `{"filetypes": [...], "count": 100}` |
+| `filetypes` | `{"filetypes": [...], "count": 103}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'

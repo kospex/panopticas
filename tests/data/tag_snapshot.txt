@@ -85,10 +85,13 @@ NuGet
 OpenCode
 OpenHands
 oxlint
+PDM
 pip
 pipeline
+Pipenv
 plugin
 pnpm
+Poetry
 Prettier
 prompt
 Prospector
@@ -127,6 +130,7 @@ Trae
 TravisCI
 typechecker
 TypeScript
+typing
 uv
 Visual Studio
 VS Code

@@ -587,3 +587,13 @@ def is_pip_requirements(filename: str) -> bool:
     PATTERN = re.compile(r'^requirements([-._a-zA-Z0-9]*)\.(txt|in)$')
 
     return bool(PATTERN.match(filename))
+
+def is_pylock(filename: str) -> bool:
+    """
+    Returns True if `filename` is a PEP 751 lock file: `pylock.toml`, or
+    `pylock.<name>.toml` where the name contains no dot.
+    """
+
+    PATTERN = re.compile(r'^pylock\.([^.]+\.)?toml$')
+
+    return bool(PATTERN.match(filename))
