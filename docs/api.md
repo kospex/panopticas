@@ -253,7 +253,7 @@ get_filename_metatypes(".github/workflows/ci.yml")
 # Returns: ["workflow", "pipeline", "GitHub", "Git"]
 
 get_filename_metatypes("requirements.txt")
-# Returns: ["pip", "Python", "PyPi", "dependencies"]
+# Returns: ["pip", "Python", "PyPI", "dependencies"]
 
 get_filename_metatypes("CLAUDE.md")
 # Returns: ["AI", "Claude", "instructions"]
@@ -395,8 +395,8 @@ the tag that replaced each.
 from panopticas import get_deprecated_tags
 
 get_deprecated_tags()
-# Returns: {'Github': 'GitHub', 'eslint': 'ESLint',
-#           'Claude Code': 'Claude', 'Gemini CLI': 'Gemini'}
+# Returns: {'Github': 'GitHub', 'eslint': 'ESLint', 'maven': 'Maven',
+#           'Claude Code': 'Claude', 'Gemini CLI': 'Gemini', 'PyPi': 'PyPI'}
 ```
 
 **Returns:** `dict` of retired tag to replacement, oldest first. A tag

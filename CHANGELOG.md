@@ -25,6 +25,8 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ### Changed
  - The tag vocabulary grew from 123 to 139 tags (`Scala`, `sbt`, `Mill`, `Scalafmt`, `Scalafix`, `Scalastyle`, `Warp`, `Factory`, `OpenCode`, `editor`, `VS Code`, `JetBrains`, `Zed`, `Sublime Text`, `Bun`, `Deno`) and the filetype vocabulary from 89 to 100. The language vocabulary is unchanged at 34.
+ - (recase) `PyPi` is now `PyPI` and `maven` is now `Maven`, the names the [OSV schema](https://ossf.github.io/osv-schema/) gives those package ecosystems, as `npm`, `NuGet` and `Go` already were. `PyPI` is on pip requirements files and `Maven` on `pom.xml`. Both old spellings are in `get_deprecated_tags()` and on the Retired Tags page. kospex matches tags with SQLite's case-insensitive `LIKE`, so stored queries are unaffected; a case-sensitive consumer sees the new spelling after a re-sync. The tag count is unchanged at 139.
+ - The CLI docs have a new [Ecosystem tags](https://panopticas.io/cli#ecosystem-tags) section: the naming rule, which files carry each ecosystem tag, what is not covered yet ([#74](https://github.com/kospex/panopticas/issues/74)), and how `npm` relates to yarn, pnpm and Bun. See `changes/2026-11-ecosystem-tag-recasing.md`.
  - The 0.0.11 recase of `Github` to `GitHub` was never recorded in this changelog. It is now listed in `get_deprecated_tags()` and on the Retired Tags page, and a test fails if a future tag leaves the vocabulary without being added there.
 
 ### Fixed
