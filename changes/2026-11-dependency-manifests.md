@@ -3,8 +3,8 @@
 For [#74](https://github.com/kospex/panopticas/issues/74).
 
 **Status:** research done 2026-11-02. All ten decisions below were taken as
-recommended. Python and Rust are implemented; Ruby, and PHP/Elixir/Dart,
-follow in their own PRs. Each convention below was checked against the tool's
+recommended. Python, Rust and Ruby are implemented; PHP, Elixir and Dart
+follow in their own PR. Each convention below was checked against the tool's
 current official docs, or its source code where the docs don't settle the
 point (marked **[source]**).
 
@@ -187,6 +187,16 @@ As implemented:
 | `Rakefile` (all four names) | `Ruby, **Rake**, build`; filetype `Ruby` |
 | `*.rake` | `Ruby, Rake, build`; filetype `Ruby` |
 | `.ruby-version` | `Ruby, dependencies` (as `.python-version`); own filetype |
+
+As implemented:
+
+- `.bundle/config` is a path-contains rule, as `.cargo/config` is, and its
+  filetype stays `Unknown`. A macOS or iOS bundle directory named
+  `X.bundle/` would also match if it held a file called `config`. That's
+  rare, since such bundles hold `Info.plist` and resources.
+- The `*.rake` fixture is in `rakelib/`, not `lib/tasks/`, because this
+  repository's `.gitignore` ignores every `lib/` directory. The test covers
+  `lib/tasks/` by path.
 
 ### PHP, Elixir, Dart
 
