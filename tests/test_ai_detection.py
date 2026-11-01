@@ -259,7 +259,7 @@ class TestExistingTagsPreserved:
 
     def test_pyproject_tags_unchanged(self):
         assert get_filename_metatypes("pyproject.toml") == [
-            "build", "dependencies", "Python"]
+            "build", "dependencies", "Python", "PyPI"]
 
     def test_ordinary_file_has_no_ai_tag(self):
         assert "AI" not in get_filename_metatypes("src/panopticas/core.py")

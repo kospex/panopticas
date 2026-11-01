@@ -53,7 +53,7 @@ EXT_FILETYPES["dockerfile"]  # "Dockerfile" (special case)
 `EXT_FILETYPES` mixes two kinds of value: things that are programming languages
 (`Python`, `Go`) and things that are file types but not languages (`PNG`,
 `Gitignore`, `Lock`). These two collections classify every value in the table —
-34 languages and 66 non-languages. `get_languages()` and `get_filetypes()` read
+34 languages and 69 non-languages. `get_languages()` and `get_filetypes()` read
 from them.
 
 ```python
@@ -89,7 +89,7 @@ rather than by extension.
 A dictionary containing rules for tagging files with metadata. Rules are organized by:
 
 - **extension_rules**: Tags based on file extension (e.g., `.jar` -> `["binary"]`)
-- **exact_filename_rules**: Tags for specific filenames (e.g., `pyproject.toml` -> `["build", "dependencies", "Python"]`)
+- **exact_filename_rules**: Tags for specific filenames (e.g., `pyproject.toml` -> `["build", "dependencies", "Python", "PyPI"]`)
 - **path_contains_rules**: Tags based on path patterns (e.g., `.github/workflows` -> `["workflow", "pipeline", "GitHub"]`)
 - **function_rules**: Tags determined by custom functions
 
@@ -97,9 +97,9 @@ A dictionary containing rules for tagging files with metadata. Rules are organiz
 
 | File | Tags |
 |------|------|
-| `pyproject.toml` | build, dependencies, Python |
-| `setup.py` | build, dependencies, Python, setuptools |
-| `package.json` | npm, dependencies |
+| `pyproject.toml` | build, dependencies, Python, PyPI |
+| `setup.py` | build, dependencies, Python, setuptools, PyPI |
+| `package.json` | npm, dependencies, JavaScript |
 | `.github/workflows/ci.yml` | workflow, pipeline, GitHub, Git |
 | `Dockerfile` | IaC, Docker, dependencies |
 | `go.mod` | Go, module, dependencies |
@@ -247,7 +247,7 @@ Get metadata tags for a file based on its name and path.
 from panopticas.core import get_filename_metatypes
 
 get_filename_metatypes("pyproject.toml")
-# Returns: ["build", "dependencies", "Python"]
+# Returns: ["build", "dependencies", "Python", "PyPI"]
 
 get_filename_metatypes(".github/workflows/ci.yml")
 # Returns: ["workflow", "pipeline", "GitHub", "Git"]
@@ -374,7 +374,7 @@ Return every tag panopticas can assign to a file.
 from panopticas.core import get_tags
 
 get_tags()
-# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (139 tags)
+# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (143 tags)
 ```
 
 **Returns:** Sorted list of tag strings, case-insensitively ordered
@@ -433,7 +433,7 @@ Return every file type panopticas recognises, languages or not.
 from panopticas.core import get_filetypes
 
 get_filetypes()
-# Returns: ['Apache JMeter', 'ASP.NET', ..., 'ZIP']  (100 file types)
+# Returns: ['Apache JMeter', 'ASP.NET', ..., 'ZIP']  (103 file types)
 ```
 
 **Returns:** Sorted list of file type strings
