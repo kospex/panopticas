@@ -154,6 +154,11 @@ EXT_FILETYPES = {
     ".stylelintrc": "StylelintRC",      # JSON or YAML
     ".yapf": "INI",                     # .style.yapf
     ".yapfignore": "YapfIgnore",
+    # JavaScript package-manager dotfiles. None has an extension, so each
+    # gets its own name.
+    ".npmignore": "npmignore",
+    ".npmrc": "npmrc",
+    ".yarnrc": "yarnrc",                # Yarn 1; Yarn 2+ uses .yarnrc.yml
     # Scala build tool version pins and launcher options. None documents a
     # content format, so each gets its own name.
     ".jvmopts": "jvmopts",
@@ -196,6 +201,8 @@ LANGUAGE_BY_BASENAME = {
     # because ".private" and ".resolved" mean nothing on their own.
     "cartfile.private": "Cartfile",
     "cartfile.resolved": "Cartfile",
+    # Bun's binary lockfile, replaced by the text bun.lock in Bun 1.2.
+    "bun.lockb": "Bun Lockfile",
 }
 
 # Classification of every value in EXT_FILETYPES and LANGUAGE_BY_BASENAME as
@@ -301,6 +308,10 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "Lock",
     "Mailmap",
     "nvmrc",
+    "npmignore",
+    "npmrc",
+    "yarnrc",
+    "Bun Lockfile",
     "python-version",
     "jvmopts",
     "mill-jvm-opts",
@@ -379,6 +390,31 @@ METADATA_RULES = {
         "uv.lock": ["dependencies", "Python", "uv"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],
+        # JavaScript package managers. `npm` is the npm ecosystem/registry,
+        # which yarn, pnpm and Bun install from; the tool has its own tag.
+        # .npmrc is read by npm, pnpm, Bun, Deno and Yarn 1 alike.
+        ".npmrc": ["JavaScript", "npm", "config"],
+        # Legacy: npm 12 no longer reads it, but older repositories have it.
+        "npm-shrinkwrap.json": ["JavaScript", "npm", "dependencies"],
+        ".npmignore": ["JavaScript", "npm", "ignore"],
+        ".yarnrc.yml": ["JavaScript", "yarn", "npm", "config"],
+        ".yarnrc": ["JavaScript", "yarn", "npm", "config"],
+        # Yarn Plug'n'Play loaders, generated; they hold the dependency tree.
+        ".pnp.cjs": ["JavaScript", "yarn", "dependencies"],
+        ".pnp.loader.mjs": ["JavaScript", "yarn", "dependencies"],
+        # Workspace, catalogs and, since pnpm 11, the project's settings.
+        "pnpm-workspace.yaml": ["JavaScript", "pnpm", "npm", "config", "dependencies"],
+        ".pnpmfile.cjs": ["JavaScript", "pnpm", "config"],
+        ".pnpmfile.mjs": ["JavaScript", "pnpm", "config"],
+        "bun.lock": ["JavaScript", "Bun", "npm", "dependencies"],
+        "bun.lockb": ["JavaScript", "Bun", "npm", "dependencies", "binary"],
+        # The project file only. Bun's user-level config is .bunfig.toml.
+        "bunfig.toml": ["JavaScript", "Bun", "config"],
+        # Deno runs TypeScript and JavaScript and resolves from JSR as well
+        # as npm, so it carries neither a language nor the npm tag.
+        "deno.json": ["Deno", "config"],
+        "deno.jsonc": ["Deno", "config"],
+        "deno.lock": ["Deno", "dependencies"],
         "package.swift": ["build", "dependencies", "Swift", "SwiftPM"],
         "package.resolved": ["dependencies", "Swift", "SwiftPM"],
         # CocoaPods and Carthage serve Swift and Objective-C alike, so
@@ -405,8 +441,8 @@ METADATA_RULES = {
         "go.sum": ["Go", "dependencies", "checksum"],
         "codefresh.yml": ["pipeline", "Codefresh"],
         ".travis.yml": ["pipeline", "TravisCI"],
-        "package.json": ["npm", "dependencies"],
-        "package-lock.json": ["npm", "dependencies"],
+        "package.json": ["npm", "dependencies", "JavaScript"],
+        "package-lock.json": ["npm", "dependencies", "JavaScript"],
         "pom.xml": ["maven", "build", "dependencies"],
         # Read by the sbt launcher from the project directory. The machine-
         # and user-level files are named sbtopts, without the dot.
@@ -444,6 +480,9 @@ METADATA_RULES = {
         ".vscode/": ["VS Code", "editor", "config"],
         ".idea/": ["JetBrains", "editor", "config"],
         ".zed/": ["Zed", "editor", "config"],
+        # Yarn 2+ project directory: the vendored Yarn release, plugins,
+        # editor SDKs, patches and (with Zero-Installs) the package cache.
+        ".yarn/": ["JavaScript", "yarn"],
     },
     "function_rules": [
         ("is_pip_requirements", ["pip", "Python", "PyPi", "dependencies"]),
