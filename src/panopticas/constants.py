@@ -24,13 +24,16 @@ IMPLICIT_TAGS = (AI_TAG, LICENSE_TAG)
 #
 # A change of case retires a spelling too: SQLite's LIKE ignores ASCII case,
 # but a case-sensitive database would find no rows for the old spelling.
-# Oldest first. Removing a tag from the rules without adding it here fails
-# tests/test_retired_tags.py. Documented in docs/retired-tags.md.
+# Oldest first, by the release that first emitted the tag. Removing a tag
+# from the rules without adding it here fails tests/test_retired_tags.py.
+# Documented in docs/retired-tags.md.
 DEPRECATED_TAGS = {
     "Github": "GitHub",         # 0.0.1-0.0.10, recased in 0.0.11
     "eslint": "ESLint",         # 0.0.5-0.0.19, recased in 0.0.20
+    "maven": "Maven",           # 0.0.5-0.0.21, OSV ecosystem name in 0.0.22
     "Claude Code": "Claude",    # 0.0.11-0.0.16, brand-level product in 0.0.17
     "Gemini CLI": "Gemini",     # 0.0.11-0.0.16, brand-level product in 0.0.17
+    "PyPi": "PyPI",             # 0.0.11-0.0.21, OSV ecosystem name in 0.0.22
 }
 
 EXT_FILETYPES = {
@@ -443,7 +446,7 @@ METADATA_RULES = {
         ".travis.yml": ["pipeline", "TravisCI"],
         "package.json": ["npm", "dependencies", "JavaScript"],
         "package-lock.json": ["npm", "dependencies", "JavaScript"],
-        "pom.xml": ["maven", "build", "dependencies"],
+        "pom.xml": ["Maven", "build", "dependencies"],
         # Read by the sbt launcher from the project directory. The machine-
         # and user-level files are named sbtopts, without the dot.
         ".sbtopts": ["sbt", "build"],
@@ -485,7 +488,7 @@ METADATA_RULES = {
         ".yarn/": ["JavaScript", "yarn"],
     },
     "function_rules": [
-        ("is_pip_requirements", ["pip", "Python", "PyPi", "dependencies"]),
+        ("is_pip_requirements", ["pip", "Python", "PyPI", "dependencies"]),
     ],
 }
 

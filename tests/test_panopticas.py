@@ -520,6 +520,7 @@ class TestGetFilenameMetatypes:
         assert "pip" in tags
         assert "dependencies" in tags
         assert "Python" in tags
+        assert "PyPI" in tags
 
     def test_requirements_dev_txt(self):
         tags = get_filename_metatypes("requirements-dev.txt")
@@ -533,7 +534,7 @@ class TestGetFilenameMetatypes:
 
     def test_pom_xml(self):
         tags = get_filename_metatypes("pom.xml")
-        assert "maven" in tags
+        assert "Maven" in tags
         assert "dependencies" in tags
 
     def test_gitignore(self):

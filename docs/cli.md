@@ -97,7 +97,7 @@ $ panopticas assess
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ File                      ┃ Language  ┃ Meta                           ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ requirements.txt          │ Text      │ pip, Python, PyPi,             │
+│ requirements.txt          │ Text      │ pip, Python, PyPI,             │
 │                           │           │ dependencies                   │
 │ pyproject.toml            │ TOML      │ build, dependencies, Python    │
 │ .gitignore                │ Gitignore │ Git, ignore                    │
@@ -133,7 +133,7 @@ ellipsis would cut the filename, which is the part identifying the row.
     {
       "path": "requirements.txt",
       "language": "Text",
-      "meta": ["pip", "Python", "PyPi", "dependencies"]
+      "meta": ["pip", "Python", "PyPI", "dependencies"]
     },
     {
       "path": "src/app.py",
@@ -388,6 +388,29 @@ binary         Biome      Bitbucket   build         Buildkite
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
 rather than after `ZIP`.
 
+### Ecosystem tags
+
+Some tags name a package ecosystem, the registry a project's dependencies
+come from. They use the ecosystem names from the
+[OSV schema](https://ossf.github.io/osv-schema/), which vulnerability
+databases and scanners share, so a tag matches an advisory's ecosystem
+exactly, case included. The tool that manages the dependencies gets its own
+tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
+
+| Tag | Files that carry it |
+|---|---|
+| `npm` | `package.json`, `package-lock.json`, `npm-shrinkwrap.json`, `.npmrc`, `.npmignore`, and the yarn, pnpm and Bun lock and config files |
+| `PyPI` | pip requirements files (`requirements.txt`, `requirements-dev.txt`, `requirements.in` and similar) |
+| `Maven` | `pom.xml` |
+| `NuGet` | `packages.config`, `nuget.config` |
+| `Go` | `go.mod`, `go.sum` |
+
+Coverage is not complete yet. `uv.lock`, `pyproject.toml` and the Gradle
+build files carry their tool's tag but not an ecosystem tag, and crates.io,
+RubyGems, Packagist, Pub and Hex have no tags at all
+([#74](https://github.com/kospex/panopticas/issues/74)). `Go` is also the
+language tag, so on `go.mod` and `go.sum` it means both.
+
 `npm` names the npm ecosystem and registry, not only the npm command. yarn,
 pnpm and Bun install from the npm registry, so their lock and config files
 carry `npm` as well as the tool's own tag (`yarn`, `pnpm`, `Bun`). A path
@@ -396,8 +419,11 @@ means "this ecosystem", not "fetched from registry.npmjs.org". The tags do
 not show which tool a project uses: `package.json` carries the same tags
 whichever tool installs it. To find projects that use the npm command itself,
 look for `package-lock.json` or `npm-shrinkwrap.json` by name, since only npm
-writes them. Deno files
-carry `Deno` only, because Deno also resolves packages from JSR.
+writes them. Deno files carry `Deno` only, because Deno also resolves
+packages from JSR.
+
+`PyPI` and `Maven` were spelled `PyPi` and `maven` before 0.0.22; see
+[Retired Tags](/retired-tags).
 
 ### Retired tags
 
@@ -411,10 +437,12 @@ $ panopticas tags --retired --json
   "retired": {
     "Github": "GitHub",
     "eslint": "ESLint",
+    "maven": "Maven",
     "Claude Code": "Claude",
-    "Gemini CLI": "Gemini"
+    "Gemini CLI": "Gemini",
+    "PyPi": "PyPI"
   },
-  "count": 4
+  "count": 6
 }
 ```
 

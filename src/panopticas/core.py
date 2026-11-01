@@ -160,8 +160,9 @@ def get_deprecated_tags():
     Return the tags earlier releases emitted and this one does not, mapped to
     the tag that replaced each, or None for a tag dropped outright.
 
-    Oldest first. Includes changes of case (Github -> GitHub): a
-    case-sensitive database treats the old spelling as a different tag.
+    Oldest first, by the release that first emitted the tag. Includes
+    changes of case (Github -> GitHub): a case-sensitive database treats
+    the old spelling as a different tag.
     Returns a copy, so callers cannot alter the table.
     """
     return dict(DEPRECATED_TAGS)

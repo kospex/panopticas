@@ -7,7 +7,7 @@ description: Tags earlier panopticas releases emitted and the current release do
 # Retired and Changed Tags
 
 **Reconstructed:** 2026-10-30, from every commit that changed tag output
-(panopticas 0.0.1 to 0.0.21 and unreleased changes)
+(panopticas 0.0.1 to 0.0.21 and unreleased changes); updated 2026-11-02
 
 `get_tags()` lists the tags the installed version can assign. Data stored by
 an older version can hold tags that are no longer on that list, because a tag
@@ -16,20 +16,25 @@ that lets a consumer recognise one.
 
 ## The retired tags
 
-Oldest first.
+Oldest first, by the release that first emitted the tag.
 
 | Retired tag | Emitted by | Replaced by | Kind | Assigned to |
 |---|---|---|---|---|
 | `Github` | 0.0.1 – 0.0.10 | `GitHub` (0.0.11) | recase | every file under `.github/` |
 | `eslint` | 0.0.5 – 0.0.19 | `ESLint` (0.0.20) | recase | `eslint.config.js` |
+| `maven` | 0.0.5 – 0.0.21 | `Maven` (0.0.22) | recase | `pom.xml` |
 | `Claude Code` | 0.0.11 – 0.0.16 | `Claude` (0.0.17) | rename | `CLAUDE.md` |
 | `Gemini CLI` | 0.0.11 – 0.0.16 | `Gemini` (0.0.17) | rename | `GEMINI.md` |
+| `PyPi` | 0.0.11 – 0.0.21 | `PyPI` (0.0.22) | recase | pip requirements files (`requirements.txt` and similar) |
 
 - **The renames** made AI products brand-level. `Claude` covers Claude Code
   and Claude Desktop alike, and `Gemini` covers Gemini CLI. A file that used
   to read `Claude, AI, Claude Code` now reads `AI, Claude, instructions`.
-- **The recases** brought tool names into the vendor's own casing. The tag
-  still means the same thing; only its spelling changed.
+- **The recases** brought names into their owner's own casing: `GitHub` and
+  `ESLint` as the vendors write them, and `Maven` and `PyPI` as the
+  [OSV schema](https://ossf.github.io/osv-schema/) names those package
+  ecosystems (see [Ecosystem tags](/cli#ecosystem-tags)). The tag still
+  means the same thing; only its spelling changed.
 
 No tag has been dropped without a replacement.
 
@@ -59,12 +64,12 @@ recognised without having to ignore case.
 from panopticas import get_deprecated_tags
 
 get_deprecated_tags()
-# Returns: {'Github': 'GitHub', 'eslint': 'ESLint',
-#           'Claude Code': 'Claude', 'Gemini CLI': 'Gemini'}
+# Returns: {'Github': 'GitHub', 'eslint': 'ESLint', 'maven': 'Maven',
+#           'Claude Code': 'Claude', 'Gemini CLI': 'Gemini', 'PyPi': 'PyPI'}
 ```
 
 **Returns:** A `dict` mapping each retired tag to the current tag that
-replaced it, oldest first. A tag dropped outright maps to `None`; none has
+replaced it, oldest first, as in the table above. A tag dropped outright maps to `None`; none has
 been so far. The dict is a copy, so changing it does not affect panopticas.
 
 Use it to rewrite a stored tag to its current spelling for display, or to
@@ -110,14 +115,16 @@ $ panopticas tags --retired
 ┡━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
 │ Github      │ GitHub      │
 │ eslint      │ ESLint      │
+│ maven       │ Maven       │
 │ Claude Code │ Claude      │
 │ Gemini CLI  │ Gemini      │
+│ PyPi        │ PyPI        │
 └─────────────┴─────────────┘
 
-4 retired tags
+6 retired tags
 ```
 
-`panopticas tags --retired --json` returns `{"retired": {...}, "count": 4}`.
+`panopticas tags --retired --json` returns `{"retired": {...}, "count": 6}`.
 
 ## Refreshing stored data
 

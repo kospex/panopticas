@@ -29,13 +29,15 @@ class TestGetDeprecatedTags:
         assert get_deprecated_tags() == {
             "Github": "GitHub",
             "eslint": "ESLint",
+            "maven": "Maven",
             "Claude Code": "Claude",
             "Gemini CLI": "Gemini",
+            "PyPi": "PyPI",
         }
 
     def test_is_ordered_oldest_first(self):
         assert list(get_deprecated_tags()) == [
-            "Github", "eslint", "Claude Code", "Gemini CLI"]
+            "Github", "eslint", "maven", "Claude Code", "Gemini CLI", "PyPi"]
 
     def test_returns_a_copy(self):
         get_deprecated_tags()["Github"] = "tampered"
@@ -74,6 +76,12 @@ class TestIsKnownTag:
         assert not is_known_tag("eslint")
         assert is_known_tag("eslint", check_deprecated=True)
         assert is_known_tag("Github", check_deprecated=True)
+
+    def test_ecosystem_recasings_follow_osv(self):
+        # OSV ecosystem names: PyPI and Maven, as npm and NuGet already were.
+        assert is_known_tag("PyPI") and is_known_tag("Maven")
+        assert is_known_tag("PyPi", check_deprecated=True)
+        assert is_known_tag("maven", check_deprecated=True)
 
     def test_never_a_tag(self):
         assert not is_known_tag("NotATag", check_deprecated=True)

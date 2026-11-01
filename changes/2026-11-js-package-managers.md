@@ -187,7 +187,8 @@ well as npm, and which one a project uses isn't knowable from the path.
 ## Follow-ups
 
 - The registry-tag recasings (`PyPi` → `PyPI`, `maven` → `Maven`) are a
-  separate PR, with `DEPRECATED_TAGS` entries (decisions 2 and 3).
+  separate PR, with `DEPRECATED_TAGS` entries (decisions 2 and 3). Done in
+  `changes/2026-11-ecosystem-tag-recasing.md`.
 - `vendored` and `generated` tags are [#83](https://github.com/kospex/panopticas/issues/83) (decision 5).
 
 ## Effect on kospex

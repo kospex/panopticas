@@ -72,7 +72,7 @@ Kilo Code
 license
 linter
 llms.txt
-maven
+Maven
 MCP
 Microsoft
 Mill
@@ -93,7 +93,7 @@ Prettier
 prompt
 Prospector
 Pylint
-PyPi
+PyPI
 Pyright
 Python
 Reek
