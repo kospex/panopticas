@@ -1,10 +1,10 @@
 # Dependency Manifests: Python, Rust, Ruby, PHP, Elixir, Dart
 
-For [#74](https://github.com/kospex/panopticas/issues/74).
+Closes [#74](https://github.com/kospex/panopticas/issues/74).
 
 **Status:** research done 2026-11-02. All ten decisions below were taken as
-recommended. Python, Rust and Ruby are implemented; PHP, Elixir and Dart
-follow in their own PR. Each convention below was checked against the tool's
+recommended. Implemented in four PRs: Python (#87), Rust (#88), Ruby (#89),
+and PHP, Elixir and Dart. Each convention below was checked against the tool's
 current official docs, or its source code where the docs don't settle the
 point (marked **[source]**).
 
@@ -212,6 +212,20 @@ As implemented:
 | `pubspec.yaml`, `pubspec.lock` | `**Dart**, **Pub**, dependencies` (decision 8) |
 | `pubspec_overrides.yaml` | `Dart, Pub, dependencies, config` |
 | `analysis_options.yaml` | `LINTER_RULES`: `Dart, linter, typechecker, **Dart analyzer**, config` (decision 9) |
+
+As implemented:
+
+- `mix format` and `Dart analyzer` are in `docs/linter-detection-rules.md`:
+  the inventory, the sources, and a note on why neither has a vendor brand.
+- The Elixir fixture's `.ex` file sits at the project root, not in `lib/`,
+  because this repository's `.gitignore` ignores every `lib/` directory.
+
+## Remaining gap
+
+The Gradle build files (`build.gradle`, `build.gradle.kts`) carry `gradle`
+but no ecosystem tag. Gradle resolves from Maven repositories, and OSV files
+Gradle dependencies under `Maven`. Adding it is outside #74's scope, so the
+Ecosystem tags docs keep it as the one stated gap.
 
 ## Decisions
 

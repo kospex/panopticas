@@ -28,12 +28,15 @@ CocoaPods
 Codefresh
 Codex
 command
+Composer
 config
 Continue
 Copilot
 crates.io
 CSS
 Cursor
+Dart
+Dart analyzer
 Deno
 Dependabot
 dependencies
@@ -42,6 +45,7 @@ docs
 dprint
 editor
 EditorConfig
+Elixir
 erb_lint
 ESLint
 Factory
@@ -57,6 +61,7 @@ golangci-lint
 Goose
 gradle
 Groovy
+Hex
 history
 hook
 IaC
@@ -79,6 +84,8 @@ Maven
 MCP
 Microsoft
 Mill
+Mix
+mix format
 module
 mypy
 Node
@@ -88,7 +95,9 @@ NuGet
 OpenCode
 OpenHands
 oxlint
+Packagist
 PDM
+PHP
 pip
 pipeline
 Pipenv
@@ -98,6 +107,7 @@ Poetry
 Prettier
 prompt
 Prospector
+Pub
 Pylint
 PyPI
 Pyright

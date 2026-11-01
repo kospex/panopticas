@@ -1,0 +1,6 @@
+{
+    "name": "panopticas/fixture",
+    "require": {
+        "php": ">=8.2"
+    }
+}

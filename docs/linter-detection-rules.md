@@ -6,7 +6,7 @@ description: Every linter, formatter and type checker config file panopticas det
 
 # Linter, Formatter and Type Checker Detection — Rules Reference
 
-**Rules verified:** 2026-10-05 (panopticas 0.0.20); Scala tools 2026-10-29
+**Rules verified:** 2026-10-05 (panopticas 0.0.20); Scala tools 2026-10-29; Elixir and Dart tools 2026-11-02
 **Inventory below generated from:** `LINTER_RULES` in `src/panopticas/constants.py`
 
 Panopticas detects the configuration and exclusion files of code-quality
@@ -115,6 +115,15 @@ it is nonetheless where a project's type checking is actually configured
 (`strict`, `noImplicitAny`), which is the thing worth finding. `jsconfig.json`
 is the same file applied to a JavaScript project.
 
+### Tool names without a brand
+
+Elixir's formatter and Dart's analyzer have no product name of their own.
+They're tagged **`mix format`**, after the task that reads `.formatter.exs`,
+and **`Dart analyzer`**, after what dart.dev calls "the analyzer".
+`analysis_options.yaml` configures the analyzer's static checks, including
+type errors, as well as its lint rules, so it carries both `linter` and
+`typechecker`.
+
 ## Filetypes, not just tags
 
 Extensionless config dotfiles used to report `Unknown`. They now resolve on one
@@ -192,6 +201,8 @@ documentation:
 | Scalafix | [Configuration](https://scalacenter.github.io/scalafix/docs/users/configuration.html) |
 | Scalastyle | [`Plugin.scala`](https://github.com/scalastyle/scalastyle-sbt-plugin/blob/master/src/main/scala/org/scalastyle/sbt/Plugin.scala) in scalastyle-sbt-plugin (the `scalastyleConfig` defaults) |
 | WartRemover | [Install and setup](https://www.wartremover.org/doc/install-setup.html) |
+| mix format | [`mix format`](https://mix.hexdocs.pm/Mix.Tasks.Format.html) |
+| Dart analyzer | [Customizing static analysis](https://dart.dev/tools/analysis) |
 | Scapegoat | [scapegoat README](https://github.com/scapegoat-scala/scapegoat), [sbt-scapegoat README](https://github.com/scapegoat-scala/sbt-scapegoat) |
 
 ## Re-verifying
@@ -281,10 +292,22 @@ re-read the rejected list before adding anything in it.
 | **Scalafix** | linter | `Scala` | `.scalafix.conf` | — |
 | **Scalastyle** | linter | `Scala` | `scalastyle-config.xml`, `scalastyle-test-config.xml` | — |
 
+### Elixir
+
+| Tool | Role | Language tags | Config | Ignore |
+|---|---|---|---|---|
+| **mix format** | formatter | `Elixir` | `.formatter.exs` | — |
+
+### Dart
+
+| Tool | Role | Language tags | Config | Ignore |
+|---|---|---|---|---|
+| **Dart analyzer** | linter, typechecker | `Dart` | `analysis_options.yaml` | — |
+
 ### SQL
 
 | Tool | Role | Language tags | Config | Ignore |
 |---|---|---|---|---|
 | **SQLFluff** | linter, formatter | `SQL` | `.sqlfluff` | `.sqlfluffignore` |
 
-<!-- 34 tools, 104 exact filenames -->
+<!-- 36 tools, 106 exact filenames -->

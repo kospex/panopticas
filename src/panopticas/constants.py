@@ -49,9 +49,12 @@ EXT_FILETYPES = {
     ".csproj": "C# Project",
     ".css": "CSS",
     ".csv": "CSV",
+    ".dart": "Dart",
     ".dockerignore": "Dockerignore",
     ".dll": "DLL",
+    ".ex": "Elixir",    # compiled
     ".exe": "Executable",
+    ".exs": "Elixir",   # scripts, including mix.exs and .formatter.exs
     ".gitignore": "Gitignore",
     ".gitattributes": "GitAttributes",
     ".go": "Go",
@@ -249,7 +252,9 @@ LANGUAGE_FILETYPES = frozenset({
     "C++",
     "C++ Header",
     "CSS",
+    "Dart",
     "Dockerfile",
+    "Elixir",
     "Go",
     "Groovy",
     "Groovy Server Pages",
@@ -454,6 +459,19 @@ METADATA_RULES = {
         "rakefile.rb": ["Ruby", "Rake", "build"],
         # Cross-tool version pin (rbenv, chruby, Bundler's `ruby file:`).
         ".ruby-version": ["Ruby", "dependencies"],
+        # PHP. Packagist is the ecosystem; Composer the tool. auth.json is
+        # Composer's too, but the name is generic, so it is not matched.
+        "composer.json": ["PHP", "Composer", "Packagist", "dependencies"],
+        "composer.lock": ["PHP", "Composer", "Packagist", "dependencies"],
+        # Elixir. Hex is the ecosystem; Mix the tool. Umbrella projects
+        # have a mix.exs per app.
+        "mix.exs": ["Elixir", "Mix", "Hex", "build", "dependencies"],
+        "mix.lock": ["Elixir", "Mix", "Hex", "dependencies"],
+        # Dart. The tool is `pub` and the ecosystem `Pub`; one tag, since
+        # tags differing only in case collide under SQLite's LIKE.
+        "pubspec.yaml": ["Dart", "Pub", "dependencies"],
+        "pubspec.lock": ["Dart", "Pub", "dependencies"],
+        "pubspec_overrides.yaml": ["Dart", "Pub", "dependencies", "config"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],
         # JavaScript package managers. `npm` is the npm ecosystem/registry,
@@ -809,6 +827,22 @@ LINTER_RULES = {
         "languages": ["Scala"],
         "roles": ["linter"],
         "config": ["scalastyle-config.xml", "scalastyle-test-config.xml"],
+    },
+    # --- Elixir ---------------------------------------------------------
+    "mix format": {
+        # Elixir's built-in formatter. Nested copies configure
+        # subdirectories; none is user-level.
+        "languages": ["Elixir"],
+        "roles": ["formatter"],
+        "config": [".formatter.exs"],
+    },
+    # --- Dart -----------------------------------------------------------
+    "Dart analyzer": {
+        # Configures both the analyzer's static (including type) checks
+        # and its lint rules. Flutter uses the same file.
+        "languages": ["Dart"],
+        "roles": ["linter", "typechecker"],
+        "config": ["analysis_options.yaml"],
     },
     # --- SQL ------------------------------------------------------------
     "SQLFluff": {
