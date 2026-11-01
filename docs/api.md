@@ -399,8 +399,9 @@ get_deprecated_tags()
 #           'Claude Code': 'Claude', 'Gemini CLI': 'Gemini', 'PyPi': 'PyPI'}
 ```
 
-**Returns:** `dict` of retired tag to replacement, oldest first. A tag
-dropped outright maps to `None`. The dict is a copy.
+**Returns:** `dict` of retired tag to replacement, oldest first (by the
+release that first emitted the tag). A tag dropped outright maps to `None`.
+The dict is a copy.
 
 Changes of case are included: SQLite's `LIKE` ignores case, but a
 case-sensitive database treats `eslint` and `ESLint` as different tags.

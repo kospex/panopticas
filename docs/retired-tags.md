@@ -69,7 +69,7 @@ get_deprecated_tags()
 ```
 
 **Returns:** A `dict` mapping each retired tag to the current tag that
-replaced it, oldest first. A tag dropped outright maps to `None`; none has
+replaced it, oldest first, as in the table above. A tag dropped outright maps to `None`; none has
 been so far. The dict is a copy, so changing it does not affect panopticas.
 
 Use it to rewrite a stored tag to its current spelling for display, or to
