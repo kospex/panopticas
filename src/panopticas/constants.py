@@ -331,6 +331,7 @@ METADATA_RULES = {
         ".jar": ["binary"],
         ".jpg": ["binary", "image"],
         ".jpeg": ["binary", "image"],
+        ".png": ["binary", "image"],
         ".zip": ["binary"],
         ".class": ["binary", "Java"],
         ".pdf": ["binary"],

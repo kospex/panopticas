@@ -564,6 +564,9 @@ class TestGetFilenameMetatypes:
         assert "binary" in tags
         assert "image" in tags
 
+    def test_png_metadata(self):
+        assert get_filename_metatypes("assets/logo.png") == ["binary", "image"]
+
     def test_pdf_metadata(self):
         tags = get_filename_metatypes("test.pdf")
         assert "binary" in tags
