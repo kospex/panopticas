@@ -392,10 +392,11 @@ rather than after `ZIP`.
 pnpm and Bun install from the npm registry, so their lock and config files
 carry `npm` as well as the tool's own tag (`yarn`, `pnpm`, `Bun`). A path
 cannot show whether a project uses a private registry or mirror, so `npm`
-means "this ecosystem", not "fetched from registry.npmjs.org". To find
-projects that use the npm command itself, look for files tagged `npm` and
-`dependencies` with no `yarn`, `pnpm` or `Bun` tag: only npm writes
-`package-lock.json` and `npm-shrinkwrap.json`. Deno files
+means "this ecosystem", not "fetched from registry.npmjs.org". The tags do
+not show which tool a project uses: `package.json` carries the same tags
+whichever tool installs it. To find projects that use the npm command itself,
+look for `package-lock.json` or `npm-shrinkwrap.json` by name, since only npm
+writes them. Deno files
 carry `Deno` only, because Deno also resolves packages from JSR.
 
 ### Retired tags
