@@ -3,8 +3,8 @@
 For [#74](https://github.com/kospex/panopticas/issues/74).
 
 **Status:** research done 2026-11-02. All ten decisions below were taken as
-recommended. Python is implemented; Rust, Ruby, and PHP/Elixir/Dart follow
-in their own PRs. Each convention below was checked against the tool's
+recommended. Python and Rust are implemented; Ruby, and PHP/Elixir/Dart,
+follow in their own PRs. Each convention below was checked against the tool's
 current official docs, or its source code where the docs don't settle the
 point (marked **[source]**).
 
@@ -167,6 +167,14 @@ Shape: `[Language, tool, ecosystem, role]`. Tags new to the vocabulary are in
 | `.cargo/config.toml`, `.cargo/config` | `Rust, Cargo, config` |
 | `rust-toolchain.toml`, `rust-toolchain` | `Rust, **rustup**, config`; extensionless one gets its own filetype |
 | `build.rs` | `Rust, Cargo, build` (decision 7) |
+
+As implemented:
+
+- `.cargo/config.toml` and `.cargo/config` are path-contains rules, since
+  the bare `config.toml` and `config` are generic. The table already has
+  fragments that don't end in `/` (`.github/workflows`).
+- The extensionless `.cargo/config` keeps filetype `Unknown`. Its basename
+  is `config`, which can't be mapped to TOML for every file of that name.
 
 ### Ruby
 

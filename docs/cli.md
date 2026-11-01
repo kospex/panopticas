@@ -383,7 +383,7 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-143 tags
+147 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
@@ -405,11 +405,13 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | `Maven` | `pom.xml` |
 | `NuGet` | `packages.config`, `nuget.config` |
 | `Go` | `go.mod`, `go.sum` |
+| `crates.io` | `Cargo.toml`, `Cargo.lock` |
 
 Coverage is not complete yet. The Gradle build files carry their tool's tag
-but not an ecosystem tag, and crates.io, RubyGems, Packagist, Pub and Hex
-have no tags at all ([#74](https://github.com/kospex/panopticas/issues/74)). `Go` is also the
-language tag, so on `go.mod` and `go.sum` it means both.
+but not an ecosystem tag, and RubyGems, Packagist, Pub and Hex have no tags
+at all ([#74](https://github.com/kospex/panopticas/issues/74)). `Go` is also
+the language tag, so on `go.mod` and `go.sum` it means both. `crates.io` is
+lower-case because that is how OSV spells it.
 
 `npm` names the npm ecosystem and registry, not only the npm command. yarn,
 pnpm and Bun install from the npm registry, so their lock and config files
@@ -453,9 +455,9 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 143}` |
+| `tags` | `{"tags": [...], "count": 147}` |
 | `languages` | `{"languages": [...], "count": 34}` |
-| `filetypes` | `{"filetypes": [...], "count": 103}` |
+| `filetypes` | `{"filetypes": [...], "count": 104}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'
