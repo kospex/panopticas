@@ -106,6 +106,8 @@ EXT_FILETYPES = {
     ".pyi": "Python",   # type stubs: Python syntax, declarations only
     ".python-version": "python-version",
     ".pdm-python": "pdm-python",
+    # rustup's legacy toolchain file: TOML or a bare channel name.
+    "rust-toolchain": "rust-toolchain",
     ".r": "R",
     ".rb": "Ruby",
     ".rs": "Rust",
@@ -324,6 +326,7 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "Bun Lockfile",
     "python-version",
     "pdm-python",
+    "rust-toolchain",
     "MANIFEST.in",
     "py.typed",
     "jvmopts",
@@ -419,6 +422,15 @@ METADATA_RULES = {
         ".pdm-python": ["Python", "PDM", "config"],
         # PEP 561 marker: the package ships inline types.
         "py.typed": ["Python", "typing"],
+        # Rust. crates.io is the ecosystem; Cargo the tool. Every workspace
+        # member has a Cargo.toml; the workspace has one Cargo.lock.
+        "cargo.toml": ["Rust", "Cargo", "crates.io", "build", "dependencies"],
+        "cargo.lock": ["Rust", "Cargo", "crates.io", "dependencies"],
+        # Cargo's default build-script name. `package.build` can rename it,
+        # and a path cannot show it is at a package root; elsewhere is rare.
+        "build.rs": ["Rust", "Cargo", "build"],
+        "rust-toolchain.toml": ["Rust", "rustup", "config"],
+        "rust-toolchain": ["Rust", "rustup", "config"],
         "yarn.lock": ["dependencies", "JavaScript", "yarn", "npm"],
         "pnpm-lock.yaml": ["dependencies", "JavaScript", "pnpm", "npm"],
         # JavaScript package managers. `npm` is the npm ecosystem/registry,
@@ -514,6 +526,12 @@ METADATA_RULES = {
         # Yarn 2+ project directory: the vendored Yarn release, plugins,
         # editor SDKs, patches and (with Zero-Installs) the package cache.
         ".yarn/": ["JavaScript", "yarn"],
+        # Cargo reads .cargo/config.toml (and the legacy extensionless
+        # .cargo/config) in the project and every parent directory. The
+        # bare names are too generic to match; credentials.toml is
+        # user-level only, so it is not matched.
+        ".cargo/config.toml": ["Rust", "Cargo", "config"],
+        ".cargo/config": ["Rust", "Cargo", "config"],
     },
     "function_rules": [
         ("is_pip_requirements", ["pip", "Python", "PyPI", "dependencies"]),

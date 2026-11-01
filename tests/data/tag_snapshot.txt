@@ -15,6 +15,7 @@ build
 Buildkite
 Bun
 C#
+Cargo
 Carthage
 chatmode
 Checkstyle
@@ -29,6 +30,7 @@ command
 config
 Continue
 Copilot
+crates.io
 CSS
 Cursor
 Deno
@@ -107,6 +109,8 @@ Ruby
 Ruff
 Rufo
 rules
+Rust
+rustup
 sbt
 Scala
 Scalafix
