@@ -2,10 +2,11 @@
 
 For [#72](https://github.com/kospex/panopticas/issues/72).
 
-**Status:** part one implemented (build, dependency and config files, and
-the `Global.asax` fix). Part two (languages, linters and editors) is still
-to do. Researched 2026-10-30; the three open checks were done 2026-11-02.
-See *Decisions* and *Implemented: part one* at the end.
+**Status:** implemented, in two parts. Part one (PR #97) covers build,
+dependency and config files and the `Global.asax` fix; part two covers
+languages, linters and editors. Researched 2026-10-30; the open checks were
+done 2026-11-02. See *Decisions* and the two *Implemented* sections at the
+end.
 
 ## Summary
 
@@ -380,7 +381,11 @@ Taken as proposed in #72, on 2026-11-02:
 - **.NET tools are NuGet packages.** "A .NET tool is a special NuGet package
   that contains a console application." So `dotnet-tools.json` carries
   `NuGet`, which the research table above left out.
-- `.csharpierignore` is part two and is still to check.
+- **`.csharpierignore`** (checked for part two). CSharpier's *Ignoring Code*
+  page: "Add a `.csharpierignore` file to ignore additional files and
+  folders", and it "uses gitignore syntax". The *Configuration* page lists
+  "A `.csharpierrc` file in JSON or YAML", "A `.csharpierrc.json` or
+  `.csharpierrc.yaml` file" and "A `.editorconfig` file".
 
 ## Implemented: part one
 
@@ -440,6 +445,44 @@ until part two.
 Tests are in `tests/test_dotnet_build_dependencies.py`, which had 40 failing
 before the rules were added, and 6 more before the variant rules. Fixtures are in `src/tests/dotnetapp/`.
 
+## Implemented: part two
+
+| File | Tags | Filetype |
+|---|---|---|
+| `.fs`, `.fsi`, `.fsx`, `.fsscript` | — | F# (language) |
+| `.vb` | — | Visual Basic (language) |
+| `.cshtml`, `.razor` | — | Razor (language) |
+| `.xaml` | — | XAML (non-language) |
+| `.resx` | — | XML |
+| `.csharpierrc`, `.csharpierrc.json`, `.csharpierrc.yaml` | `C#, .NET, formatter, CSharpier, config` | CSharpierRC, JSON, YAML |
+| `.csharpierignore` | `C#, .NET, formatter, CSharpier, ignore` | CSharpierIgnore |
+| `fsharplint.json` | `F#, .NET, linter, FSharpLint, config` | JSON |
+| `*.DotSettings` | `JetBrains, editor, config` | XML |
+| `.vs/` | `Visual Studio, editor, config` | — |
+
+Notes on what was implemented:
+
+- **Source files get no tags,** as `.cs` gets none. The `F#` and `Visual
+  Basic` tags from part one stay on the project files.
+- **The `.fs` ambiguity** is recorded in a comment beside the rule, which
+  points to #40.
+- **The CSharpier and FSharpLint language tags** follow Roslyn and
+  StyleCop (`C#, .NET`), with `F#` for FSharpLint.
+- **`.csharpierrc` gets its own filetype,** `CSharpierRC`, because it can be
+  JSON or YAML. This follows the `ESLintRC`/`StylelintRC` rule in
+  `docs/linter-detection-rules.md`.
+- **The DotSettings rule matches the `.DotSettings` extension,** so it covers
+  `*.sln.DotSettings` and any other team-shared `.DotSettings` file. The
+  per-user `*.DotSettings.user` ends in `.user`, which is too generic to tag.
+- **Fantomas and `dotnet format`** are on the rejected list in
+  `docs/linter-detection-rules.md`, with Fantomas's Configuration page as
+  the source.
+
+The vocabulary goes from 166 to 168 tags (`CSharpier`, `FSharpLint`), from
+111 to 117 filetypes, and from 36 to 39 languages (`F#`, `Visual Basic`,
+`Razor`). Tests are in `tests/test_dotnet_languages_tools.py`, which had 22
+failing before the rules were added.
+
 ## Sources
 
 | Page | Used for | Checked |
@@ -461,7 +504,8 @@ before the rules were added, and 6 more before the variant rules. Fixtures are i
 | <https://fsprojects.github.io/Paket/dependencies-file.html>, <https://fsprojects.github.io/Paket/references-files.html> | Paket file details | 2026-10-30, via search summary |
 | <https://cakebuild.net/docs/running-builds/runners/dotnet-tool> | `build.cake` convention | 2026-10-30 |
 | <https://github.com/nuke-build/nuke/blob/develop/docs/01-getting-started/02-setup.md> | NUKE's `.nuke/` layout | 2026-10-30 |
-| <https://csharpier.com/docs/Configuration> | CSharpier config files | 2026-10-30 |
+| <https://csharpier.com/docs/Configuration> | CSharpier config files | 2026-10-30, again 2026-11-02 |
+| <https://csharpier.com/docs/Ignore> | `.csharpierignore`, gitignore syntax | 2026-11-02 |
 | <https://fsprojects.github.io/FSharpLint/how-tos/rule-configuration.html> | `fsharplint.json` | 2026-10-30 |
 | <https://fsprojects.github.io/fantomas/docs/end-users/Configuration.html> | Fantomas uses `.editorconfig` | 2026-10-30, via search summary (v7.0.1 page) |
 | <https://jetbrains.com/help/rider/Sharing_Configuration_Options.html> | `.sln.DotSettings`, `.DotSettings.user` | 2026-10-30, via search summary |
@@ -476,7 +520,7 @@ before the rules were added, and 6 more before the variant rules. Fixtures are i
 |---|---|---|
 | <https://www.neteye-blog.com/blog/2025/12/19/the-new-slnx-format-for-dotnet-solution/> | .NET 10 makes `.slnx` the default for `dotnet new sln` | Not confirmed from Microsoft; noted only |
 | <https://codewithmukesh.com/blog/slnx-solution-format-dotnet/> | `dotnet sln migrate` needs SDK 9.0.200; Rider supports `.slnx` since 2024.3 | Background only |
-| <https://megalinter.io/latest/descriptors/csharp_csharpier/> | `.csharpierignore` exists | To confirm against CSharpier's *Ignoring Code* page |
+| <https://megalinter.io/latest/descriptors/csharp_csharpier/> | `.csharpierignore` exists | Confirmed against CSharpier's *Ignoring Code* page on 2026-11-02 |
 | <https://khalidabuhakmeh.com/what-is-razor-aspnet> | Razor files use `.cshtml`, `.vbhtml` or `.razor` | `.vbhtml` (VB Razor) not in Microsoft's current page; not proposed |
 | <https://learn.microsoft.com/ru-ru/previous-versions/bb165680(v=vs.100)>, <https://msdn.microsoft.com/zh-tw/library/bb165909.aspx> | Old VS docs: `.suo` per-user, not for source control; `.csproj.user` private | Old; supports `.vs/` being per-user |
 | <https://learn.microsoft.com/visualstudio/msbuild/walkthrough-using-msbuild> | Search summary (2026-11-02): a Visual Basic project's file would be `BuildApp.vbproj` | Not fetched; the Visual Basic page above confirms `.vbproj` |

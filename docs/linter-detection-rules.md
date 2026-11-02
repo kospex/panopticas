@@ -6,7 +6,7 @@ description: Every linter, formatter and type checker config file panopticas det
 
 # Linter, Formatter and Type Checker Detection — Rules Reference
 
-**Rules verified:** 2026-10-05 (panopticas 0.0.20); Scala tools 2026-10-29; Elixir and Dart tools 2026-11-02
+**Rules verified:** 2026-10-05 (panopticas 0.0.20); Scala tools 2026-10-29; Elixir and Dart tools 2026-11-02; CSharpier and FSharpLint 2026-11-02
 **Inventory below generated from:** `LINTER_RULES` in `src/panopticas/constants.py`
 
 Panopticas detects the configuration and exclusion files of code-quality
@@ -80,6 +80,8 @@ Each of these was investigated against the tool's current documentation and
 | **WartRemover** | Configured only through sbt settings (`wartremoverErrors`, `wartremoverWarnings`, `wartremoverExcluded`), `-P:wartremover:` scalac options, or the Gradle and Maven plugins. No config file. |
 | **Scapegoat** | Configured only through sbt-scapegoat settings or `-P:scapegoat:` scalac options. No config file; its reports go to `target/`. |
 | **gofmt**, **gofumpt**, **go vet** | No configuration file at all. |
+| **Fantomas** | Configured only in `.editorconfig`, a shared file that can't be attributed to one tool. |
+| **`dotnet format`** | Reads `.editorconfig`, for the same reason. CSharpier also reads `.editorconfig`, but has dedicated files of its own, which are what's matched. |
 | **pycodestyle** | Project-level config lives in `setup.cfg` or `tox.ini`; the dedicated file is the user-level `~/.config/pycodestyle`. |
 | **Sonar**, **Bandit**, **Brakeman**, **GitLeaks** | Security scanners, out of scope. GitLeaks is already detected separately via `.gitleaksignore`. |
 
@@ -135,7 +137,8 @@ format; where several are accepted, the file gets its own name.**
 | `.editorconfig`, `.flake8`, `.globalconfig`, `.pylintrc`, `pylintrc`, `.isort.cfg`, `.style.yapf` → `INI` | `.eslintrc` → `ESLintRC` (JSON, YAML or JS) |
 | `.jshintrc` → `JSON` | `.prettierrc` → `Prettierrc` (JSON or YAML) |
 | `staticcheck.conf` → `TOML` | `.stylelintrc` → `StylelintRC` (JSON or YAML) |
-| `.rufo`, `Steepfile` → `Ruby` (both are evaluated as Ruby) | `.eslintignore`, `.prettierignore`, `.stylelintignore`, `.jshintignore`, `.yapfignore` — gitignore-style pattern files |
+| `.rufo`, `Steepfile` → `Ruby` (both are evaluated as Ruby) | `.csharpierrc` → `CSharpierRC` (JSON or YAML) |
+| | `.eslintignore`, `.prettierignore`, `.stylelintignore`, `.jshintignore`, `.yapfignore`, `.csharpierignore` — gitignore-style pattern files |
 | `*.ruleset` → `XML` | |
 | `.scalafmt.conf`, `.scalafix.conf` → `HOCON` | |
 
@@ -197,6 +200,9 @@ documentation:
 | npm-groovy-lint | [Documentation](https://nvuillam.github.io/npm-groovy-lint/) |
 | Roslyn | [Configuration files for code analysis rules](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-files) |
 | StyleCop | [Configuration](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/Configuration.md) |
+| CSharpier | [Configuration](https://csharpier.com/docs/Configuration), [Ignoring Code](https://csharpier.com/docs/Ignore) |
+| FSharpLint | [Rule configuration](https://fsprojects.github.io/FSharpLint/how-tos/rule-configuration.html) |
+| Fantomas | [Configuration](https://fsprojects.github.io/fantomas/docs/end-users/Configuration.html) |
 | Scalafmt | [Configuration](https://scalameta.org/scalafmt/docs/configuration.html), [Installation](https://scalameta.org/scalafmt/docs/installation.html) |
 | Scalafix | [Configuration](https://scalacenter.github.io/scalafix/docs/users/configuration.html) |
 | Scalastyle | [`Plugin.scala`](https://github.com/scalastyle/scalastyle-sbt-plugin/blob/master/src/main/scala/org/scalastyle/sbt/Plugin.scala) in scalastyle-sbt-plugin (the `scalastyleConfig` defaults) |
@@ -283,6 +289,8 @@ re-read the rejected list before adding anything in it.
 |---|---|---|---|---|
 | **Roslyn** | linter | `C#`, `.NET` | `.globalconfig`, `*.ruleset` | — |
 | **StyleCop** | linter | `C#`, `.NET` | `stylecop.json`, `.stylecop.json` | — |
+| **CSharpier** | formatter | `C#`, `.NET` | `.csharpierrc`, `.csharpierrc.json`, `.csharpierrc.yaml` | `.csharpierignore` |
+| **FSharpLint** | linter | `F#`, `.NET` | `fsharplint.json` | — |
 
 ### Scala
 
@@ -310,4 +318,4 @@ re-read the rejected list before adding anything in it.
 |---|---|---|---|---|
 | **SQLFluff** | linter, formatter | `SQL` | `.sqlfluff` | `.sqlfluffignore` |
 
-<!-- 36 tools, 106 exact filenames -->
+<!-- 38 tools, 111 exact filenames -->
