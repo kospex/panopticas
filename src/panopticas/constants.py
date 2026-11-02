@@ -48,6 +48,7 @@ EXT_FILETYPES = {
     ".cts": "TypeScript",   # TypeScript emitting CommonJS
     ".cake": "C#",         # Cake build scripts, a C# DSL
     ".csproj": "C# Project",
+    ".cshtml": "Razor",     # Razor views and pages
     ".css": "CSS",
     ".csv": "CSV",
     ".dart": "Dart",
@@ -57,6 +58,13 @@ EXT_FILETYPES = {
     ".exe": "Executable",
     ".exs": "Elixir",   # scripts, including mix.exs and .formatter.exs
     ".fsproj": "F# Project",
+    # F# source, signature and script files. GLSL fragment shaders sometimes
+    # use .fs too, but mostly .frag or .glsl; see #40 for the same kind of
+    # ambiguity in .m and .h.
+    ".fs": "F#",
+    ".fsi": "F#",
+    ".fsx": "F#",
+    ".fsscript": "F#",
     ".gitignore": "Gitignore",
     ".gitattributes": "GitAttributes",
     ".go": "Go",
@@ -114,6 +122,8 @@ EXT_FILETYPES = {
     # rustup's legacy toolchain file: TOML or a bare channel name.
     "rust-toolchain": "rust-toolchain",
     ".r": "R",
+    ".razor": "Razor",      # Razor components
+    ".resx": "XML",         # .NET resource files
     ".rb": "Ruby",
     ".gemspec": "Ruby",     # Ruby code that builds a Gem::Specification
     ".rake": "Ruby",
@@ -140,11 +150,14 @@ EXT_FILETYPES = {
     ".tsv": "TSV",
     ".tsx": "TSX",
     ".txt": "Text",
+    ".vb": "Visual Basic",
     ".vbproj": "Visual Basic Project",
     ".vue": "Vue",
+    ".xaml": "XAML",        # UI markup, in XML
     ".xml": "XML",
     # Editor project files
     ".code-workspace": "JSONC",     # VS Code multi-root workspace
+    ".dotsettings": "XML",          # JetBrains Rider and ReSharper settings
     ".iml": "XML",                  # JetBrains module
     ".sublime-project": "JSON",
     ".sublime-workspace": "JSON",
@@ -156,6 +169,8 @@ EXT_FILETYPES = {
     # Linter, formatter and type checker config files. Where the tool
     # documents a single content format the extension maps to that format;
     # where several are accepted the file gets its own name. See LINTER_RULES.
+    ".csharpierignore": "CSharpierIgnore",
+    ".csharpierrc": "CSharpierRC",      # JSON or YAML
     ".editorconfig": "INI",
     ".eslintignore": "ESLintIgnore",
     ".eslintrc": "ESLintRC",            # JSON, YAML or JS
@@ -279,6 +294,7 @@ LANGUAGE_FILETYPES = frozenset({
     "Dart",
     "Dockerfile",
     "Elixir",
+    "F#",
     "Go",
     "Groovy",
     "Groovy Server Pages",
@@ -296,6 +312,7 @@ LANGUAGE_FILETYPES = frozenset({
     "PowerShell",
     "Python",
     "R",
+    "Razor",    # HTML with embedded C#, as Vue is HTML with embedded JS
     "Ruby",
     "Rust",
     "Scala",
@@ -305,6 +322,7 @@ LANGUAGE_FILETYPES = frozenset({
     "Terraform",
     "TSX",
     "TypeScript",
+    "Visual Basic",
     "Vue",
 })
 
@@ -331,6 +349,7 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "Properties",
     "TOML",
     "TSV",
+    "XAML",
     "XML",
     "YAML",
     # Prose formats
@@ -350,6 +369,8 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "JSHintIgnore",
     "PrettierIgnore",
     "Prettierrc",
+    "CSharpierIgnore",
+    "CSharpierRC",
     "StylelintIgnore",
     "StylelintRC",
     "YapfIgnore",
@@ -419,6 +440,9 @@ METADATA_RULES = {
         # AI agent.
         ".code-workspace": ["VS Code", "editor", "config"],
         ".iml": ["JetBrains", "editor", "config"],
+        # Rider's team-shared settings layer (*.sln.DotSettings). The
+        # per-user *.DotSettings.user has the generic extension ".user".
+        ".dotsettings": ["JetBrains", "editor", "config"],
         ".sublime-project": ["Sublime Text", "editor", "config"],
         # Per-user state, meant to stay out of version control.
         ".sublime-workspace": ["Sublime Text", "editor", "config"],
@@ -636,6 +660,8 @@ METADATA_RULES = {
         ".vscode/": ["VS Code", "editor", "config"],
         ".idea/": ["JetBrains", "editor", "config"],
         ".zed/": ["Zed", "editor", "config"],
+        # Per-user solution state, usually gitignored.
+        ".vs/": ["Visual Studio", "editor", "config"],
         # NUKE's root directory marker; its build.* bootstrap scripts are
         # generic names.
         ".nuke/": [".NET", "NUKE", "build"],
@@ -887,6 +913,18 @@ LINTER_RULES = {
         "languages": ["C#", ".NET"],
         "roles": ["linter"],
         "config": ["stylecop.json", ".stylecop.json"],
+    },
+    # Also reads .editorconfig, which stays tool-neutral.
+    "CSharpier": {
+        "languages": ["C#", ".NET"],
+        "roles": ["formatter"],
+        "config": [".csharpierrc", ".csharpierrc.json", ".csharpierrc.yaml"],
+        "ignore": [".csharpierignore"],
+    },
+    "FSharpLint": {
+        "languages": ["F#", ".NET"],
+        "roles": ["linter"],
+        "config": ["fsharplint.json"],
     },
     # --- Scala ----------------------------------------------------------
     "Scalafmt": {
