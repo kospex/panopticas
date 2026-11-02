@@ -266,6 +266,8 @@ dataset first (see *Follow-ups*).
 
 ## Follow-ups
 
+Tracked in [#107](https://github.com/kospex/panopticas/issues/107).
+
 - **`*~` backups.** Vim's `backupext` defaults to `~` (see *Findings*), and
   the rule would be a function rule. Test it on a larger set of
   repositories before adding it.
