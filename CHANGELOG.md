@@ -13,6 +13,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ### Fixed
  - `Global.asax` reports as `ASP.NET Global` instead of `Unknown`. Its `EXT_FILETYPES` key was `.global.asax`, which could never match, since the extension is `.asax`.
+ - The 0.0.22 wheel shipped a second top-level package, `tests`, holding the `src/tests/typedpkg/` test fixture (`__init__.pyi` and `py.typed`), so installing panopticas created `site-packages/tests/typedpkg/` ([#95](https://github.com/kospex/panopticas/issues/95)). Package discovery is now limited to `panopticas`, so the wheel holds only the `panopticas` package again, as it did up to 0.0.21. The fixture stays in the repository for the tests. The two files were inert, and `pip uninstall panopticas` removes them.
 
 ## 0.0.22 - 2026-11-02
 
