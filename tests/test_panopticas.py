@@ -29,7 +29,7 @@ from panopticas import (
 from panopticas.constants import EXT_FILETYPES, METADATA_RULES
 
 # Path to test fixture files
-FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "..", "src", "tests")
+FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
 
 
 class TestGetFileext:
@@ -754,13 +754,16 @@ class TestCountLines:
 
 
 class TestFixtureFiles:
-    """Tests using the fixture files in src/tests/."""
+    """Tests using the fixture files in tests/fixtures/."""
 
     @pytest.fixture
     def fixtures_exist(self):
-        """Skip if fixtures directory doesn't exist."""
-        if not os.path.isdir(FIXTURES_DIR):
-            pytest.skip("Fixtures directory not found")
+        """Fail, rather than skip, if the fixtures directory is missing.
+
+        A skip let a wrong FIXTURES_DIR pass the suite silently.
+        """
+        assert os.path.isdir(FIXTURES_DIR), \
+            f"Fixtures directory not found: {FIXTURES_DIR}"
 
     def test_gif_detected_as_gif(self, fixtures_exist):
         assert get_language("image.gif") == "GIF"
