@@ -383,7 +383,7 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-150 tags
+160 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
@@ -407,12 +407,16 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | `Go` | `go.mod`, `go.sum` |
 | `crates.io` | `Cargo.toml`, `Cargo.lock` |
 | `RubyGems` | `Gemfile`, `Gemfile.lock`, `gems.rb`, `gems.locked`, `*.gemspec` |
+| `Packagist` | `composer.json`, `composer.lock` |
+| `Hex` | `mix.exs`, `mix.lock` |
+| `Pub` | `pubspec.yaml`, `pubspec.lock`, `pubspec_overrides.yaml` |
 
-Coverage is not complete yet. The Gradle build files carry their tool's tag
-but not an ecosystem tag, and Packagist, Pub and Hex have no tags
-at all ([#74](https://github.com/kospex/panopticas/issues/74)). `Go` is also
-the language tag, so on `go.mod` and `go.sum` it means both. `crates.io` is
-lower-case because that is how OSV spells it.
+Coverage is not complete yet: the Gradle build files carry their tool's tag
+but not an ecosystem tag. `Go` is also the language tag, so on `go.mod` and
+`go.sum` it means both. `crates.io` is lower-case because that is how OSV
+spells it. Where the tool and the ecosystem share a name, the tag appears
+once: `*.gemspec` carries `RubyGems`, and Dart files carry `Pub` rather than
+also `pub`, which would be the same tag to a case-insensitive query.
 
 `npm` names the npm ecosystem and registry, not only the npm command. yarn,
 pnpm and Bun install from the npm registry, so their lock and config files
@@ -456,13 +460,13 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 150}` |
-| `languages` | `{"languages": [...], "count": 34}` |
-| `filetypes` | `{"filetypes": [...], "count": 105}` |
+| `tags` | `{"tags": [...], "count": 160}` |
+| `languages` | `{"languages": [...], "count": 36}` |
+| `filetypes` | `{"filetypes": [...], "count": 107}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'
-34
+36
 ```
 
 These are useful for building a filter UI, or for diffing two releases to see
