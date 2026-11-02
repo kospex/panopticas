@@ -412,7 +412,7 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | `Pub` | `pubspec.yaml`, `pubspec.lock`, `pubspec_overrides.yaml` |
 
 Coverage is not complete yet: the Gradle build files carry their tool's tag
-but not an ecosystem tag. `Go` is also the language tag, so on `go.mod` and
+but not an ecosystem tag ([#91](https://github.com/kospex/panopticas/issues/91)). `Go` is also the language tag, so on `go.mod` and
 `go.sum` it means both. `crates.io` is lower-case because that is how OSV
 spells it. Where the tool and the ecosystem share a name, the tag appears
 once: `*.gemspec` carries `RubyGems`, and Dart files carry `Pub` rather than
