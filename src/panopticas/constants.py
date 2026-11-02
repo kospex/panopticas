@@ -46,6 +46,7 @@ EXT_FILETYPES = {
     ".cs": "C#",
     ".cjs": "JavaScript",   # CommonJS module, explicit
     ".cts": "TypeScript",   # TypeScript emitting CommonJS
+    ".cake": "C#",         # Cake build scripts, a C# DSL
     ".csproj": "C# Project",
     ".css": "CSS",
     ".csv": "CSV",
@@ -55,12 +56,12 @@ EXT_FILETYPES = {
     ".ex": "Elixir",    # compiled
     ".exe": "Executable",
     ".exs": "Elixir",   # scripts, including mix.exs and .formatter.exs
+    ".fsproj": "F# Project",
     ".gitignore": "Gitignore",
     ".gitattributes": "GitAttributes",
     ".go": "Go",
     ".gradle": "Groovy",    # Gradle picks the DSL by extension: Groovy here
     ".gif": "GIF",
-    ".global.asax": "ASP.NET Global",
     ".gitleaksignore": "GitLeaksIgnore",
     ".gvy": "Groovy",  # Less common for Groovy
     ".groovy": "Groovy",
@@ -97,6 +98,7 @@ EXT_FILETYPES = {
     ".mjs": "JavaScript",   # ES module, explicit
     ".mm": "Objective-C++",
     ".mts": "TypeScript",   # TypeScript emitting an ES module
+    ".nuspec": "XML",      # NuGet package manifest
     ".nvmrc": "nvmrc",
     ".pdf": "PDF",
     ".php": "PHP",
@@ -125,6 +127,8 @@ EXT_FILETYPES = {
     ".scala": "Scala",
     ".sh": "Shell",
     ".sln": "Visual Studio Solution",
+    ".slnf": "JSON",       # solution filter
+    ".slnx": "Visual Studio Solution",  # the XML solution format
     ".sql": "SQL",
     ".sqlfluff": "SQLFluff",
     ".sqlfluffignore": "SQLFluffIgnore",
@@ -136,6 +140,7 @@ EXT_FILETYPES = {
     ".tsv": "TSV",
     ".tsx": "TSX",
     ".txt": "Text",
+    ".vbproj": "Visual Basic Project",
     ".vue": "Vue",
     ".xml": "XML",
     # Editor project files
@@ -228,6 +233,22 @@ LANGUAGE_BY_BASENAME = {
     "cartfile.resolved": "Cartfile",
     # Bun's binary lockfile, replaced by the text bun.lock in Bun 1.2.
     "bun.lockb": "Bun Lockfile",
+    # ".asax" is used only by Global.asax.
+    "global.asax": "ASP.NET Global",
+    # MSBuild's directory files. Generic .props and .targets are not mapped:
+    # NuGet packages ship <package_id>.props and .targets too.
+    "directory.build.props": "XML",
+    "directory.build.targets": "XML",
+    "directory.solution.props": "XML",
+    "directory.solution.targets": "XML",
+    "directory.packages.props": "XML",
+    "directory.build.rsp": "MSBuild Response File",
+    # Microsoft documents comments in both.
+    "global.json": "JSONC",
+    "appsettings.json": "JSONC",
+    # Paket's own formats; paket.lock gets Lock from its extension.
+    "paket.dependencies": "Paket",
+    "paket.references": "Paket",
 }
 
 # Classification of every value in EXT_FILETYPES and LANGUAGE_BY_BASENAME as
@@ -361,8 +382,12 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "ASP.NET User Control",
     "Apache JMeter",
     "C# Project",
+    "F# Project",
+    "MSBuild Response File",
+    "Paket",
     "SARIF",
     "SVG",
+    "Visual Basic Project",
     "Visual Studio Solution",
 })
 
@@ -388,6 +413,8 @@ METADATA_RULES = {
         ".jmx": ["Apache", "JMeter", "XML"],
         ".dll": ["binary", ".NET"],
         ".sln": [".NET", "Visual Studio", "build"],
+        ".slnx": [".NET", "Visual Studio", "build"],
+        ".slnf": [".NET", "Visual Studio", "build"],
         # Editor and IDE project files. Not AI_RULES: an editor is not an
         # AI agent.
         ".code-workspace": ["VS Code", "editor", "config"],
@@ -395,7 +422,12 @@ METADATA_RULES = {
         ".sublime-project": ["Sublime Text", "editor", "config"],
         # Per-user state, meant to stay out of version control.
         ".sublime-workspace": ["Sublime Text", "editor", "config"],
-        ".csproj": [".NET", "C#", "build", "dependencies"],
+        # Project files declare PackageReference dependencies, from NuGet.
+        ".csproj": [".NET", "C#", "NuGet", "build", "dependencies"],
+        ".fsproj": [".NET", "F#", "NuGet", "build", "dependencies"],
+        ".vbproj": [".NET", "Visual Basic", "NuGet", "build", "dependencies"],
+        ".nuspec": [".NET", "NuGet", "build", "dependencies"],
+        ".cake": [".NET", "Cake", "build"],
         # sbt treats every *.sbt file as build definition; build.sbt is only
         # the conventional name. Any of them can declare dependencies.
         ".sbt": ["sbt", "build", "dependencies", "Scala"],
@@ -430,6 +462,27 @@ METADATA_RULES = {
         "nuget.config": [".NET", "NuGet", "config"],
         "web.config": [".NET", "ASP.NET", "config"],
         "app.config": [".NET", "config"],
+        # Found by MSBuild in the project's directory or a parent.
+        "directory.build.props": [".NET", "MSBuild", "build"],
+        "directory.build.targets": [".NET", "MSBuild", "build"],
+        "directory.build.rsp": [".NET", "MSBuild", "build"],
+        "directory.solution.props": [".NET", "MSBuild", "build"],
+        "directory.solution.targets": [".NET", "MSBuild", "build"],
+        # Central package management: the versions live here.
+        "directory.packages.props": [".NET", "MSBuild", "NuGet", "dependencies"],
+        # packages.<project_name>.lock.json is a function rule.
+        "packages.lock.json": [".NET", "NuGet", "dependencies"],
+        # Local tool manifest, in .config/. A .NET tool is a NuGet package.
+        "dotnet-tools.json": [".NET", "NuGet", "dependencies"],
+        # Pins the SDK version.
+        "global.json": [".NET", "build", "config"],
+        # Paket resolves NuGet packages.
+        "paket.dependencies": [".NET", "Paket", "NuGet", "dependencies"],
+        "paket.lock": [".NET", "Paket", "NuGet", "dependencies"],
+        "paket.references": [".NET", "Paket", "NuGet", "dependencies"],
+        # appsettings.<Environment>.json is a function rule.
+        "appsettings.json": [".NET", "config"],
+        "launchsettings.json": [".NET", "config"],
         "codeowners": ["Git"],
         # PyPI is the ecosystem, whichever tool reads the file.
         "pyproject.toml": ["build", "dependencies", "Python", "PyPI"],
@@ -580,6 +633,9 @@ METADATA_RULES = {
         ".vscode/": ["VS Code", "editor", "config"],
         ".idea/": ["JetBrains", "editor", "config"],
         ".zed/": ["Zed", "editor", "config"],
+        # NUKE's root directory marker; its build.* bootstrap scripts are
+        # generic names.
+        ".nuke/": [".NET", "NUKE", "build"],
         # Yarn 2+ project directory: the vendored Yarn release, plugins,
         # editor SDKs, patches and (with Zero-Installs) the package cache.
         ".yarn/": ["JavaScript", "yarn"],
@@ -597,6 +653,10 @@ METADATA_RULES = {
         ("is_pip_requirements", ["pip", "Python", "PyPI", "dependencies"]),
         # PEP 751. pip, uv and PDM all write it, so no tool tag.
         ("is_pylock", ["Python", "PyPI", "dependencies"]),
+        # appsettings.<Environment>.json; the base name is an exact rule.
+        ("is_appsettings_environment", [".NET", "config"]),
+        # packages.<project_name>.lock.json; the default is an exact rule.
+        ("is_nuget_project_lock", [".NET", "NuGet", "dependencies"]),
     ],
 }
 

@@ -53,7 +53,7 @@ EXT_FILETYPES["dockerfile"]  # "Dockerfile" (special case)
 `EXT_FILETYPES` mixes two kinds of value: things that are programming languages
 (`Python`, `Go`) and things that are file types but not languages (`PNG`,
 `Gitignore`, `Lock`). These two collections classify every value in the table —
-36 languages and 71 non-languages. `get_languages()` and `get_filetypes()` read
+36 languages and 75 non-languages. `get_languages()` and `get_filetypes()` read
 from them.
 
 ```python
@@ -374,7 +374,7 @@ Return every tag panopticas can assign to a file.
 from panopticas.core import get_tags
 
 get_tags()
-# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (160 tags)
+# Returns: ['.NET', 'agent', 'Agents', 'AI', 'Aider', ..., 'yarn']  (166 tags)
 ```
 
 **Returns:** Sorted list of tag strings, case-insensitively ordered
@@ -433,7 +433,7 @@ Return every file type panopticas recognises, languages or not.
 from panopticas.core import get_filetypes
 
 get_filetypes()
-# Returns: ['Apache JMeter', 'ASP.NET', ..., 'ZIP']  (107 file types)
+# Returns: ['Apache JMeter', 'ASP.NET', ..., 'ZIP']  (111 file types)
 ```
 
 **Returns:** Sorted list of file type strings

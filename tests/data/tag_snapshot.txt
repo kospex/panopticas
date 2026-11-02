@@ -16,6 +16,7 @@ Buildkite
 Bun
 Bundler
 C#
+Cake
 Cargo
 Carthage
 chatmode
@@ -48,6 +49,7 @@ EditorConfig
 Elixir
 erb_lint
 ESLint
+F#
 Factory
 Flake8
 formatter
@@ -87,15 +89,18 @@ Mill
 Mix
 mix format
 module
+MSBuild
 mypy
 Node
 npm
 npm-groovy-lint
 NuGet
+NUKE
 OpenCode
 OpenHands
 oxlint
 Packagist
+Paket
 PDM
 PHP
 pip
@@ -149,6 +154,7 @@ typechecker
 TypeScript
 typing
 uv
+Visual Basic
 Visual Studio
 VS Code
 Warp

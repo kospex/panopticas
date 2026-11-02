@@ -2,9 +2,10 @@
 
 For [#72](https://github.com/kospex/panopticas/issues/72).
 
-**Status:** researched, not implemented. Verified on 2026-10-30. The
-decisions listed in #72 are needed before implementing; nothing has been
-added to `constants.py` yet.
+**Status:** part one implemented (build, dependency and config files, and
+the `Global.asax` fix). Part two (languages, linters and editors) is still
+to do. Researched 2026-10-30; the three open checks were done 2026-11-02.
+See *Decisions* and *Implemented: part one* at the end.
 
 ## Summary
 
@@ -167,8 +168,8 @@ projects in one directory, which an exact-filename rule cannot match.
 
 Proposed: `.NET`, `NuGet`, `dependencies`. Other ecosystems' lock files
 (`package-lock.json`) carry `dependencies` with no lock-specific tag, so none
-is added here. `Cargo.lock`, `poetry.lock` and `Gemfile.lock` currently have
-no tags at all, which is a separate gap.
+is added here. `Cargo.lock`, `poetry.lock` and `Gemfile.lock` had no tags at
+all when this was written; #74 has since tagged them.
 
 Source: <https://learn.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files>
 (*Locking dependencies*)
@@ -327,8 +328,8 @@ brand tag.
 |---|---|
 | Generic `.props`, `.targets` | Not knowable from the extension alone |
 | `build.ps1`, `build.sh`, `build.cmd` (Cake/NUKE bootstrap) | Generic names |
-| `packages.<project>.lock.json` | Not exact-matchable |
-| `appsettings.<Environment>.json` | Not exact-matchable |
+| `packages.<project>.lock.json` | Not exact-matchable; matched by pattern since (see *Implemented: part one*) |
+| `appsettings.<Environment>.json` | Not exact-matchable; matched by pattern since (see *Implemented: part one*) |
 | `.fsproj.paket.references` | Not exact-matchable |
 | Fantomas, `dotnet format` | Configured in `.editorconfig` |
 
@@ -344,6 +345,101 @@ brand tag.
 All additive, so nothing goes in `DEPRECATED_TAGS`. The two bug fixes add
 tags to files that should already have had them.
 
+## Decisions
+
+Taken as proposed in #72, on 2026-11-02:
+
+1. `.fs` is F#, with the GLSL ambiguity noted (part two).
+2. Razor is a language and XAML is not (part two).
+3. `global.json` is tagged by name, as `azure-pipelines.yml` is.
+4. `appsettings.json` and `launchSettings.json` are tagged. Taken first as
+   base names only; on 2026-11-02 Peter asked for the documented variants
+   too, `appsettings.{ENVIRONMENT}.json` and
+   `packages.<project_name>.lock.json`, matched by pattern as
+   `pylock.<name>.toml` is.
+5. `.vs/` is tagged, as detector-not-policy (part two).
+6. The work is split in two: (a) the `Global.asax` fix plus build,
+   dependency and config files; (b) languages, linters and editors.
+
+## Checked before implementing (2026-11-02)
+
+- **`.vbproj`.** Microsoft's Visual Basic docs: "You can compile project
+  (.vbproj) files at a command prompt by using MSBuild."
+- **`launchSettings.json`.** The current en-US *runtime environments* page
+  (updated 2026-10-31): "The environment for local development can be set in
+  the `Properties\launchSettings.json` file of the project." It "Is only used
+  on the local development machine" and "Isn't deployed when the app is
+  published."
+- **`appsettings.json`.** That page doesn't describe it; *Configuration in
+  ASP.NET Core* (updated 2026-10-31) does. The default sources include
+  "General app settings file configuration via `appsettings.json`", and
+  "Comments in `appsettings.json` and `appsettings.{ENVIRONMENT}.json` files
+  are supported". So it reports as `JSONC`, as `global.json` does. The same
+  page says "Never store passwords or other sensitive data ... in plain text
+  configuration files", which is kospex's concern, not a tag.
+- **.NET tools are NuGet packages.** "A .NET tool is a special NuGet package
+  that contains a console application." So `dotnet-tools.json` carries
+  `NuGet`, which the research table above left out.
+- `.csharpierignore` is part two and is still to check.
+
+## Implemented: part one
+
+| File | Tags | Filetype |
+|---|---|---|
+| `.slnx`, `.slnf` | `.NET, Visual Studio, build` | Visual Studio Solution, JSON |
+| `.csproj` | `.NET, C#, NuGet, build, dependencies` (gains `NuGet`) | C# Project (unchanged) |
+| `.fsproj` | `.NET, F#, NuGet, build, dependencies` | F# Project |
+| `.vbproj` | `.NET, Visual Basic, NuGet, build, dependencies` | Visual Basic Project |
+| `Directory.Build.props/.targets/.rsp`, `Directory.Solution.props/.targets` | `.NET, MSBuild, build` | XML; `.rsp` is MSBuild Response File |
+| `Directory.Packages.props` | `.NET, MSBuild, NuGet, dependencies` | XML |
+| `packages.lock.json`, `packages.<project_name>.lock.json`, `dotnet-tools.json` | `.NET, NuGet, dependencies` | JSON |
+| `.nuspec` | `.NET, NuGet, build, dependencies` | XML |
+| `global.json` | `.NET, build, config` | JSONC |
+| `paket.dependencies`, `paket.lock`, `paket.references` | `.NET, Paket, NuGet, dependencies` | Paket; `paket.lock` is Lock |
+| `.cake` | `.NET, Cake, build` | C# |
+| `.nuke/` | `.NET, NUKE, build` | — |
+| `appsettings.json`, `appsettings.<Environment>.json`, `launchSettings.json` | `.NET, config` | JSONC, JSONC, JSON |
+| `Global.asax` | unchanged | ASP.NET Global (was Unknown) |
+
+Three things differ from the proposals above:
+
+- **`NuGet` on the project files.** `.csproj`, `.fsproj` and `.vbproj`
+  declare `PackageReference` dependencies, and NuGet is their OSV ecosystem.
+  This follows the Ecosystem tags rule from #73, as #91 gave Gradle files
+  `Maven`. The research table predates that rule.
+- **`NuGet` on Paket's files and `dotnet-tools.json`.** Paket resolves NuGet
+  packages, as yarn resolves npm ones, and a .NET tool is a NuGet package.
+- **Paket's two extensionless-format files** report as their own `Paket`
+  filetype rather than `Unknown`.
+
+**The variants.** Both are documented by name:
+
+- *Configuration in ASP.NET Core*: "`appsettings.{ENVIRONMENT}.json`, where
+  the `{ENVIRONMENT}` placeholder is the app's environment (examples:
+  `appsettings.Production.json`, `appsettings.Development.json`)". The
+  environments page says "the environment can be any string value".
+- *NuGet PackageReference in project files* (updated 2026-08-15): "If you
+  have multiple projects in the same directory, NuGet supports project
+  specific lock file `packages.<project_name>.lock.json`".
+
+They are function rules, `is_appsettings_environment()` and
+`is_nuget_project_lock()` in `core.py`. Both allow dots in the middle part,
+because .NET project names often have them (`Contoso.Api`), and the
+environment can be any string. A custom `NuGetLockFilePath` cannot be
+matched. `get_language()` reports the environment files as `JSONC` too, since
+the configuration page documents comments in "`appsettings.json` and
+`appsettings.{ENVIRONMENT}.json` files".
+
+`Global.asax` is fixed by mapping `global.asax` in `LANGUAGE_BY_BASENAME`
+and removing the dead `.global.asax` key.
+
+The vocabulary goes from 160 to 166 tags (`F#`, `Visual Basic`, `MSBuild`,
+`Paket`, `Cake`, `NUKE`) and 107 to 111 filetypes. Languages are unchanged
+until part two.
+
+Tests are in `tests/test_dotnet_build_dependencies.py`, which had 40 failing
+before the rules were added, and 6 more before the variant rules. Fixtures are in `src/tests/dotnetapp/`.
+
 ## Sources
 
 | Page | Used for | Checked |
@@ -351,8 +447,8 @@ tags to files that should already have had them.
 | <https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory> | `Directory.Build.*`, `Directory.Solution.*`, search, case | 2026-10-30 (updated 2026-10-20) |
 | <https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management> | `Directory.Packages.props` | 2026-10-30 (updated 2026-03-03) |
 | <https://learn.microsoft.com/en-us/dotnet/core/tools/global-json> | `global.json`, comments supported | 2026-10-30 (updated 2026-04-30) |
-| <https://learn.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files> | `packages.lock.json` | 2026-10-30 (updated 2026-08-15) |
-| <https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use> | `.config/dotnet-tools.json` | 2026-10-30 (updated 2026-04-28) |
+| <https://learn.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files> | `packages.lock.json`; `packages.<project_name>.lock.json` | 2026-10-30, again 2026-11-02 (updated 2026-08-15) |
+| <https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use> | `.config/dotnet-tools.json` | 2026-10-30, again 2026-11-02 (updated 2026-04-28) |
 | <https://devblogs.microsoft.com/visualstudio/new-simpler-solution-file-format/> | `.slnx`, `.slnf` | 2026-10-30 (post 2025-03-13) |
 | <https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview> | `.csproj`/`.fsproj` are XML MSBuild files; `*.vb`, `*.resx` | 2026-10-30 (updated 2026-07-01) |
 | <https://learn.microsoft.com/en-us/nuget/reference/nuspec> | `.nuspec` | 2026-10-30, via search summary |
@@ -369,7 +465,10 @@ tags to files that should already have had them.
 | <https://fsprojects.github.io/FSharpLint/how-tos/rule-configuration.html> | `fsharplint.json` | 2026-10-30 |
 | <https://fsprojects.github.io/fantomas/docs/end-users/Configuration.html> | Fantomas uses `.editorconfig` | 2026-10-30, via search summary (v7.0.1 page) |
 | <https://jetbrains.com/help/rider/Sharing_Configuration_Options.html> | `.sln.DotSettings`, `.DotSettings.user` | 2026-10-30, via search summary |
-| <https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments> | `launchSettings.json`, `appsettings*.json` | Not fetched; search summary of non-English locale copies only. Fetch before implementing. |
+| <https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments> | `Properties\launchSettings.json`, local development only | 2026-11-02 (updated 2026-10-31) |
+| <https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/> | `appsettings.json` and its variants; comments supported; no secrets in plain-text config | 2026-11-02 (updated 2026-10-31) |
+| <https://learn.microsoft.com/en-us/dotnet/visual-basic/reference/command-line-compiler/building-from-the-command-line> | `.vbproj` is the Visual Basic project file | 2026-11-02 (updated 2021-09-15) |
+| <https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools> | "A .NET tool is a special NuGet package" | 2026-11-02 (updated 2025-12-17) |
 
 ### Leads, not used as confirmation
 
@@ -380,3 +479,4 @@ tags to files that should already have had them.
 | <https://megalinter.io/latest/descriptors/csharp_csharpier/> | `.csharpierignore` exists | To confirm against CSharpier's *Ignoring Code* page |
 | <https://khalidabuhakmeh.com/what-is-razor-aspnet> | Razor files use `.cshtml`, `.vbhtml` or `.razor` | `.vbhtml` (VB Razor) not in Microsoft's current page; not proposed |
 | <https://learn.microsoft.com/ru-ru/previous-versions/bb165680(v=vs.100)>, <https://msdn.microsoft.com/zh-tw/library/bb165909.aspx> | Old VS docs: `.suo` per-user, not for source control; `.csproj.user` private | Old; supports `.vs/` being per-user |
+| <https://learn.microsoft.com/visualstudio/msbuild/walkthrough-using-msbuild> | Search summary (2026-11-02): a Visual Basic project's file would be `BuildApp.vbproj` | Not fetched; the Visual Basic page above confirms `.vbproj` |
