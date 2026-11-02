@@ -226,7 +226,10 @@ The Gradle build files (`build.gradle`, `build.gradle.kts`) carry `gradle`
 but no ecosystem tag. Gradle resolves from Maven repositories, so `Maven` is
 the likely ecosystem, but that wasn't checked against OSV's description for
 this note. Adding it is outside #74's scope, so the Ecosystem tags docs keep
-it as the one stated gap.
+it as the one stated gap. Tracked in
+[#91](https://github.com/kospex/panopticas/issues/91). OSV's `Maven` row
+defines the ecosystem by `groupId:artifactId` coordinates and Maven
+repositories, and doesn't mention Gradle.
 
 ## Decisions
 
