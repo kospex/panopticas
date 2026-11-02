@@ -170,6 +170,9 @@ cython_debug/
 # ...except the detection fixtures
 !tests/fixtures/.warp/
 
+# The dotenv detection fixture (placeholder values only)
+!tests/fixtures/secretsapp/.env
+
 # Jekyll (docs/)
 docs/_site/
 docs/.jekyll-cache/
