@@ -429,8 +429,9 @@ METADATA_RULES = {
         ".nuspec": [".NET", "NuGet", "build", "dependencies"],
         ".cake": [".NET", "Cake", "build"],
         # sbt treats every *.sbt file as build definition; build.sbt is only
-        # the conventional name. Any of them can declare dependencies.
-        ".sbt": ["sbt", "build", "dependencies", "Scala"],
+        # the conventional name. Any of them can declare dependencies, by
+        # Maven coordinates resolved from Maven Central by default.
+        ".sbt": ["sbt", "build", "dependencies", "Scala", "Maven"],
         ".ascx": [".NET", "ASP.NET"],
         ".aspx": [".NET", "ASP.NET"],
     },
@@ -603,13 +604,15 @@ METADATA_RULES = {
         ".jvmopts": ["sbt", "build"],
         # Mill builds Java and Kotlin as well as Scala, so like Gradle it
         # carries no language tag. Only build.mill and package.mill define
-        # modules; other .mill files are imported helpers.
-        "build.mill": ["Mill", "build", "dependencies"],
-        "package.mill": ["Mill", "build", "dependencies"],
-        "build.mill.yaml": ["Mill", "build", "dependencies"],
-        "package.mill.yaml": ["Mill", "build", "dependencies"],
+        # modules; other .mill files are imported helpers. Dependencies are
+        # Maven coordinates, resolved by Coursier from Maven Central by
+        # default.
+        "build.mill": ["Mill", "build", "dependencies", "Maven"],
+        "package.mill": ["Mill", "build", "dependencies", "Maven"],
+        "build.mill.yaml": ["Mill", "build", "dependencies", "Maven"],
+        "package.mill.yaml": ["Mill", "build", "dependencies", "Maven"],
         # The root build file before Mill 0.12 renamed it to build.mill.
-        "build.sc": ["Mill", "build", "dependencies"],
+        "build.sc": ["Mill", "build", "dependencies", "Maven"],
         ".mill-version": ["Mill", "build"],
         "mill-version": ["Mill", "build"],  # .config/mill-version
         ".mill-jvm-version": ["Mill", "build"],

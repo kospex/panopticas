@@ -49,7 +49,8 @@ class TestSbtBuildTags:
         "modules/core/build.sbt",
     ])
     def test_any_sbt_file_is_a_build_definition(self, path):
-        assert tags_for(path) == {"sbt", "build", "dependencies", "Scala"}
+        # sbt resolves Maven coordinates, from Maven Central by default (#98).
+        assert tags_for(path) == {"sbt", "build", "dependencies", "Scala", "Maven"}
 
     def test_build_sbt_tags_are_not_duplicated(self):
         tags = get_filename_metatypes("build.sbt")
@@ -57,6 +58,7 @@ class TestSbtBuildTags:
 
     @pytest.mark.parametrize("filename", [".sbtopts", ".jvmopts"])
     def test_launcher_options_files(self, filename):
+        # Options declare no dependencies, so no ecosystem tag.
         assert tags_for(filename) == {"sbt", "build"}
 
     def test_jvmopts_is_not_tagged_jvm(self):
@@ -85,7 +87,9 @@ class TestMillBuildTags:
         "build.sc",               # Mill before 0.12
     ])
     def test_module_definition_files(self, path):
-        assert tags_for(path) == {"Mill", "build", "dependencies"}
+        # Mill resolves through Coursier, whose defaults include Maven
+        # Central (#98).
+        assert tags_for(path) == {"Mill", "build", "dependencies", "Maven"}
 
     def test_helper_mill_file_is_not_a_build_definition(self):
         # Imported helpers define no modules, so only build.mill and
@@ -104,6 +108,7 @@ class TestMillBuildTags:
         ".mill-jvm-opts",
     ])
     def test_version_and_options_files(self, path):
+        # Pins and options declare no dependencies, so no ecosystem tag.
         assert tags_for(path) == {"Mill", "build"}
 
     @pytest.mark.parametrize("path,expected", [
