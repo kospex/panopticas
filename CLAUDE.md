@@ -211,6 +211,12 @@ checked. A page that was looked at but not directly useful goes in a
 provenance, and its content may change and need checking again. Ask before
 leaving one out.
 
+A partly researched issue still gets a note, marked researched and not
+implemented, so the next pass starts from it. Before opening a PR or
+raising an issue that rests on research, check that every URL cited in the
+conversation appears in the note, and list the unused ones for the user to
+decide on.
+
 **The facts live on disk, not only in the issue.** An AI assistant working
 in this repository reads files, and may never read an issue body. Research
 findings, decisions and their reasons go in the `changes/` note, and the
