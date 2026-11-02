@@ -92,7 +92,7 @@ pip install -e .
 pytest -v
 ```
 
-Test fixture files are in `src/tests/` (sample files for analysis, not pytest tests). Automated tests live in `tests/` in the project root.
+Test fixture files are in `tests/fixtures/` (sample files for analysis, not pytest tests). Automated tests live in `tests/`. `src/` holds only the importable `panopticas` package. Fixture directories avoid the name `lib/`: `.gitignore` ignores it anywhere, and macOS matches it case-insensitively, so `Lib/` is ignored too.
 
 ### Build and Distribution
 ```bash
@@ -139,7 +139,9 @@ panopticas assess --json
   - `cli.py` — CLI interface using Click
   - `constants.py` — File type and metadata mappings
   - `__init__.py` — Package exports
-- `src/tests/` — Test fixture files (sample files for analysis)
+- `tests/` — Automated tests (pytest)
+  - `fixtures/` — Test fixture files (sample files for analysis)
+  - `data/tag_snapshot.txt` — Every shipped tag, guarded by `test_retired_tags.py`
 - `pyproject.toml` — Build configuration and dependencies
 - `requirements.txt` — Pinned Python dependencies
 - `CHANGELOG.md` — Version history following Keep a Changelog format
@@ -194,7 +196,7 @@ Jekyll copies the file verbatim instead of rendering it — and a nav entry in
 When making changes:
 1. Run any existing automated tests: `pytest -v`
 2. Manually test CLI commands to ensure functionality
-3. Test with the fixture files in `src/tests/`
+3. Test with the fixture files in `tests/fixtures/`
 4. If adding new file types, add corresponding test fixture files
 
 ## Change Documentation

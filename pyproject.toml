@@ -31,8 +31,9 @@ test = [
 panopticas = "panopticas.cli:cli"
 
 # Package only panopticas. Without this, setuptools' automatic discovery for a
-# src/ layout packages every directory under src/, including the src/tests/
-# fixtures, and adds any py.typed or .pyi files it finds there (#95).
+# src/ layout packages every directory under src/, and adds any py.typed or
+# .pyi files it finds there. The fixtures were under src/tests/ when that
+# shipped them in 0.0.22 (#95); they are now in tests/fixtures/ (#99).
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["panopticas*"]

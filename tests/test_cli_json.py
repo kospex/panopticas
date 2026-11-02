@@ -9,7 +9,7 @@ from click.testing import CliRunner
 
 from panopticas.cli import cli
 
-FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "..", "src", "tests")
+FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
 
 
 class TestAssessJson:
@@ -45,7 +45,7 @@ class TestAssessJson:
 
     def test_binary_line_count_is_null(self, tmp_path):
         # count_lines() returns the string "N/A" for undecodable files; the
-        # JSON contract says null. src/tests/ holds only empty files, so this
+        # JSON contract says null. tests/fixtures/ holds only empty files, so this
         # builds a genuinely non-UTF-8 file rather than passing vacuously.
         (tmp_path / "payload.bin").write_bytes(b"\xff\xfe\x00\x01binary\x80")
         (tmp_path / "readable.py").write_text("x = 1\n")

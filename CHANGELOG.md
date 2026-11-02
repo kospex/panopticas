@@ -13,6 +13,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
  - Rider's team-shared settings, `*.sln.DotSettings`, are tagged `JetBrains, editor, config` and report as `XML`. Visual Studio's `.vs/` directory is tagged `Visual Studio, editor, config`; it is per-user state, usually gitignored, and is tagged when it is there.
 
 ### Changed
+ - The test fixture files moved from `src/tests/` to `tests/fixtures/` ([#99](https://github.com/kospex/panopticas/issues/99)), so `src/` holds only the `panopticas` package. The sdist no longer contains `src/tests/typedpkg/`; the wheel is unchanged. No tag changes. See `changes/2026-11-move-fixtures.md`.
  - The tag vocabulary grew from 160 to 168 tags (`F#`, `Visual Basic`, `MSBuild`, `Paket`, `Cake`, `NUKE`, `CSharpier`, `FSharpLint`), the filetype vocabulary from 107 to 117 (`F# Project`, `Visual Basic Project`, `MSBuild Response File`, `Paket`, `F#`, `Visual Basic`, `Razor`, `XAML`, `CSharpierRC`, `CSharpierIgnore`), and the language vocabulary from 36 to 39 (`F#`, `Visual Basic`, `Razor`).
 
 ### Fixed
