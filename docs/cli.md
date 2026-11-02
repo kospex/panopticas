@@ -402,7 +402,7 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 |---|---|
 | `npm` | `package.json`, `package-lock.json`, `npm-shrinkwrap.json`, `.npmrc`, `.npmignore`, and the yarn, pnpm and Bun lock and config files |
 | `PyPI` | `pyproject.toml`, `setup.py`, `setup.cfg`, pip requirements files (`requirements.txt`, `requirements-dev.txt`, `requirements.in` and similar), PEP 751 `pylock.toml` and `pylock.<name>.toml`, and the uv, Pipenv, Poetry and PDM lock files |
-| `Maven` | `pom.xml`, and Gradle's `build.gradle`, `build.gradle.kts`, `libs.versions.toml` and lockfiles |
+| `Maven` | `pom.xml`; Gradle's `build.gradle`, `build.gradle.kts`, `libs.versions.toml` and lockfiles; every `*.sbt` file; and Mill's `build.mill`, `package.mill`, their `.yaml` forms and the older `build.sc` |
 | `NuGet` | `*.csproj`, `*.fsproj`, `*.vbproj`, `*.nuspec`, `Directory.Packages.props`, `packages.lock.json` and `packages.<project>.lock.json`, `packages.config`, `nuget.config`, `dotnet-tools.json`, and Paket's `paket.dependencies`, `paket.lock` and `paket.references` |
 | `Go` | `go.mod`, `go.sum` |
 | `crates.io` | `Cargo.toml`, `Cargo.lock` |
@@ -411,8 +411,8 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | `Hex` | `mix.exs`, `mix.lock` |
 | `Pub` | `pubspec.yaml`, `pubspec.lock`, `pubspec_overrides.yaml` |
 
-Gradle files carry `Maven` because Gradle resolves Maven coordinates, from
-Maven Central by default. Paket files carry `NuGet` for the same reason, and
+Gradle, sbt and Mill files carry `Maven` because those tools resolve Maven
+coordinates, from Maven Central by default. Paket files carry `NuGet` for the same reason, and
 `dotnet-tools.json` because a .NET tool is a NuGet package. `Go` is also the language tag, so on `go.mod` and
 `go.sum` it means both. `crates.io` is lower-case because that is how OSV
 spells it. Where the tool and the ecosystem share a name, the tag appears
