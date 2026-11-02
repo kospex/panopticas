@@ -1,0 +1,6 @@
+{
+  "solution": {
+    "path": "App.slnx",
+    "projects": ["src/App/App.csproj"]
+  }
+}

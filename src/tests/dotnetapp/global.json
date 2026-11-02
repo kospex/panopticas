@@ -1,0 +1,4 @@
+{
+  // Pin the SDK used by dotnet commands.
+  "sdk": { "version": "10.0.100" }
+}

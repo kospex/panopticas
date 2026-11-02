@@ -2,6 +2,18 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+ - Modern .NET build, dependency and config files are tagged ([#72](https://github.com/kospex/panopticas/issues/72), part one). The XML solution format `.slnx` and solution filters `.slnf` are tagged like `.sln`. F# (`.fsproj`) and Visual Basic (`.vbproj`) project files are tagged `.NET, F#` or `.NET, Visual Basic`, then `NuGet, build, dependencies`, and report as `F# Project` and `Visual Basic Project` instead of `Unknown`. MSBuild's `Directory.Build.props`, `.targets` and `.rsp` and `Directory.Solution.props` and `.targets` are tagged `.NET, MSBuild, build`. Central package management's `Directory.Packages.props` is tagged `.NET, MSBuild, NuGet, dependencies`. `packages.lock.json`, the local tool manifest `dotnet-tools.json` and `*.nuspec` carry `NuGet` and `dependencies`. `global.json` is tagged `.NET, build, config`, and `appsettings.json` and `launchSettings.json` `.NET, config`. Paket's `paket.dependencies`, `paket.lock` and `paket.references` are tagged `.NET, Paket, NuGet, dependencies`. Cake scripts (`*.cake`, reported as `C#`) and NUKE's `.nuke/` directory are tagged `build`. Six new tags: `F#`, `Visual Basic`, `MSBuild`, `Paket`, `Cake` and `NUKE`. See `changes/2026-10-dotnet-detection.md`.
+ - `*.csproj` also carries `NuGet`, the OSV ecosystem for its `PackageReference` dependencies, as Gradle files carry `Maven`. This adds a tag and removes none.
+
+### Changed
+ - The tag vocabulary grew from 160 to 166 tags and the filetype vocabulary from 107 to 111 (`F# Project`, `Visual Basic Project`, `MSBuild Response File`, `Paket`).
+
+### Fixed
+ - `Global.asax` reports as `ASP.NET Global` instead of `Unknown`. Its `EXT_FILETYPES` key was `.global.asax`, which could never match, since the extension is `.asax`.
+
 ## 0.0.22 - 2026-11-02
 
 ### Added

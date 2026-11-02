@@ -383,7 +383,7 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-160 tags
+166 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
@@ -403,7 +403,7 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | `npm` | `package.json`, `package-lock.json`, `npm-shrinkwrap.json`, `.npmrc`, `.npmignore`, and the yarn, pnpm and Bun lock and config files |
 | `PyPI` | `pyproject.toml`, `setup.py`, `setup.cfg`, pip requirements files (`requirements.txt`, `requirements-dev.txt`, `requirements.in` and similar), PEP 751 `pylock.toml` and `pylock.<name>.toml`, and the uv, Pipenv, Poetry and PDM lock files |
 | `Maven` | `pom.xml`, and Gradle's `build.gradle`, `build.gradle.kts`, `libs.versions.toml` and lockfiles |
-| `NuGet` | `packages.config`, `nuget.config` |
+| `NuGet` | `*.csproj`, `*.fsproj`, `*.vbproj`, `*.nuspec`, `Directory.Packages.props`, `packages.lock.json`, `packages.config`, `nuget.config`, `dotnet-tools.json`, and Paket's `paket.dependencies`, `paket.lock` and `paket.references` |
 | `Go` | `go.mod`, `go.sum` |
 | `crates.io` | `Cargo.toml`, `Cargo.lock` |
 | `RubyGems` | `Gemfile`, `Gemfile.lock`, `gems.rb`, `gems.locked`, `*.gemspec` |
@@ -412,7 +412,8 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | `Pub` | `pubspec.yaml`, `pubspec.lock`, `pubspec_overrides.yaml` |
 
 Gradle files carry `Maven` because Gradle resolves Maven coordinates, from
-Maven Central by default. `Go` is also the language tag, so on `go.mod` and
+Maven Central by default. Paket files carry `NuGet` for the same reason, and
+`dotnet-tools.json` because a .NET tool is a NuGet package. `Go` is also the language tag, so on `go.mod` and
 `go.sum` it means both. `crates.io` is lower-case because that is how OSV
 spells it. Where the tool and the ecosystem share a name, the tag appears
 once: `*.gemspec` carries `RubyGems`, and Dart files carry `Pub` rather than
@@ -460,9 +461,9 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 160}` |
+| `tags` | `{"tags": [...], "count": 166}` |
 | `languages` | `{"languages": [...], "count": 36}` |
-| `filetypes` | `{"filetypes": [...], "count": 107}` |
+| `filetypes` | `{"filetypes": [...], "count": 111}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'
