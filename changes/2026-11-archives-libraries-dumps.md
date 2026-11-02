@@ -2,9 +2,9 @@
 
 For [#79](https://github.com/kospex/panopticas/issues/79).
 
-**Status:** researched, not implemented. Verified 2026-11-02. The decisions
-at the end are needed before implementing; some formats still need a
-source (see *Unconfirmed*).
+**Status:** researched, decisions made 2026-11-03, not implemented.
+Verified 2026-11-02; `.war` and `.ear` confirmed 2026-11-03. Some formats
+still need a source (see *Unconfirmed* and *Follow-ups*).
 
 These are files that matter by being in the repository at all: a committed
 installer, a database, a heap dump. Panopticas tags what the file is;
@@ -92,6 +92,15 @@ compressed data, and `.tgz`, `.tbz`, `.tbz2`, `.txz`, `.tlz` and
 - **RubyGems:** `gem build` prints "File: hola-0.0.0.gem".
 - **JAR:** "a file format based on the popular ZIP file format and is used
   for aggregating many files into one."
+- **Jakarta EE:** "A Jakarta EE application is packaged using the Jakarta
+  Archive (JAR) file format into a file with a .ear (Enterprise ARchive)
+  filename extension" (Platform 11, section 8.1.2). On deployment, "All
+  files in the application package with a filename extension of .war are
+  considered web modules", and "All files in the application package with
+  a filename extension of .rar are considered resource adapters" (section
+  8.5.2). Section 8.2.1 calls `.jar`, `.war` and `.rar` each "A JAR format
+  file". So in a Java estate `.rar` is a resource adapter, not a RAR
+  archive (see *Unconfirmed*).
 - **Android:** "an Android library compiles into an Android Archive (AAR)
   file that you can use as a dependency", "instead of compiling into an APK
   that runs on a device". "An Android App Bundle is a publishing format that
@@ -161,12 +170,12 @@ The issue proposed five kinds. The findings split two of them:
 |---|---|---|
 | `archive` | several files in one container | `.tar`, `.zip`, `.tgz`, `.tar.*` |
 | `compressed` | one compressed stream | `.gz`, `.bz2`, `.xz`, `.lzma`, `.zst`, and the tarball forms |
-| `package` | a built distributable for a package manager or app store | `.whl`, `.nupkg`, `.crate`, `.gem`, `.jar`, `.aar`, `.apk`, `.aab` |
+| `package` | a built distributable for a package manager, app store or application server | `.whl`, `.nupkg`, `.crate`, `.gem`, `.jar`, `.war`, `.ear`, `.aar`, `.apk`, `.aab` |
 | `library` | a shared or static native library | `.so`, `.dylib`, `.a`, `.lib`, `.dll` |
-| `object` | a compiled object file | `.o`, `.obj` |
+| `object` | a compiled object file | `.o` |
 | `database` | a database file | `.sqlite`, `.sqlite3`, `.db` |
-| `backup` | a backup or editor leftover | `.bak`, `.orig`, `*~`, `.swp`, `.swo`, `.swn` |
-| `dump` | a memory or heap dump | `.hprof`, `.dmp`, `.heapsnapshot` |
+| `backup` | a backup or editor leftover | `.bak`, `.orig`, `.swp`, `.swo`, `.swn` |
+| `dump` | a memory or heap dump | `.hprof`, `.heapsnapshot` |
 
 ### Rules
 
@@ -184,23 +193,23 @@ The issue proposed five kinds. The findings split two of them:
 | `.crate` | `package`, `binary`, `Rust`, `crates.io` | Crate |
 | `.gem` | `package`, `binary`, `Ruby`, `RubyGems` | Gem |
 | `.jar` | gains `package` | Java Archive (unchanged) |
+| `.war` | `package`, `binary`, `Java` | Web Archive |
+| `.ear` | `package`, `binary`, `Java` | Enterprise Archive |
 | `.aar` | `package`, `binary`, `Android` | Android Archive |
 | `.apk` | `package`, `binary`, `Android` | Android Package |
 | `.aab` | `package`, `binary`, `Android` | Android App Bundle |
 | `.so`, `.dylib` | `library`, `binary` | Shared Library |
 | `.a`, `.lib` | `library`, `binary` | Static Library |
 | `.dll` | gains `library` | DLL (unchanged) |
-| `.o`, `.obj` | `object`, `binary` | Object File |
+| `.o` | `object`, `binary` | Object File |
 | `.sqlite`, `.sqlite3`, `.db` | `database`, `binary` | Database |
 | `.bak`, `.orig` | `backup` | Backup |
-| `*~` | `backup` | Backup |
 | `.swp`, `.swo`, `.swn` | `backup`, `Vim` | Vim Swap File |
 | `.hprof` | `dump`, `binary`, `Java` | Heap Dump |
-| `.dmp` | `dump`, `binary` | Minidump |
 | `.heapsnapshot` | `dump`, `JavaScript` | JSON |
 
 The tarball forms need a function rule, since `splitext` gives `.gz` for
-`x.tar.gz`. `*~` is also a function rule. Backups carry no `binary`, since
+`x.tar.gz`. Backups carry no `binary`, since
 they are often text (issue question 2). New tags: `archive`, `compressed`,
 `package`, `library`, `object`, `database`, `backup`, `dump`, `Android` and
 `Vim`.
@@ -213,12 +222,11 @@ fetched:
 | Candidate | What was tried | Recommendation |
 |---|---|---|
 | `.7z` | 7-zip.org didn't resolve | Confirm before adding |
-| `.rar` | not fetched | Confirm before adding |
-| `.war`, `.ear` | Jakarta Servlet 6.0 spec is too long to fetch to section 10.6 | Confirm before adding |
+| `.rar` | RARLAB's format page not fetched. Jakarta EE also uses `.rar` for resource adapters (section 8.5.2), so the extension means two different things | Confirm, and decide how to tag the collision |
 | `.mdb`, `.accdb` | Microsoft's Access page returned 404 | Confirm before adding |
 | `.duckdb` | DuckDB's page only redirected | Confirm before adding |
 | `.wasm` | MDN describes the binary format but not the extension; the W3C spec was too large to fetch | Confirm before adding (20 files in the sample) |
-| `.dmp` | Microsoft's pages describe minidumps but don't name `.dmp` | Included above; see decision 5 |
+| `.dmp` | Microsoft's pages describe minidumps but don't name `.dmp` | Not tagged (decision 5) |
 | `.dmg`, `.iso`, `.msi`, `.deb`, `.rpm`, `.ipa`, `.egg`, `.pyc` | not researched | A later pass |
 
 ### Not proposed
@@ -232,34 +240,39 @@ fetched:
 | `.pmem` | No documented format (question 5) |
 | `libfoo.so.1` (versioned) | The extension is the number; a pattern rule could catch it later |
 
-## Decisions needed
+## Decisions
 
-1. **Kinds: eight, not five.** The issue had `archive`, `library`,
-   `database`, `backup` and `dump`. *Recommendation:* split `compressed`
-   from `archive` (a `.gz` is one stream, RFC 1952), and add `package`
-   (wheels, crates, APKs) and `object` (`.o`/`.obj` aren't libraries).
-   Tarballs carry both `archive` and `compressed`.
-2. **Ecosystem tags on packages** (issue question 6). *Recommendation:*
-   yes, following #73: `.whl` → `Python`, `PyPI`; `.nupkg` → `.NET`,
-   `NuGet`; `.crate` → `Rust`, `crates.io`; `.gem` → `Ruby`, `RubyGems`.
-   Android files get a new `Android` tag.
-3. **Existing tags gain a kind.** `.zip` gains `archive`, `.jar`
-   `package`, and `.dll` `library`. *Recommendation:* yes; it only adds
-   tags.
-4. **`.db` is generic.** SQLite documents no suffix, and `.db` also covers
-   Windows' `Thumbs.db` and other engines. *Recommendation:* tag it
-   `database`, as `.key` was tagged despite Keynote, and document it.
-5. **`.dmp`** has no official page naming it. *Recommendation:* include it;
-   it is the extension WinDbg, ProcDump and Windows Error Reporting are
-   known for. Or leave it unconfirmed like the others; your call, since it
-   breaks the "confirmed source" rule.
-6. **The unconfirmed formats.** *Recommendation:* leave them out of this
-   PR, and do a second research pass (`.7z`, `.rar`, `.war`/`.ear`,
-   `.mdb`/`.accdb`, `.duckdb`, `.wasm`, then the installers) as a
-   follow-up issue.
-7. **`.obj` collides** with Wavefront 3D models, which are text.
-   *Recommendation:* tag it `object`, `binary` anyway; all four in the
-   sample are COFF objects. Document the collision.
+Answered by the maintainer on 2026-11-03.
+
+1. **Eight kinds.** `archive`, `compressed`, `package`, `library`,
+   `object`, `database`, `backup` and `dump`. `compressed` is split from
+   `archive` because a `.gz` is one stream (RFC 1952); tarballs carry both.
+2. **Ecosystem tags on packages: yes,** following #73. `.whl` → `Python`,
+   `PyPI`; `.nupkg` → `.NET`, `NuGet`; `.crate` → `Rust`, `crates.io`;
+   `.gem` → `Ruby`, `RubyGems`; Android files get a new `Android` tag.
+3. **Existing rules gain a kind: yes.** `.zip` gains `archive`, `.jar`
+   `package`, `.dll` `library`. It only adds tags.
+4. **`.db` is tagged `database`.** A weaker signal, since SQLite documents
+   no suffix and Windows' `Thumbs.db` uses it too, but worthwhile.
+5. **`.dmp` is not tagged.** No official page names it.
+6. **`.war` and `.ear` are added,** because Java estates often have them,
+   and are confirmed by the Jakarta EE Platform 11 spec. The other
+   unconfirmed formats stay out, tracked under *Unconfirmed*.
+7. **`.obj` is left off** for another pass, because of the Wavefront
+   collision. `.o` keeps `object`.
+
+`*~` backups are also left out of this PR, to be tested on a larger
+dataset first (see *Follow-ups*).
+
+## Follow-ups
+
+- **`*~` backups.** Vim's `backupext` defaults to `~` (see *Findings*), and
+  the rule would be a function rule. Test it on a larger set of
+  repositories before adding it.
+- **`.obj`.** Object files on Windows, Wavefront 3D models (text)
+  elsewhere. All four in the sample are COFF objects.
+- **The *Unconfirmed* formats,** including `.rar`'s two meanings, then the
+  installers and the rest of the last row.
 
 ## Sources
 
@@ -276,6 +289,7 @@ fetched:
 | <https://doc.rust-lang.org/cargo/commands/cargo-package.html> | `.crate`, a compressed tarball in `target/package` | 2026-11-02 |
 | <https://guides.rubygems.org/make-your-own-gem/> | `gem build` output `hola-0.0.0.gem` | 2026-11-02 |
 | <https://docs.oracle.com/en/java/javase/21/docs/specs/jar/jar.html> | JAR is ZIP-based, aggregates files | 2026-11-02 (JDK 21) |
+| <https://jakarta.ee/specifications/platform/11/jakarta-platform-spec-11.0.html> | `.ear` (8.1.2), `.war` and `.rar` (8.5.2), "A JAR format file" (8.2.1) | 2026-11-03 |
 | <https://developer.android.com/studio/projects/android-library> | AAR versus APK and JAR | 2026-11-02 |
 | <https://developer.android.com/guide/app-bundle> | Android App Bundle | 2026-11-02 |
 | `ld(1)`, Apple command line tools | `-lx` finds `libx.dylib` or `libx.a` | 2026-11-02 |
@@ -304,7 +318,8 @@ fetched:
 | <https://guides.rubygems.org/what-is-a-gem/> | Only the gemspec | `make-your-own-gem` used instead |
 | <https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/OverviewOfDynamicLibraries.html> | Describes dynamic and static libraries; no extensions | `ld(1)` used instead |
 | <https://docs.oracle.com/en/java/javase/21/troubleshoot/troubleshooting-tools.html> | Index page only | `command-line-options1.html` used instead |
-| <https://jakarta.ee/specifications/servlet/6.0/jakarta-servlet-spec-6.0> (404), <https://jakarta.ee/specifications/servlet/6.0/jakarta-servlet-spec-6.0.html> | Section 10.6 past the fetch limit | `.war` unconfirmed |
+| <https://jakarta.ee/specifications/servlet/6.0/jakarta-servlet-spec-6.0> (404), <https://jakarta.ee/specifications/servlet/6.0/jakarta-servlet-spec-6.0.html> | Section 10.6 past the fetch limit | Superseded by the Platform 11 spec |
+| <https://docs.oracle.com/javase/8/docs/technotes/guides/jar/jar.html> | Cited by the Jakarta Platform spec, section 8.2 | Not fetched; the JDK 21 JAR spec is used instead |
 | <https://www.7-zip.org/7z.html> | — | Didn't resolve; `.7z` unconfirmed |
 | <https://duckdb.org/docs/stable/connect/overview> | Redirect only | `.duckdb` unconfirmed |
 | <https://support.microsoft.com/en-us/office/introduction-to-access-databases-ef5e5c3f-c86a-4e0f-87fb-a5ec05e3f9e6> | — | 404; `.mdb`/`.accdb` unconfirmed |
