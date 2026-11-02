@@ -19,6 +19,7 @@ C#
 Cake
 Cargo
 Carthage
+certificate
 chatmode
 Checkstyle
 checksum
@@ -42,8 +43,10 @@ Dart analyzer
 Deno
 Dependabot
 dependencies
+DER
 Docker
 docs
+dotenv
 dprint
 editor
 EditorConfig
@@ -80,6 +83,9 @@ JetBrains
 JMeter
 JSHint
 Junie
+KeePass
+key
+keystore
 Kilo Code
 license
 linter
@@ -104,6 +110,7 @@ oxlint
 Packagist
 Paket
 PDM
+PEM
 PHP
 pip
 pipeline
@@ -115,6 +122,7 @@ Prettier
 prompt
 Prospector
 Pub
+PuTTY
 Pylint
 PyPI
 Pyright
@@ -142,6 +150,7 @@ skill
 Sorbet
 SQL
 SQLFluff
+SSH
 Standard
 staticcheck
 Steep
@@ -150,6 +159,7 @@ Stylelint
 Sublime Text
 Swift
 SwiftPM
+template
 Trae
 TravisCI
 typechecker

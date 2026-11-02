@@ -155,6 +155,25 @@ EXT_FILETYPES = {
     ".vue": "Vue",
     ".xaml": "XAML",        # UI markup, in XML
     ".xml": "XML",
+    # Keys, certificates and keystores (#76). Panopticas never opens them,
+    # so .pem and .der are named by encoding: either can hold certificates,
+    # keys, CRLs or requests.
+    ".pem": "PEM",
+    ".der": "DER",
+    ".crt": "X.509 Certificate",    # RFC 7468: SHOULD be used for certificates
+    ".cer": "X.509 Certificate",    # RFC 2585: one DER certificate
+    ".p7b": "PKCS #7",
+    ".p7c": "PKCS #7",
+    ".crl": "Certificate Revocation List",
+    ".csr": "Certificate Signing Request",
+    ".key": "Key",                  # also Apple Keynote, rare in repositories
+    ".pub": "Public Key",           # also Microsoft Publisher
+    ".ppk": "PuTTY Private Key",
+    ".p12": "PKCS #12",
+    ".pfx": "PKCS #12",
+    ".jks": "Java KeyStore",
+    ".keystore": "Java KeyStore",   # Android's debug.keystore, keytool's default
+    ".kdbx": "KeePass Database",
     # Editor project files
     ".code-workspace": "JSONC",     # VS Code multi-root workspace
     ".dotsettings": "XML",          # JetBrains Rider and ReSharper settings
@@ -248,6 +267,17 @@ LANGUAGE_BY_BASENAME = {
     "cartfile.resolved": "Cartfile",
     # Bun's binary lockfile, replaced by the text bun.lock in Bun 1.2.
     "bun.lockb": "Bun Lockfile",
+    # OpenSSH's default private key names. id_dsa is no longer generated
+    # but older repositories have it.
+    "id_rsa": "SSH Private Key",
+    "id_dsa": "SSH Private Key",
+    "id_ecdsa": "SSH Private Key",
+    "id_ecdsa_sk": "SSH Private Key",
+    "id_ed25519": "SSH Private Key",
+    "id_ed25519_sk": "SSH Private Key",
+    "id_mldsa44_ed25519": "SSH Private Key",
+    # dotenvx's decryption keys; every other .env name is a function rule.
+    ".env.keys": "dotenv",
     # ".asax" is used only by Global.asax.
     "global.asax": "ASP.NET Global",
     # MSBuild's directory files. Generic .props and .targets are not mapped:
@@ -410,6 +440,21 @@ NON_LANGUAGE_FILETYPES = frozenset({
     "SVG",
     "Visual Basic Project",
     "Visual Studio Solution",
+    # Keys, certificates, keystores and env files
+    "Certificate Revocation List",
+    "Certificate Signing Request",
+    "DER",
+    "dotenv",
+    "Java KeyStore",
+    "KeePass Database",
+    "Key",
+    "PEM",
+    "PKCS #7",
+    "PKCS #12",
+    "Public Key",
+    "PuTTY Private Key",
+    "SSH Private Key",
+    "X.509 Certificate",
 })
 
 METADATA_RULES = {
@@ -433,6 +478,26 @@ METADATA_RULES = {
         ".xlsx": ["binary", "Microsoft"],
         ".jmx": ["Apache", "JMeter", "XML"],
         ".dll": ["binary", ".NET"],
+        # Keys, certificates and keystores (#76). Tagged by what the file is,
+        # never by whether it holds a real secret.
+        ".pem": ["PEM", "security"],
+        ".der": ["DER", "security", "binary"],
+        ".crt": ["certificate", "security"],
+        ".cer": ["certificate", "security"],
+        ".p7b": ["certificate", "security"],
+        ".p7c": ["certificate", "security"],
+        ".crl": ["certificate", "security"],
+        ".csr": ["certificate", "security"],
+        ".key": ["key", "security"],
+        # Public keys aren't secret.
+        ".pub": ["key"],
+        ".ppk": ["key", "security", "PuTTY"],
+        # RFC 7292: "private keys, certificates, miscellaneous secrets".
+        ".p12": ["keystore", "certificate", "key", "security", "binary"],
+        ".pfx": ["keystore", "certificate", "key", "security", "binary"],
+        ".jks": ["keystore", "security", "binary", "Java"],
+        ".keystore": ["keystore", "security", "binary", "Java"],
+        ".kdbx": ["keystore", "security", "binary", "KeePass"],
         ".sln": [".NET", "Visual Studio", "build"],
         ".slnx": [".NET", "Visual Studio", "build"],
         ".slnf": [".NET", "Visual Studio", "build"],
@@ -487,6 +552,23 @@ METADATA_RULES = {
         "nuget.config": [".NET", "NuGet", "config"],
         "web.config": [".NET", "ASP.NET", "config"],
         "app.config": [".NET", "config"],
+        # OpenSSH's default key names, private and public.
+        "id_rsa": ["key", "security", "SSH"],
+        "id_dsa": ["key", "security", "SSH"],
+        "id_ecdsa": ["key", "security", "SSH"],
+        "id_ecdsa_sk": ["key", "security", "SSH"],
+        "id_ed25519": ["key", "security", "SSH"],
+        "id_ed25519_sk": ["key", "security", "SSH"],
+        "id_mldsa44_ed25519": ["key", "security", "SSH"],
+        "id_rsa.pub": ["SSH"],
+        "id_dsa.pub": ["SSH"],
+        "id_ecdsa.pub": ["SSH"],
+        "id_ecdsa_sk.pub": ["SSH"],
+        "id_ed25519.pub": ["SSH"],
+        "id_ed25519_sk.pub": ["SSH"],
+        "id_mldsa44_ed25519.pub": ["SSH"],
+        # dotenvx stores decryption keys here, not variables.
+        ".env.keys": ["dotenv", "key", "security"],
         # Found by MSBuild in the project's directory or a parent.
         "directory.build.props": [".NET", "MSBuild", "build"],
         "directory.build.targets": [".NET", "MSBuild", "build"],
@@ -686,6 +768,9 @@ METADATA_RULES = {
         ("is_appsettings_environment", [".NET", "config"]),
         # packages.<project_name>.lock.json; the default is an exact rule.
         ("is_nuget_project_lock", [".NET", "NuGet", "dependencies"]),
+        # .env and .env.<name> (#76); templates also get `template`.
+        ("is_dotenv", ["dotenv", "config"]),
+        ("is_dotenv_template", ["template"]),
     ],
 }
 

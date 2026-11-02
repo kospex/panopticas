@@ -2,8 +2,8 @@
 
 For [#76](https://github.com/kospex/panopticas/issues/76).
 
-**Status:** researched; decisions taken 2026-11-02 (see *Decisions*), not
-yet implemented. Verified 2026-11-02.
+**Status:** implemented 2026-11-02, as decided (see *Decisions* and
+*Implemented*). Verified 2026-11-02.
 
 Path-based only. Panopticas never opens these files and makes no claim
 about whether one holds a real secret. It reports what the file is; kospex
@@ -232,6 +232,42 @@ Taken 2026-11-02; Peter's answers in brackets.
 6. **`.envrc` is a separate issue** [agreed]: it's a direnv tool rule.
 7. **`.ppk`, `.kdbx`, `.csr`, `.crl`, `.p7b`, `.der` and `.env.keys` are
    included,** though #76 didn't list them [agreed].
+
+## Implemented
+
+The rules table above was implemented as decided, with `.pem` and `.der`
+tagged `PEM` and `DER`.
+
+- **Rule kinds.** The extensions are `extension_rules`, the OpenSSH names
+  and `.env.keys` are exact-filename rules, and the dotenv pattern is two
+  function rules in `core.py`. `is_dotenv()` matches `^\.env(\..+)?$` and
+  skips `DOTENV_EXCLUDED` (`.env.local.php`, plus `.env.keys`, which has
+  its own rule). `is_dotenv_template()` adds `template` when the last
+  segment is `example`, `sample` or `template`.
+- **`id_<type>.pub` names** get `SSH` from an exact rule, plus `key` from
+  the `.pub` extension rule. Other `*.pub` files get `key` alone.
+- **Filetypes.** dotenv files report `dotenv` through
+  `get_language_edge_cases()`, as the `appsettings` variants report
+  `JSONC`.
+- **Vocabulary.** Ten new tags (`certificate`, `key`, `keystore`, `dotenv`,
+  `template`, `PEM`, `DER`, `SSH`, `PuTTY`, `KeePass`), so 168 → 178. The
+  fourteen new filetypes are all non-languages, so 117 → 131. A check
+  found no case collision with any current or retired tag under a
+  case-insensitive `LIKE`.
+- **Docs.** `docs/cli.md` has a new *Keys, certificates and env files*
+  section, which also says that kospex looking for private keys should
+  query `key` or `PEM`.
+
+**Fixtures** are in `tests/fixtures/secretsapp/`: 22 files of placeholder
+text. None contains a `BEGIN … KEY` line or any key-like content, so secret
+scanners won't flag the repository; a grep for `BEGIN` and `PRIVATE` finds
+none. The repository's `.gitignore` ignores `.env`, so it has a narrow
+exception, `!tests/fixtures/secretsapp/.env`, like the `.warp/` fixtures.
+
+**Tests** are in `tests/test_keys_certificates_env.py`. 58 failed before the
+rules were added; the 14 that passed are negative guards (`.asc`,
+`.envrc`, `benchmarks.env`, `known_hosts`, lookalikes) and `.env.local.php`
+staying `PHP`.
 
 ## Sources
 

@@ -383,7 +383,7 @@ Amazon Q       Apache     ASP.NET     Augment       Azure DevOps
 binary         Biome      Bitbucket   build         Buildkite
 ...
 
-168 tags
+178 tags
 ```
 
 Values are sorted case-insensitively, so `binary` sorts near `Bitbucket`
@@ -433,6 +433,34 @@ packages from JSR.
 `PyPI` and `Maven` were spelled `PyPi` and `maven` before 0.0.22; see
 [Retired Tags](/retired-tags).
 
+### Keys, certificates and env files
+
+Key, certificate, keystore and env files are tagged by what the file is.
+Panopticas never opens them, so a tag makes no claim about whether a file
+holds a real secret: a test vector and a production key look the same by
+path.
+
+| Tag | Files that carry it |
+|---|---|
+| `PEM`, `DER` | `*.pem`, `*.der`. Named by encoding, because either can hold certificates, keys, revocation lists or requests, and only the contents say which |
+| `certificate` | `*.crt`, `*.cer`, `*.p7b`, `*.p7c`, `*.crl`, `*.csr`, and PKCS #12 files |
+| `key` | `*.key`, OpenSSH's `id_rsa`, `id_ed25519` and the other default names, `*.pub`, PuTTY's `*.ppk`, PKCS #12 files, and dotenvx's `.env.keys` |
+| `keystore` | `*.p12`, `*.pfx`, `*.jks`, `*.keystore`, KeePass's `*.kdbx` |
+| `dotenv` | `.env` and every `.env.<name>`: `.env.production`, `.env.local`, `.env.local.example` |
+| `template` | dotenv files whose last segment is `example`, `sample` or `template` |
+
+`security` is on every key, certificate and keystore file except public keys
+(`*.pub`), which aren't secret. It isn't on plain dotenv files either, since
+not every `.env` holds secrets: Symfony commits `.env` with defaults, while
+Laravel and Next.js say not to. To find files that may hold a private key,
+query `key` or `PEM`.
+
+`.key` is also Apple Keynote's extension, and `.pub` is Microsoft
+Publisher's; both are rare in source repositories. `.asc` is not tagged,
+because OpenPGP armor is as often a signature as a key. Symfony's
+`.env.local.php` is PHP, not dotenv. direnv's `.envrc` is
+[#105](https://github.com/kospex/panopticas/issues/105).
+
 ### Retired tags
 
 `panopticas tags --retired` lists the tags earlier releases assigned and this
@@ -461,9 +489,9 @@ count.
 
 | Command | Shape |
 |---|---|
-| `tags` | `{"tags": [...], "count": 168}` |
+| `tags` | `{"tags": [...], "count": 178}` |
 | `languages` | `{"languages": [...], "count": 39}` |
-| `filetypes` | `{"filetypes": [...], "count": 117}` |
+| `filetypes` | `{"filetypes": [...], "count": 131}` |
 
 ```console
 $ panopticas languages --json | jq -r '.count'

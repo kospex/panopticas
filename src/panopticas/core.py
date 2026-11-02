@@ -501,6 +501,8 @@ def get_language_edge_cases(file_path):
         # base appsettings.json that LANGUAGE_BY_BASENAME maps.
         if is_appsettings_environment(basename.lower()):
             return "JSONC"
+        if is_dotenv(basename.lower()):
+            return "dotenv"
         return LANGUAGE_BY_BASENAME.get(basename.lower())
     else:
         return None
@@ -612,6 +614,31 @@ def is_appsettings_environment(filename: str) -> bool:
     PATTERN = re.compile(r'^appsettings\..+\.json$')
 
     return bool(PATTERN.match(filename))
+
+# Files that fit the .env pattern but aren't dotenv files, or have their
+# own rule. Symfony's .env.local.php is a compiled PHP cache.
+DOTENV_EXCLUDED = (".env.local.php", ".env.keys")
+
+DOTENV_TEMPLATE_SUFFIXES = ("example", "sample", "template")
+
+def is_dotenv(filename: str) -> bool:
+    """
+    Returns True if `filename` is a dotenv file: `.env`, or `.env.<name>`
+    for any name (`.env.production`, `.env.local`, `.env.local.example`).
+    """
+
+    PATTERN = re.compile(r'^\.env(\..+)?$')
+
+    return bool(PATTERN.match(filename)) and filename not in DOTENV_EXCLUDED
+
+def is_dotenv_template(filename: str) -> bool:
+    """
+    Returns True if `filename` is a dotenv template, whose last segment is
+    `example`, `sample` or `template` (`.env.example`, `.env.local.example`).
+    """
+
+    return is_dotenv(filename) and \
+        filename.rsplit(".", 1)[-1] in DOTENV_TEMPLATE_SUFFIXES
 
 def is_nuget_project_lock(filename: str) -> bool:
     """
