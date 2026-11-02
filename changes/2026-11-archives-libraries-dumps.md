@@ -192,7 +192,7 @@ The issue proposed five kinds. The findings split two of them:
 | `.nupkg` | `package`, `binary`, `.NET`, `NuGet` | NuGet Package |
 | `.crate` | `package`, `binary`, `Rust`, `crates.io` | Crate |
 | `.gem` | `package`, `binary`, `Ruby`, `RubyGems` | Gem |
-| `.jar` | gains `package` | Java Archive (unchanged) |
+| `.jar` | gains `package`, `Java` | Java Archive (unchanged) |
 | `.war` | `package`, `binary`, `Java` | Web Archive |
 | `.ear` | `package`, `binary`, `Java` | Enterprise Archive |
 | `.aar` | `package`, `binary`, `Android` | Android Archive |
@@ -251,7 +251,8 @@ Answered by the maintainer on 2026-11-03.
    `PyPI`; `.nupkg` → `.NET`, `NuGet`; `.crate` → `Rust`, `crates.io`;
    `.gem` → `Ruby`, `RubyGems`; Android files get a new `Android` tag.
 3. **Existing rules gain a kind: yes.** `.zip` gains `archive`, `.jar`
-   `package`, `.dll` `library`. It only adds tags.
+   `package`, `.dll` `library`. It only adds tags. `.jar` also gains
+   `Java`, to match `.war` and `.ear`.
 4. **`.db` is tagged `database`.** A weaker signal, since SQLite documents
    no suffix and Windows' `Thumbs.db` uses it too, but worthwhile.
 5. **`.dmp` is not tagged.** No official page names it.
