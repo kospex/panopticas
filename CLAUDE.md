@@ -201,7 +201,22 @@ When making changes:
 
 ## Change Documentation
 
-Each feature or significant change should have a markdown file in `/changes/`. Naming convention: `YYYYMM-short-description.md`.
+Each feature or significant change should have a markdown file in `/changes/`. Naming convention: `YYYY-MM-short-description.md`.
+
+**Research goes in the `changes/` note, and the note cites every page used.**
+When an issue needs research (implementing a convention a product defines,
+for example), list each page the findings came from with the date it was
+checked. A page that was looked at but not directly useful goes in a
+*Leads* table rather than being dropped: it may still be needed for
+provenance, and its content may change and need checking again. Ask before
+leaving one out.
+
+**The facts live on disk, not only in the issue.** An AI assistant working
+in this repository reads files, and may never read an issue body. Research
+findings, decisions and their reasons go in the `changes/` note, and the
+issue links to the note by path, even before it reaches `main`. An issue
+body can summarise the note; it shouldn't be the only place a fact is
+written down.
 
 Design specs and implementation plans live under `/changes/design/specs/` and
 `/changes/design/plans/`, named `YYYY-MM-DD-short-description[-design].md`.
