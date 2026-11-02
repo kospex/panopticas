@@ -208,6 +208,12 @@ Design specs and implementation plans live under `/changes/design/specs/` and
 site for [panopticas.io](https://panopticas.io) — anything added there is public
 web content, not repository documentation.
 
+## Issues and pull requests
+
+**Every PR that finishes an issue closes it with a closing keyword** (`Closes #N`, `Fixes #N`) in the PR body, so the issue closes on merge and the PR is recorded as what closed it. Release notes and issue lists are built from that link. An issue closed by hand has no link to the work that finished it.
+
+**When one issue is delivered across several PRs**, use `Refs #N` in every PR except the last, and `Closes #N` in the last one. `Refs` links the PR to the issue without closing it. If the issue is finished some other way, say how in a comment when you close it, naming the PRs that did the work.
+
 ## Releases
 
 **Releases are not cut from this repository.** Building, publishing to PyPI,
