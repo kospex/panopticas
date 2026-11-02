@@ -428,7 +428,7 @@ class TestGetFilenameMetatypes:
         assert get_filename_metatypes("build.gradle.kts") == \
             get_filename_metatypes("build.gradle")
         assert set(get_filename_metatypes("build.gradle.kts")) == \
-            {"gradle", "build", "dependencies"}
+            {"gradle", "build", "dependencies", "Maven"}
 
     @pytest.mark.parametrize("filename", [
         "settings.gradle", "settings.gradle.kts",

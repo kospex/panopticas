@@ -201,6 +201,9 @@ LANGUAGE_BY_BASENAME = {
     # by basename.
     "manifest.in": "MANIFEST.in",
     "py.typed": "py.typed",
+    # Gradle's dependency lockfiles.
+    "gradle.lockfile": "Lock",
+    "buildscript-gradle.lockfile": "Lock",
     # Bundler's lock for gems.rb; the same format as Gemfile.lock.
     "gems.locked": "Lock",
     "go.sum": "go.sum",
@@ -402,8 +405,21 @@ METADATA_RULES = {
     "exact_filename_rules": {
         "azure-pipelines.yml": ["pipeline", "Azure DevOps"],
         "bitbucket-pipelines.yml": ["pipeline", "Bitbucket"],
-        "build.gradle": ["gradle", "build", "dependencies"],
-        "build.gradle.kts": ["gradle", "build", "dependencies"],
+        # Gradle resolves Maven coordinates, from Maven Central by default,
+        # so files that declare or lock dependencies carry the OSV `Maven`.
+        "build.gradle": ["gradle", "build", "dependencies", "Maven"],
+        "build.gradle.kts": ["gradle", "build", "dependencies", "Maven"],
+        # The version catalog Gradle imports automatically from gradle/.
+        "libs.versions.toml": ["gradle", "dependencies", "Maven"],
+        "gradle.lockfile": ["gradle", "dependencies", "Maven"],
+        "buildscript-gradle.lockfile": ["gradle", "dependencies", "Maven"],
+        # Also read from ~/.gradle (GRADLE_USER_HOME), outside any repository.
+        "gradle.properties": ["gradle", "build", "config"],
+        # The Wrapper, committed so every build uses the same Gradle.
+        "gradlew": ["gradle", "build"],
+        "gradlew.bat": ["gradle", "build"],
+        "gradle-wrapper.properties": ["gradle", "build", "config"],
+        "gradle-wrapper.jar": ["gradle", "build"],
         # Settings files declare project structure, not dependencies.
         "settings.gradle": ["gradle", "build"],
         "settings.gradle.kts": ["gradle", "build"],
