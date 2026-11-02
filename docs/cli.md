@@ -402,7 +402,7 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 |---|---|
 | `npm` | `package.json`, `package-lock.json`, `npm-shrinkwrap.json`, `.npmrc`, `.npmignore`, and the yarn, pnpm and Bun lock and config files |
 | `PyPI` | `pyproject.toml`, `setup.py`, `setup.cfg`, pip requirements files (`requirements.txt`, `requirements-dev.txt`, `requirements.in` and similar), PEP 751 `pylock.toml` and `pylock.<name>.toml`, and the uv, Pipenv, Poetry and PDM lock files |
-| `Maven` | `pom.xml` |
+| `Maven` | `pom.xml`, and Gradle's `build.gradle`, `build.gradle.kts`, `libs.versions.toml` and lockfiles |
 | `NuGet` | `packages.config`, `nuget.config` |
 | `Go` | `go.mod`, `go.sum` |
 | `crates.io` | `Cargo.toml`, `Cargo.lock` |
@@ -411,8 +411,8 @@ tag alongside: `requirements.txt` reads `pip, Python, PyPI, dependencies`.
 | `Hex` | `mix.exs`, `mix.lock` |
 | `Pub` | `pubspec.yaml`, `pubspec.lock`, `pubspec_overrides.yaml` |
 
-Coverage is not complete yet: the Gradle build files carry their tool's tag
-but not an ecosystem tag ([#91](https://github.com/kospex/panopticas/issues/91)). `Go` is also the language tag, so on `go.mod` and
+Gradle files carry `Maven` because Gradle resolves Maven coordinates, from
+Maven Central by default. `Go` is also the language tag, so on `go.mod` and
 `go.sum` it means both. `crates.io` is lower-case because that is how OSV
 spells it. Where the tool and the ecosystem share a name, the tag appears
 once: `*.gemspec` carries `RubyGems`, and Dart files carry `Pub` rather than
