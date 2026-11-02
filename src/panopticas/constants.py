@@ -470,7 +470,7 @@ METADATA_RULES = {
         "directory.solution.targets": [".NET", "MSBuild", "build"],
         # Central package management: the versions live here.
         "directory.packages.props": [".NET", "MSBuild", "NuGet", "dependencies"],
-        # The variant packages.<project>.lock.json is not matched.
+        # packages.<project_name>.lock.json is a function rule.
         "packages.lock.json": [".NET", "NuGet", "dependencies"],
         # Local tool manifest, in .config/. A .NET tool is a NuGet package.
         "dotnet-tools.json": [".NET", "NuGet", "dependencies"],
@@ -480,7 +480,7 @@ METADATA_RULES = {
         "paket.dependencies": [".NET", "Paket", "NuGet", "dependencies"],
         "paket.lock": [".NET", "Paket", "NuGet", "dependencies"],
         "paket.references": [".NET", "Paket", "NuGet", "dependencies"],
-        # appsettings.<Environment>.json variants are not matched.
+        # appsettings.<Environment>.json is a function rule.
         "appsettings.json": [".NET", "config"],
         "launchsettings.json": [".NET", "config"],
         "codeowners": ["Git"],
@@ -653,6 +653,10 @@ METADATA_RULES = {
         ("is_pip_requirements", ["pip", "Python", "PyPI", "dependencies"]),
         # PEP 751. pip, uv and PDM all write it, so no tool tag.
         ("is_pylock", ["Python", "PyPI", "dependencies"]),
+        # appsettings.<Environment>.json; the base name is an exact rule.
+        ("is_appsettings_environment", [".NET", "config"]),
+        # packages.<project_name>.lock.json; the default is an exact rule.
+        ("is_nuget_project_lock", [".NET", "NuGet", "dependencies"]),
     ],
 }
 

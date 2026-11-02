@@ -30,6 +30,10 @@ from panopticas.core import get_tags
     # Central package management holds the versions.
     ("Directory.Packages.props", [".NET", "MSBuild", "NuGet", "dependencies"]),
     ("src/App/packages.lock.json", [".NET", "NuGet", "dependencies"]),
+    # Per-project lock files, for several projects in one directory. .NET
+    # project names often contain dots.
+    ("packages.App.lock.json", [".NET", "NuGet", "dependencies"]),
+    ("src/packages.Contoso.Api.lock.json", [".NET", "NuGet", "dependencies"]),
     # A .NET tool is a NuGet package.
     (".config/dotnet-tools.json", [".NET", "NuGet", "dependencies"]),
     ("App.nuspec", [".NET", "NuGet", "build", "dependencies"]),
@@ -43,6 +47,10 @@ from panopticas.core import get_tags
     (".nuke/parameters.json", [".NET", "NUKE", "build"]),
     # ASP.NET Core and dotnet run settings
     ("src/App/appsettings.json", [".NET", "config"]),
+    # The environment name can be any string.
+    ("src/App/appsettings.Development.json", [".NET", "config"]),
+    ("appsettings.Production.json", [".NET", "config"]),
+    ("appsettings.Staging.EU.json", [".NET", "config"]),
     ("src/App/Properties/launchSettings.json", [".NET", "config"]),
 ])
 def test_dotnet_files(path, tags):
@@ -64,6 +72,8 @@ def test_dotnet_files(path, tags):
     # Both document comments.
     ("global.json", "JSONC"),
     ("appsettings.json", "JSONC"),
+    ("src/App/appsettings.Development.json", "JSONC"),
+    ("packages.Contoso.Api.lock.json", "JSON"),
     ("packages.lock.json", "JSON"),
     ("paket.dependencies", "Paket"),
     ("paket.references", "Paket"),
@@ -84,16 +94,26 @@ def test_global_asax_filetype():
     # Generic MSBuild extensions; NuGet packages ship <id>.props too.
     "MyPackage.props",
     "MyPackage.targets",
-    # Not exact-matchable variants and lookalikes
-    "packages.App.lock.json",
-    "appsettings.Development.json",
+    # Lookalikes
     "my-global.json",
+    "packages.json",
+    "packages.App.lock.json.bak",
+    "my-packages.App.lock.json",
     "build.ps1",
     "nuke/parameters.json",
 ])
 def test_not_tagged(path):
     assert not {".NET", "MSBuild", "NuGet", "Paket", "NUKE"} & \
         set(get_filename_metatypes(path))
+
+
+@pytest.mark.parametrize("path", [
+    "appsettings.Development.json.bak",
+    "myappsettings.Development.json",
+    "appsettings.Development.yaml",
+])
+def test_appsettings_lookalikes_not_tagged(path):
+    assert get_filename_metatypes(path) == []
 
 
 def test_new_tags_in_vocabulary():

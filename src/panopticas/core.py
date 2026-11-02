@@ -497,6 +497,10 @@ def get_language_edge_cases(file_path):
     basename = os.path.basename(file_path)
 
     if basename:
+        # Microsoft documents comments in every appsettings file, as in the
+        # base appsettings.json that LANGUAGE_BY_BASENAME maps.
+        if is_appsettings_environment(basename.lower()):
+            return "JSONC"
         return LANGUAGE_BY_BASENAME.get(basename.lower())
     else:
         return None
@@ -595,5 +599,28 @@ def is_pylock(filename: str) -> bool:
     """
 
     PATTERN = re.compile(r'^pylock\.([^.]+\.)?toml$')
+
+    return bool(PATTERN.match(filename))
+
+def is_appsettings_environment(filename: str) -> bool:
+    """
+    Returns True if `filename` is an ASP.NET Core environment settings file,
+    `appsettings.<Environment>.json`. The environment can be any string.
+    The base appsettings.json is an exact-filename rule.
+    """
+
+    PATTERN = re.compile(r'^appsettings\..+\.json$')
+
+    return bool(PATTERN.match(filename))
+
+def is_nuget_project_lock(filename: str) -> bool:
+    """
+    Returns True if `filename` is NuGet's per-project lock file,
+    `packages.<project_name>.lock.json`, used when several projects share a
+    directory. Project names often contain dots. The default
+    packages.lock.json is an exact-filename rule.
+    """
+
+    PATTERN = re.compile(r'^packages\..+\.lock\.json$')
 
     return bool(PATTERN.match(filename))
