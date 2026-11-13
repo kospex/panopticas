@@ -640,6 +640,29 @@ def is_dotenv_template(filename: str) -> bool:
     return is_dotenv(filename) and \
         filename.rsplit(".", 1)[-1] in DOTENV_TEMPLATE_SUFFIXES
 
+def is_gradle_script(filename: str) -> bool:
+    """
+    Returns True if `filename` is a Gradle script: any `*.gradle` (Groovy
+    DSL) or `*.gradle.kts` (Kotlin DSL) file. Gradle picks the DSL by that
+    extension, and the name only says how the script is wired in.
+
+    `build.gradle(.kts)` is the default build file name, but a settings file
+    can rename it (ProjectDescriptor.buildFileName), so a per-project
+    `firebase-ai.gradle.kts` is a build file. The rest are settings files,
+    script plugins (`apply from:`), precompiled script plugins in `buildSrc`
+    or `build-logic`, and init scripts. Any of them can declare dependencies.
+
+    Matched case-insensitively, as extension_rules are. The bare `.gradle`
+    is Gradle's project cache directory, not a script, so a name must have
+    something before the extension. Gradle files that aren't scripts
+    (`gradle.properties`, `gradlew`, lockfiles, the version catalog) have
+    their own exact-filename rules.
+    """
+
+    PATTERN = re.compile(r'^.+\.gradle(\.kts)?$', re.IGNORECASE)
+
+    return bool(PATTERN.match(filename))
+
 def is_nuget_project_lock(filename: str) -> bool:
     """
     Returns True if `filename` is NuGet's per-project lock file,

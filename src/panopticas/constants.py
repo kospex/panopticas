@@ -542,9 +542,11 @@ METADATA_RULES = {
         "gradlew.bat": ["gradle", "build"],
         "gradle-wrapper.properties": ["gradle", "build", "config"],
         "gradle-wrapper.jar": ["gradle", "build"],
-        # Settings files declare project structure, not dependencies.
-        "settings.gradle": ["gradle", "build"],
-        "settings.gradle.kts": ["gradle", "build"],
+        # Settings files declare project structure, and also dependencies:
+        # settings plugins in plugins { }, and buildscript classpath. These
+        # are the tags is_gradle_script gives them too.
+        "settings.gradle": ["gradle", "build", "dependencies", "Maven"],
+        "settings.gradle.kts": ["gradle", "build", "dependencies", "Maven"],
         "dependabot.yml": ["Dependabot", "GitHub", "dependencies", "security"],
         "dependabot.yaml": ["Dependabot", "GitHub", "dependencies", "security"],
         "global.asax": [".NET", "ASP.NET"],
@@ -768,6 +770,11 @@ METADATA_RULES = {
         ("is_appsettings_environment", [".NET", "config"]),
         # packages.<project_name>.lock.json; the default is an exact rule.
         ("is_nuget_project_lock", [".NET", "NuGet", "dependencies"]),
+        # Every *.gradle and *.gradle.kts is a Gradle script that can declare
+        # dependencies: renamed build files, settings files, script plugins,
+        # precompiled script plugins and init scripts. Merges with the exact
+        # rules, so settings.gradle(.kts) gains dependencies and Maven.
+        ("is_gradle_script", ["gradle", "build", "dependencies", "Maven"]),
         # .env and .env.<name> (#76); templates also get `template`.
         ("is_dotenv", ["dotenv", "config"]),
         ("is_dotenv_template", ["template"]),

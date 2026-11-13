@@ -434,8 +434,10 @@ class TestGetFilenameMetatypes:
         "settings.gradle", "settings.gradle.kts",
     ])
     def test_gradle_settings_file(self, filename):
-        # Settings files declare project structure, not dependencies.
-        assert set(get_filename_metatypes(filename)) == {"gradle", "build"}
+        # Settings files declare project structure, and settings plugins and
+        # buildscript classpath too (changes/2026-11-gradle-scripts.md).
+        assert set(get_filename_metatypes(filename)) == \
+            {"gradle", "build", "dependencies", "Maven"}
 
     def test_gradle_kotlin_dsl_in_subdirectory(self):
         tags = get_filename_metatypes("app/build.gradle.kts")
