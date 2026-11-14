@@ -527,6 +527,29 @@ is_pip_requirements("reqs.txt")               # False
 
 **Returns:** `bool`. Used as a `function_rule` in `METADATA_RULES`.
 
+### is_gradle_script
+
+Test whether a filename is a Gradle script: any `*.gradle` (Groovy DSL) or
+`*.gradle.kts` (Kotlin DSL) file, matched case-insensitively.
+
+```python
+from panopticas import is_gradle_script
+
+is_gradle_script("build.gradle")                          # True
+is_gradle_script("firebase-ai.gradle.kts")                # True, a renamed build file
+is_gradle_script("java-library-conventions.gradle.kts")   # True, a precompiled script plugin
+is_gradle_script("gradle.properties")                     # False, not a script
+is_gradle_script("script.kts")                            # False, a plain Kotlin script
+```
+
+Gradle's default build file is `build.gradle(.kts)`, but a settings file can
+rename it, and settings files, script plugins, precompiled script plugins and
+init scripts all use the same extensions. Any of them can declare
+dependencies.
+
+**Returns:** `bool`. Used as a `function_rule` in `METADATA_RULES`, tagging the
+file `gradle, build, dependencies, Maven`.
+
 ### load_gitignore_patterns
 
 Load the `.gitignore` patterns for a directory.
