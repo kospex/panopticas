@@ -1,6 +1,6 @@
 # Gradle: Tag Every Gradle Script, and `is_gradle_script()`
 
-Follows [#91](https://github.com/kospex/panopticas/issues/91)
+Closes [#112](https://github.com/kospex/panopticas/issues/112). Follows [#91](https://github.com/kospex/panopticas/issues/91)
 (`changes/2026-11-gradle-ecosystem.md`), and reverses its decision 2.
 
 **Status:** implemented. Verified 2026-11-13 against Gradle's user guide and
