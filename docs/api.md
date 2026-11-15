@@ -550,6 +550,93 @@ dependencies.
 **Returns:** `bool`. Used as a `function_rule` in `METADATA_RULES`, tagging the
 file `gradle, build, dependencies, Maven`.
 
+### is_pylock
+
+Test whether a filename is a PEP 751 lock file: `pylock.toml`, or
+`pylock.<name>.toml` where the name contains no dot. Case-sensitive.
+
+```python
+from panopticas import is_pylock
+
+is_pylock("pylock.toml")         # True
+is_pylock("pylock.dev.toml")     # True
+is_pylock("pylock.a.b.toml")     # False, the name contains a dot
+```
+
+**Returns:** `bool`. Used as a `function_rule` in `METADATA_RULES`, tagging the
+file `Python, PyPI, dependencies`.
+
+### is_nuget_project_lock
+
+Test whether a filename is NuGet's per-project lock file,
+`packages.<project_name>.lock.json`, used when several projects share a
+directory. Case-sensitive.
+
+```python
+from panopticas import is_nuget_project_lock
+
+is_nuget_project_lock("packages.MyApp.Core.lock.json")   # True
+is_nuget_project_lock("packages.lock.json")              # False, see below
+```
+
+The default `packages.lock.json` is an exact-filename rule, not this
+predicate, so a consumer recognising every NuGet lock file needs both.
+
+**Returns:** `bool`. Used as a `function_rule` in `METADATA_RULES`, tagging the
+file `.NET, NuGet, dependencies`.
+
+### is_appsettings_environment
+
+Test whether a filename is an ASP.NET Core environment settings file,
+`appsettings.<Environment>.json`. The environment can be any string.
+Case-sensitive.
+
+```python
+from panopticas import is_appsettings_environment
+
+is_appsettings_environment("appsettings.Development.json")   # True
+is_appsettings_environment("appsettings.json")               # False, an exact-filename rule
+```
+
+**Returns:** `bool`. Used as a `function_rule` in `METADATA_RULES`, tagging the
+file `.NET, config`.
+
+### is_dotenv
+
+Test whether a filename is a dotenv file: `.env`, or `.env.<name>` for any
+name. Symfony's compiled `.env.local.php` and dotenvx's `.env.keys` are
+excluded; `.env.keys` has its own rule.
+
+```python
+from panopticas import is_dotenv
+
+is_dotenv(".env")                  # True
+is_dotenv(".env.production")       # True
+is_dotenv(".env.local.example")    # True
+is_dotenv(".env.keys")             # False
+is_dotenv(".envrc")                # False, direnv's script, not a dotenv file
+```
+
+**Returns:** `bool`. Used as a `function_rule` in `METADATA_RULES`, tagging the
+file `dotenv, config`. Panopticas never opens the file, so this says nothing
+about whether it holds a secret.
+
+### is_dotenv_template
+
+Test whether a filename is a dotenv template: a dotenv file whose last
+segment is `example`, `sample` or `template`.
+
+```python
+from panopticas import is_dotenv_template
+
+is_dotenv_template(".env.example")         # True
+is_dotenv_template(".env.local.sample")    # True
+is_dotenv_template(".env.production")      # False
+```
+
+**Returns:** `bool`. Used as a `function_rule` in `METADATA_RULES`, adding the
+tag `template` to the `dotenv, config` that `is_dotenv` gives.
+
 ### load_gitignore_patterns
 
 Load the `.gitignore` patterns for a directory.
