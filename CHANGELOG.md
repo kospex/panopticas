@@ -2,7 +2,7 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## 0.0.24 - 2026-11-15
 
 ### Added
  - Every Gradle script is tagged `gradle, build, dependencies, Maven`, not only `build.gradle(.kts)`. A new predicate, `is_gradle_script()`, matches any `*.gradle` or `*.gradle.kts` file, case-insensitively, and is exported from the package so kospex can use it to recognise these files ([#112](https://github.com/kospex/panopticas/issues/112)). Gradle picks the DSL by those extensions, and the name doesn't decide what a script does: a settings file can rename a project's build file (`ProjectDescriptor.setBuildFileName`), so per-project files like `firebase-ai.gradle.kts` are build files. Script plugins (`apply from:`), precompiled script plugins in `buildSrc` or `build-logic`, and init scripts use the same extensions. Before this change they had no tags, so kospex never read their dependencies. On a 403-repository estate, 148 such files gain the tags. Plain Kotlin scripts (`*.kts`) and the bare `.gradle` cache directory are unchanged. See `changes/2026-11-gradle-scripts.md`.
