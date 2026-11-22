@@ -2,6 +2,11 @@
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+ - The package metadata lists the Python versions panopticas supports, 3.12, 3.13 and 3.14, as PyPI classifiers ([#117](https://github.com/kospex/panopticas/pull/117)). CI now runs the tests on all three, the same versions kospex tests on ([#116](https://github.com/kospex/panopticas/pull/116)). Metadata only; nothing changes at runtime.
+
 ## 0.0.24 - 2026-11-15
 
 ### Added
